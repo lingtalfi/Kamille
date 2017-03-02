@@ -1,12 +1,13 @@
 <?php
 
 
-namespace Architecture\Application;
+namespace Architecture\Application\Web;
 
 
-use Architecture\Request\HttpRequestInterface;
-use Architecture\RequestListener\HttpRequestListenerInterface;
 
+
+use Architecture\Request\Web\HttpRequestInterface;
+use Architecture\RequestListener\Web\HttpRequestListenerInterface;
 
 class WebApplication implements WebApplicationInterface
 {

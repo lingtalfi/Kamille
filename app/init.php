@@ -1,11 +1,50 @@
 <?php
 
+
+/**
+ * Welcome to the init file.
+ * =============================
+ *
+ * The init file is responsible for setting the environment in which the app
+ * will be executed.
+ */
+
 use BumbleBee\Autoload\ButineurAutoloader;
 
 
+/**
+ * First, choose your environment.
+ * Most common environments are:
+ * - dev
+ * - prod
+ *
+ * Note: you can use any heuristics you like, don't be afraid to script here...
+ */
+$environment = "dev";
+
+
+//--------------------------------------------
+// PHP CONF
+//--------------------------------------------
+/**
+ * In this section, we configure php.
+ * Put any directives you like here.
+ */
+if ('dev' === $environment) {
+    ini_set("display_errors", "1");
+} else {
+    ini_set("display_errors", "0");
+}
+
+
 //------------------------------------------------------------------------------/
-// UNIVERSE AUTOLOADER (bigbang)
+// AUTOLOADER
 //------------------------------------------------------------------------------/
+/**
+ * In this section, we create the necessary autoloaders for our application.
+ * By default, I'm using the universe autoloader (bigbang).
+ *
+ */
 require_once __DIR__ . '/class-planets/BumbleBee/Autoload/BeeAutoloader.php';
 require_once __DIR__ . '/class-planets/BumbleBee/Autoload/ButineurAutoloader.php';
 ButineurAutoloader::getInst()
