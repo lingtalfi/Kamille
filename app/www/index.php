@@ -7,7 +7,7 @@ use Architecture\Request\Web\HttpRequest;
 require_once __DIR__ . "/../init.php";
 
 
-
-WebApplication::inst()
-    ->addListener(RouterRequestListener::create())
-    ->handleRequest(HttpRequest::create());
+a($_SERVER);
+//WebApplication::inst()
+//    ->addListener(RouterRequestListener::create())
+//    ->handleRequest(HttpRequest::create());
