@@ -9,32 +9,8 @@
  * will be executed.
  */
 
+use Architecture\Environment\Web\Environment;
 use BumbleBee\Autoload\ButineurAutoloader;
-
-
-/**
- * First, choose your environment.
- * Most common environments are:
- * - dev
- * - prod
- *
- * Note: you can use any heuristics you like, don't be afraid to script here...
- */
-$environment = "dev";
-
-
-//--------------------------------------------
-// PHP CONF
-//--------------------------------------------
-/**
- * In this section, we configure php.
- * Put any directives you like here.
- */
-if ('dev' === $environment) {
-    ini_set("display_errors", "1");
-} else {
-    ini_set("display_errors", "0");
-}
 
 
 //------------------------------------------------------------------------------/
@@ -54,6 +30,26 @@ ButineurAutoloader::getInst()
     ->addLocation(__DIR__ . "/class-planets");
 ButineurAutoloader::getInst()->start();
 // require_once __DIR__ . '/vendor/autoload.php';
+
+
+
+
+
+$environment = Environment::getEnvironment();
+//--------------------------------------------
+// PHP CONF
+//--------------------------------------------
+/**
+ * In this section, we configure php.
+ * Put any directives you like here.
+ */
+if ('dev' === $environment) {
+    ini_set("display_errors", "1");
+} else {
+    ini_set("display_errors", "0");
+}
+
+
 
 
 //--------------------------------------------

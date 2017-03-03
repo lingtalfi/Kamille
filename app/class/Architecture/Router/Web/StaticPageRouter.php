@@ -17,6 +17,10 @@ class StaticPageRouter implements RouterInterface
         $this->uri2Page = [];
     }
 
+    public static function create()
+    {
+        return new static();
+    }
     //--------------------------------------------
     //
     //--------------------------------------------
@@ -27,6 +31,12 @@ class StaticPageRouter implements RouterInterface
         Hooks::StaticPageRouter_feedRequestUri($uri2Page);
         if (array_key_exists($uri, $uri2Page)) {
             $page = $uri2Page[$uri];
+            return [
+                'Architecture\Controller\Web\StaticPageController:handlePage',
+                [
+                    'page' => $page,
+                ],
+            ];
         }
     }
 

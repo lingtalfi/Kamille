@@ -3,6 +3,7 @@
 
 namespace Services;
 
+
 /**
  * This class is used to hook modules dynamically.
  * This class is written by modules, so, be careful I guess.
@@ -14,6 +15,6 @@ class Hooks
 
     public static function StaticPageRouter_feedRequestUri(array &$uri2Page)
     {
-
+        \Toast\ToastHooks::StaticPageRouter_feedRequestUri($uri2Page);
     }
 }

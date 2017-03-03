@@ -4,8 +4,7 @@
 namespace Architecture\Application\Web;
 
 
-
-
+use Architecture\Environment\Web\Environment;
 use Architecture\Request\Web\HttpRequestInterface;
 use Architecture\RequestListener\Web\HttpRequestListenerInterface;
 
@@ -17,13 +16,68 @@ class WebApplication implements WebApplicationInterface
      * @var HttpRequestListenerInterface[]
      */
     private $listeners;
-    private $params;
 
+    /**
+     *
+     * PARAMS
+     * ==========
+     *
+     * In this implementation, by default I load all the application parameters at once from a paramsFile.
+     *
+     * Now what is an application parameter?
+     *
+     * Usually, parameters are services parameters and they are set directly inside the services container (X).
+     * However, some parameters might be shared by services.
+     * When a service parameter is shared by at least two services, it is casted to an application parameter,
+     * and ends here, in the params property of this class.
+     *
+     * So, the paramsFile is a php file, which defines a $params variable,
+     * and which contains all the application parameters, which are parameters common to services.
+     * The problem is: as a module developer (which provide the services),
+     * how do you know in advance which parameters are going to be available
+     * as an application parameters?
+     *
+     * Since we cannot know, this is based on common sense.
+     * The parameters are the following list (decided by THIS class, so, change the class and you
+     * get a totally different result...):
+     *
+     *
+     * - app_dir: the path of the directory containing the application files.
+     * - debug: bool, whether or not the application is in debug mode or not.
+     *          The default should be assumed false.
+     *          Debug mode is different than developing in dev mode.
+     *          Dev mode basically just means local environment (database local pass for instance).
+     *          But debug mode goes one step further: it can enable extra debug messages, useful
+     *          for occasional debugging, or fake mail sending, or...
+     *
+     *
+     *
+     * I will try to maintain this list, as I will develop/discover other services/modules.
+     *
+     *
+     * WHERE is the paramsFile
+     * -----------------------------
+     * The paramsFile is set internally by this class, so that it doesn't polluate the public api.
+     * If you need to change the default, override the getParams method.
+     *
+     * By default, the params file is located at the application level,
+     * in the config/application-parameters-$env.php file,
+     * where $env is the value of the environment (usually dev or prod).
+     * This path is computed when the handleRequest method is called.
+     *
+     *
+     * This class uses php parameters file, as every developer using this framework knows php, which makes it easier
+     * to understand/manipulate.
+     *
+     *
+     */
+    private $params;
 
     private function __construct()
     {
         $this->listeners = [];
         $this->params = [];
+
     }
 
 
@@ -67,8 +121,22 @@ class WebApplication implements WebApplicationInterface
     //--------------------------------------------
     public function handleRequest(HttpRequestInterface $request)
     {
+        $this->params = array_merge($this->params, $this->getParams());
         foreach ($this->listeners as $listener) {
             $listener->listen($request); // use request.params to "stop" the treatment of the request if necessary
         }
+    }
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    protected function getParams()
+    {
+        $paramsFile = __DIR__ . "/../../../../config/application-parameters-" . Environment::getEnvironment() . ".php";
+        $params = [];
+        if (file_exists($paramsFile)) {
+            require $paramsFile;
+        }
+        return $params;
     }
 }
