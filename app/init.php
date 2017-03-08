@@ -36,6 +36,7 @@ ButineurAutoloader::getInst()->start();
 
 
 $environment = Environment::getEnvironment();
+
 //--------------------------------------------
 // PHP CONF
 //--------------------------------------------

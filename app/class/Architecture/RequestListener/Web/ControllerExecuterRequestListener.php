@@ -49,48 +49,70 @@ class ControllerExecuterRequestListener implements HttpRequestListenerInterface
     //--------------------------------------------
     private function executeController($controller, array $controllerParams = [])
     {
-        if (is_string($controller)) {
-            list($class, $method) = $this->getControllerClassAndMethod($controller);
+        if (is_callable($controller)) {
 
-            $r = new \ReflectionMethod($class, $method);
-            $rp = $r->getParameters();
-            $params = [];
-            foreach ($rp as $parameter) {
-                $name = $parameter->getName();
-                if (array_key_exists($name, $controllerParams)) {
-                    $params[] = $controllerParams[$name];
-                } else {
-                    if (false === $parameter->isOptional()) {
-                        throw new RequestListenerException("non option parameter $name was required by the controller $controller");
+            $response = null;
+
+
+            /**
+             * Here, we try to get the parameters from the controller callback,
+             * so we know that a controller is a callable, but there are many forms of
+             * callable (http://php.net/manual/en/language.types.callable.php):
+             *
+             *
+             * - string                                     (simple function name)
+             * - string                                     ('MyClass::myCallbackMethod') as of PHP 5.2.3
+             * - array [$o, "methodName"]                   (object method call)
+             * - array ["MyClass", "methodName"]            (static method call)
+             *
+             * - ...other methods are available, but I'm not implementing them here
+             *
+             */
+            if (is_array($controller) && array_key_exists(0, $controller) && array_key_exists(1, $controller)) {
+
+
+                $response = call_user_func_array($controller, $controllerParams);
+
+
+
+                $r = new \ReflectionMethod($class, $method);
+                $rp = $r->getParameters();
+                $params = [];
+                foreach ($rp as $parameter) {
+                    $name = $parameter->getName();
+                    if (array_key_exists($name, $controllerParams)) {
+                        $params[] = $controllerParams[$name];
+                    } else {
+                        if (false === $parameter->isOptional()) {
+                            throw new RequestListenerException("non option parameter $name was required by the controller $controller");
+                        }
                     }
                 }
+
+
+
+            }
+            elseif(is_string($controller)){
+
+            }
+            else {
+                throw new RequestListenerException("Unknown form of callable, sorry");
             }
 
 
-            $response = call_user_func_array([$class, $method], $params);
-//            a($r->invokeArgs($class, $params));
+            return $response;
 
 
         } else {
             /**
-             * A technical possibility is that the controller could directly be a callable (instead of a string).
-             * But this is not implemented yet (the idea has to be validated first).
-             *
-             * Note: the idea is not accepted yet because it's easier to debug when a string is transported
-             * via the Request (rather than a callable). Imagine you want to ask the Request:
-             * what controller will be executed?
+             * Here, we throw an exception.
+             * We assume that kamille users use the system with 3 request listeners: router, controller, response.
              */
+            $type = gettype($controller);
+            throw new RequestListenerException("Controller should be a callable, $type given");
         }
 
 
     }
 
-    private function getControllerClassAndMethod($controllerString)
-    {
-        $p = explode(":", $controllerString, 2);
-        if (2 === count($p)) {
-            return [$p[0], $p[1]];
-        }
-        throw new RequestListenerException("Malformed controllerString: $controllerString");
-    }
 }

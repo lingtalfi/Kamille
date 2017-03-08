@@ -28,7 +28,7 @@ class Environment
      *
      * To set the APPLICATION_ENVIRONMENT variable:
      *
-     * - in apache, in your virtual host, add the following line (at the virtual host block level)
+     * - in apache, in your virtual host, add the following line (at a Directory level)
      *
      *          SetEnv APPLICATION_ENVIRONMENT dev
      *

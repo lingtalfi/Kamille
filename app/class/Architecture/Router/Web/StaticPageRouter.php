@@ -4,6 +4,7 @@
 namespace Architecture\Router\Web;
 
 
+use Architecture\Controller\Web\StaticPageController;
 use Architecture\Request\Web\HttpRequestInterface;
 use Architecture\Router\RouterInterface;
 use Services\Hooks;
@@ -31,8 +32,9 @@ class StaticPageRouter implements RouterInterface
         Hooks::StaticPageRouter_feedRequestUri($uri2Page);
         if (array_key_exists($uri, $uri2Page)) {
             $page = $uri2Page[$uri];
+            $o = new StaticPageController();
             return [
-                'Architecture\Controller\Web\StaticPageController:handlePage',
+                [$o, 'handlePage'],
                 [
                     'page' => $page,
                 ],

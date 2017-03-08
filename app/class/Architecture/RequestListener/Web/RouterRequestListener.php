@@ -14,6 +14,8 @@ use Architecture\Router\RouterInterface;
  * It sets the controller parameter in the request (if a route matches),
  * or do nothing special otherwise.
  *
+ * The controller is a callable.
+ *
  */
 class RouterRequestListener implements HttpRequestListenerInterface
 {

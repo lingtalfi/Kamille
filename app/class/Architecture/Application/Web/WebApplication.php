@@ -83,6 +83,7 @@ class WebApplication implements WebApplicationInterface
 
     /**
      * Note: singleton so that we can access parameters from anywhere
+     * @return static
      */
     public static function inst()
     {
@@ -93,6 +94,9 @@ class WebApplication implements WebApplicationInterface
     }
 
 
+    /**
+     * @return $this
+     */
     public function addListener(HttpRequestListenerInterface $listener)
     {
         $this->listeners[] = $listener;

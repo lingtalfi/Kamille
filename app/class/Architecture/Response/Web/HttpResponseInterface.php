@@ -9,5 +9,5 @@ use Architecture\Response\ResponseInterface;
 
 interface HttpResponseInterface extends ResponseInterface
 {
-
+    public function send();
 }
