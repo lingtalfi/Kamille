@@ -49,6 +49,7 @@ class WebApplication implements WebApplicationInterface
      *          Dev mode basically just means local environment (database local pass for instance).
      *          But debug mode goes one step further: it can enable extra debug messages, useful
      *          for occasional debugging, or fake mail sending, or...
+     * - request: HttpRequestInterface, the request to handle
      *
      *
      *
@@ -126,6 +127,7 @@ class WebApplication implements WebApplicationInterface
     public function handleRequest(HttpRequestInterface $request)
     {
         $this->params = array_merge($this->params, $this->getParams());
+        $this->set('request', $request); // let the request be available from (almost) everywhere!
         foreach ($this->listeners as $listener) {
             $listener->listen($request); // use request.params to "stop" the treatment of the request if necessary
         }

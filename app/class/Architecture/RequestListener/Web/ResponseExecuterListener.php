@@ -29,5 +29,4 @@ class ResponseExecuterListener implements HttpRequestListenerInterface
             }
         }
     }
-
 }

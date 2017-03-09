@@ -16,6 +16,24 @@ use Architecture\Router\RouterInterface;
  *
  * The controller is a callable.
  *
+ * Also, it can attach an urlParam to the request.
+ *
+ * urlParams are parameters that are found in the url, but are different from $_GET.
+ * They often serve the purpose of allowing "pretty" url.
+ *
+ * For instance:
+ * - http://mysite.com/post-about-how-i-killed-my-cat
+ *
+ * instead of:
+ * - http://mysite.com?page=6
+ *
+ *
+ * Note that there could be many router request listeners,
+ * so we MERGE the urlParams instead of REPLACING them.
+ *
+ *
+ *
+ *
  */
 class RouterRequestListener implements HttpRequestListenerInterface
 {
@@ -38,12 +56,12 @@ class RouterRequestListener implements HttpRequestListenerInterface
     public function listen(HttpRequestInterface $request)
     {
         $controller = null;
-        $controllerParams = [];
+        $urlParams = [];
         foreach ($this->routers as $router) {
             if (null !== ($res = $router->match($request))) {
                 if (is_array($res)) {
                     $controller = $res[0];
-                    $controllerParams = $res[1];
+                    $urlParams = $res[1];
                     break;
 
                 } elseif (is_string($res)) {
@@ -54,7 +72,8 @@ class RouterRequestListener implements HttpRequestListenerInterface
         }
         if (null !== $controller) {
             $request->set("controller", $controller);
-            $request->set("controllerParams", $controllerParams);
+            $urlParams = array_merge($request->get('urlParams', []), $urlParams);
+            $request->set("urlParams", $urlParams);
         }
     }
 

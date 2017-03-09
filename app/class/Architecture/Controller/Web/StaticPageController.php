@@ -4,18 +4,23 @@
 namespace Architecture\Controller\Web;
 
 
+
 use Architecture\Controller\ControllerInterface;
 use Architecture\Controller\Exception\ControllerException;
 use Architecture\Response\Web\HttpResponse;
 use Architecture\Response\Web\HttpResponseInterface;
+use Ling\Z;
 
 class StaticPageController implements ControllerInterface
 {
 
     private $pagesDir;
 
-    public function handlePage($page)
+    public function handlePage()
     {
+
+        $page = Z::getUrlParam('page', null, true);
+
         $file = $this->pagesDir . "/" . $page;
         if (file_exists($file)) {
             $response = $this->getFileContent($file);

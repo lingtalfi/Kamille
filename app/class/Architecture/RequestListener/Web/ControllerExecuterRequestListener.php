@@ -12,13 +12,12 @@ use Architecture\Router\RouterInterface;
 
 /**
  * This requestListener sees if a response is already set in the Request.
- * If not, looks for a controller parameter in the Request.
+ * If not, it looks for a controller parameter in the Request.
  * If a controller parameter is found in the Request parameters, then this class
  * executes the corresponding Controller.
  *
- * Arguments of the controller method are/can be passed via the controllerParams parameter of the Request.
  *
- * This executor attaches a Response to the Request, if a Response was returned by the Controller.
+ * This executor attaches the returned Response to the Request, that is if a Response was actually returned by the Controller.
  *
  * If the Controller doesn't return a proper Response, an exception is thrown.
  *
@@ -34,9 +33,16 @@ class ControllerExecuterRequestListener implements HttpRequestListenerInterface
 
     public function listen(HttpRequestInterface $request)
     {
+        // response previously set? then bypass
+        if (null !== ($response = $request->get('response'))) {
+            if ($response instanceof HttpResponseInterface) {
+                return $response;
+            }
+        }
+
+
         $controller = $request->get("controller", null);
-        $controllerParams = $request->get("controllerParams", []);
-        $response = $this->executeController($controller, $controllerParams);
+        $response = $this->executeController($controller);
         if ($response instanceof HttpResponseInterface) {
             $request->set("response", $response);
         } else {
@@ -47,66 +53,19 @@ class ControllerExecuterRequestListener implements HttpRequestListenerInterface
     //--------------------------------------------
     //
     //--------------------------------------------
-    private function executeController($controller, array $controllerParams = [])
+    private function executeController($controller)
     {
         if (is_callable($controller)) {
-
-            $response = null;
-
-
             /**
-             * Here, we try to get the parameters from the controller callback,
-             * so we know that a controller is a callable, but there are many forms of
-             * callable (http://php.net/manual/en/language.types.callable.php):
-             *
-             *
-             * - string                                     (simple function name)
-             * - string                                     ('MyClass::myCallbackMethod') as of PHP 5.2.3
-             * - array [$o, "methodName"]                   (object method call)
-             * - array ["MyClass", "methodName"]            (static method call)
-             *
-             * - ...other methods are available, but I'm not implementing them here
-             *
+             * For now, we only accept callable controllers (no strings aliases,
+             * but that might change, although not planned as of today)
              */
-            if (is_array($controller) && array_key_exists(0, $controller) && array_key_exists(1, $controller)) {
-
-
-                $response = call_user_func_array($controller, $controllerParams);
-
-
-
-                $r = new \ReflectionMethod($class, $method);
-                $rp = $r->getParameters();
-                $params = [];
-                foreach ($rp as $parameter) {
-                    $name = $parameter->getName();
-                    if (array_key_exists($name, $controllerParams)) {
-                        $params[] = $controllerParams[$name];
-                    } else {
-                        if (false === $parameter->isOptional()) {
-                            throw new RequestListenerException("non option parameter $name was required by the controller $controller");
-                        }
-                    }
-                }
-
-
-
-            }
-            elseif(is_string($controller)){
-
-            }
-            else {
-                throw new RequestListenerException("Unknown form of callable, sorry");
-            }
-
-
+            $response = call_user_func($controller);
             return $response;
-
-
         } else {
             /**
-             * Here, we throw an exception.
-             * We assume that kamille users use the system with 3 request listeners: router, controller, response.
+             * With this ControllerRequestListener, we throw an exception (i.e. if you don't like it
+             * use another class).
              */
             $type = gettype($controller);
             throw new RequestListenerException("Controller should be a callable, $type given");
