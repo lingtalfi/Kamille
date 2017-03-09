@@ -123,11 +123,51 @@ That's because if I change my mind and say that a Controller could be set as a s
 I just need to change the convention, not the system. In other words, I anticipate some evolution of the object.
 
 
-So, again, here is how it works in kamille:
+So, again, here is how it works so far in kamille:
 
 - Router (RequestListener):   Request.controller, ?Request.urlParams
 - Controller (RequestListener):   Request.response (uses the controller previously set to generate the response)
 - Response (RequestListener):   just execute the response previously set
+
+
+
+Okay, but how do we handle exceptions?
+
+Aha.
+
+
+First of all, let's just have a quick refresher on exceptions.
+An exception is generally thrown when something bad happens.
+
+An exception can sometimes be thrown and catch as a mechanism to signal something (the throw system
+is useful to override a lot of "if branching" conditions).
+ 
+Then, from where can an exception be thrown?
+
+For the WebApplication, it can be thrown inside a controller, or during the dispatch loop (the loop on 
+which the request is thrown, and intercepted by request listeners)
+Since I like simplicity, here is what I will implement:
+the WebApplication will have one exception catch block (only one).
+And when it catches it, it will delegate the handling to an external callback.
+
+With this system, we could for instance choose to display the exception trace (if in dev environment),
+or to display a fallback page (if in prod environment).
+
+
+If an exception is caught, that means that the other objects (probably controllers or request listeners)
+didn't caught it, which means it's really an exception (a true exception at the application level),
+so it's appropriate to use one (and just one) external fallback handler for that.
+
+
+Since there are lot of fancy terms, let me recap all this again, so here is the final basic architecture 
+in kamille:
+
+
+
+
+
+
+
 
 
 
