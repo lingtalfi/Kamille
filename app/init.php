@@ -37,6 +37,7 @@ ButineurAutoloader::getInst()->start();
 
 $environment = Environment::getEnvironment();
 
+
 //--------------------------------------------
 // PHP CONF
 //--------------------------------------------
@@ -57,5 +58,3 @@ if ('dev' === $environment) {
 // FUNCTIONS
 //--------------------------------------------
 require_once __DIR__ . "/functions/main-functions.php";
-
-

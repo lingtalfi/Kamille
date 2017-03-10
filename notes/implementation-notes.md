@@ -164,7 +164,28 @@ in kamille:
 
 
 
+[![kamille-basic-architecture.jpg](https://s19.postimg.org/oelcy20df/kamille_basic_architecture.jpg)](https://postimg.org/image/d28rg9rof/)
 
+
+- the Request enters the application (via the handleRequest method of the WebApplication, in this case)
+- the Request is thrown on a dispatch loop, which contains a certain number of request listeners along the way
+    - in kamille, we start with three request listeners: Router, Controller and Response
+- The best case scenario is the following:
+    - the Request passes through the Router request listener, find a controller, and then attaches that controller to the request 
+        - The router request listener role is to choose the controller; it can also prepare the controller (instantiate it)
+    - Then the Request passes through the Controller request listener. This object searches the controller in the Request parameters.
+        If found, the controller request listener executes the controller, which must return an HttpResponse.
+        The Controller request listener attaches the returned Response to the Request.
+    - Then the Request passes through the last request listener: the Response request listener.
+           The Response request listener searches the Response in the Request parameters.
+           If found, the Response request listener executes the response, which produces the intended visual feedback 
+           for the user who originated the Request in the first place.
+           
+           
+           
+           
+        
+        
 
 
 
@@ -236,4 +257,203 @@ collisions, but is not the ultimate solution):
         where ClassName represents the short name of the class, and
         methodName is the method name
         
+
         
+        
+        
+        
+MVC
+==========
+2017-03-10
+
+
+
+
+
+Widget names
+-----------------
+
+In the kam documentation, we found the following snippet:
+
+```php
+<?php $l->widget('maincontent'); ?>
+```
+
+which represents the inner of a layout template.
+
+We can see that the layout template calls a widget (the maincontent widget in this case).
+ 
+So this means that widget have names.
+
+Now the question on which I want to focus now is the following:
+
+should the name of the widget be given by the widget itself, or by the user that uses the widget?
+
+The short answer is: by the user that uses the widget.
+
+The reason why is that you could use the same widget in different contexts (for instance a displayAd widget),
+and only you (the user) knows the difference between two different contexts.
+  
+So you (the user) could name it: RightColumnDisplayAd widget OR BottomDisplayAd widget,
+but the widget itself couldn't make that choice by itself (or it would be complicated, which is something
+I want to avoid at all costs).
+
+
+So, the name of the widget is chosen by the user.
+
+And so, the layout has the following method signature:
+
+```php
+bindWidget($name, WidgetInterface $widget)
+```
+
+
+
+Renderer
+-----------------
+
+
+So the Layout and the Widget have the same problematic: they need to render a template.
+
+I want to use this [pattern](https://github.com/lingtalfi/loader-renderer-pattern/blob/master/loader-renderer.pattern.md)
+as the rendering pattern, because it gives us flexibility.
+
+So, that being established, let's focus on the uninterpreted state of the pattern.
+  
+  
+That uninterpreted state is a state which needs to be interpreted by an interpreter (called renderer).
+
+Concretely, the code inside the uninterpreted template could be php, smarty code, twig code, any code,
+or even just a simple html code with tags.
+
+We generally use a language (like php or twig) because it offers more power to the template creator: more ways
+to dispose the variables in that ocean of html code, basically.
+
+But which language should we use? (that's my main question)
+
+I personally prefer to use php, because I already know this language.
+We could also use an universal renderer, which would delegate the task to a more specific renderer, based on the file
+extension. 
+
+I believe than choosing for the others, in this case, is a conception error.
+I don't want to force anybody to use the php language, nor do I want to force anybody to use an universal renderer 
+(although it seems to be a reasonable solution).
+
+The reason why I don't want to choose the universal renderer is that maybe the user knows that she only want to use php.
+(As I already said, I personally would prefer this option over an universal renderer, because it's easier to setup).
+
+Just because we can doesn't mean we should.
+
+
+
+
+Loader
+----------
+
+My loader returns false in case of failure.
+I thought about it: in case of failure, should it throw an exception, do nothing, return false?
+
+I thought that if we use an object that tries multiple loader (universal loader) depending on some parameters,
+it would be easier to just test for the false state, rather than catching exceptions.
+
+Plus, you can still throw exceptions if you want.
+
+
+
+
+
+Layout
+-----------
+
+So the loader transforms a template name to an uninterpreted content.
+Then the layout method: render is called with the variables passed to it.
+
+The variables shouldn't have any special form, because the user of the layout shouldn't have
+any special knowledge of how the layout is made.
+
+So, a simple array is the most simple way of passing variables (I assume).
+
+But then there is the renderer.
+The renderer's role is to take the uninterpreted content and the variables, and return the rendered content.
+
+So, what's noticeable is that the uninterpreted template content and the variables have to work together.
+
+What I mean by that is that for instance the uninterpreted content could contain a code like this:
+
+
+```php
+Hello $v->world
+```
+
+or this:
+
+```php
+Hello {world}
+```
+
+But we agreed that the variables should be only passed as an array (so that the user doesn't need to know the internal details).
+
+So the relationship I'm trying to point out is the agreement between the uninterpreted template and the variables.
+
+The variables have to be transposed, from an array, to this form which is interpreted inside the template.
+
+For instance, transposed from $a['world'] to $v->world, or from $a['world'] to {world}.
+ 
+It seems only logical that the renderer is the one object responsible for making the transposition of variables.
+ 
+
+In the case of the layout, we've seen earlier (or in kam?) that the following code should be available:
+ 
+ 
+```php
+$l->widget('topmenu');
+```
+
+
+So, essentially this means that the l variable has to be created by the Layout object, and passed, via a simple array,
+to the renderer.
+
+But my question is the following: how it the l variable passed from the Layout to the Renderer?
+
+Do we simply create an l entry in the array of variables passed to the render method?
+
+Or do we create a mechanism that injects the Layout object into the Renderer, so that the Renderer can choose
+for itself how to create this variable.
+
+Also, is the l variable a requirement, or just an example implementation?
+Could we use another variable name, for instance: r, or even another mechanism of calling widgets?
+
+As with before, I prefer not to choose here, or at least I prefer that the user can choose what she wants.
+
+If the Renderer is of type LayoutRendererInterface, then the Layout will automatically inject itself into that
+Renderer. And so, the Renderer will choose for itself what's better.
+
+Delegating this choice to the Renderer gives us more flexibility.
+I will create such a Renderer which will make accessible the $l variable, so that the $l->widget() call becomes possible.
+
+
+
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
