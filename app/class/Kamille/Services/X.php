@@ -1,12 +1,16 @@
 <?php
 
 
-namespace Services;
-use Kamille\Architecture\Application\Web\WebApplication;
-
+namespace Kamille\Services;
+use Kamille\Ling\Z;
 
 
 /**
+ * -- DO NOT USE THIS CLASS DIRECTLY - (THIS IS JUST AN EXAMPLE CLASS) --
+ * -- COPY PASTE THIS CLASS INTO YOUR APPLICATION AND REMOVE THIS STUPID COMMENT --
+ * -- AND THEN REPLACE THE NAMESPACE WITH namespace Services; --
+ *
+ *
  *
  * Service container of the application.
  * It contains the services of the application.
@@ -39,7 +43,7 @@ class X
     public static function StaticPageRouter_getStaticPageController()
     {
         $o = new \Kamille\Architecture\Controller\Web\StaticPageController();
-        $o->setPagesDir(WebApplication::inst()->get('app_dir') . "/pages");
+        $o->setPagesDir(Z::appDir() . "/pages");
         return $o;
     }
 }

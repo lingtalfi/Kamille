@@ -259,6 +259,219 @@ collisions, but is not the ultimate solution):
         
 
         
+
+        
+        
+X class, really?
+======================
+2017-03-11
+        
+        
+I was thinking about the pros and cons of using a X service container class.
+        
+I found out the following:
+        
+        
+Cons and pros
+----------
+
+Using the X class directly inside a method breaks good oop principles: it creates a hard dependency,
+as you can see in the example code below:
+
+
+
+
+```php
+    // excerpt from StaticPageRouter
+        
+    public function match(HttpRequestInterface $request)
+    {
+        $uri = $request->uri(false);
+        $uri2Page = $this->uri2Page;
+        Hooks::StaticPageRouter_feedRequestUri($uri2Page);
+        if (array_key_exists($uri, $uri2Page)) {
+            $page = $uri2Page[$uri];
+
+            $o = X::StaticPageRouter_getStaticPageController();
+
+            return [
+                [$o, 'handlePage'],
+                [
+                    'page' => $page,
+                ],
+            ];
+        }
+    }
+```
+        
+It means that now if you want to use the StaticPageRouter, you must also have an X class and a Hooks class,
+and they must have the StaticPageRouter_getStaticPageController and StaticPageRouter_feedRequestUri methods respectively,
+other wise you'll get an error.
+
+Ouch, that sounds like a bad idea, doesn't it?
+
+Well, you'll see that maybe not later.
+
+Let's reduce the problem to one line (and ignore hooks, which problematic is a slightly different),
+so here is our "bad code?" again:
+        
+        
+```php
+    public function match(HttpRequestInterface $request)
+    {
+        $o = X::StaticPageRouter_getStaticPageController();
+    }
+```     
+
+A code that wouldn't break good oop principles would look like this:
+
+
+```php
+    private $staticPageController;
+    
+
+    public function setStaticPageController(ControllerInterface $controller)
+    {
+        $this->staticPageController = $controller;
+        return $this;
+    }
+    
+    public function match(HttpRequestInterface $request)
+    {
+        $o = $this->staticPageController;
+    }
+``` 
+   
+   
+Is the dependency removed? nope.
+Do we have more flexibility as to choose which controller is going to be used? nope.   
+   
+I mean, at some point, you have to assume your dependencies.
+   
+Does the "good code?" require more typing? yep.
+   
+As a user, the only difference I see is that with the bad code, the creator of the method decided to use
+X for faster development. The problem is that now anybody who wants to use the class needs to configure the X class.
+
+With the "good code" version, you have the option to not use X, but rather anything you like.
+So, at this moment of the comparison, it's just a matter of choice.
+
+
+Now if you had to debug this method, with the bad code, you can --with the help of your ide-- click 
+the X::StaticPageRouter_getStaticPageController method and access directly the culprit code.
+
+With the good code, the debugging might be elsewhere; since you can set the controller from anywhere, I cannot
+say right now how you would debug it, you need to take one step back and identify exactly which controller was used.
+
+I'm not saying that it is a bad thing, or an inferior/superior method compared to the "bad code", I have 
+no opinion on that.
+
+
+So far, "bad code" gives us faster development and transparency at the cost of breaking good oop principles.
+
+
+"Your code depends on some object, deal with it.",
+Well, in that case I'm going to delegate the dependency to the X class.
+
+That's all it is about.
+
+
+Another con is that the X class provides static methods, which means basically that you want to use X for 
+a singletony class, because you cannot get two different instances from the same static call (actually 
+you can use some tricks but that's not the point), so that's perhaps the most important point:
+ being aware of what you are doing when you do something like this:
+
+        
+```php
+    // basically, this class shall be instantiated/used only once for the current process
+    // i.e. don't create two parallel instance of this class and use them, unless the controller 
+    // doesn't need to be instance specific (i.e. it's a general method)
+    public function match(HttpRequestInterface $request)
+    {
+        $o = X::StaticPageRouter_getStaticPageController();
+    }
+```     
+
+So, this risk is another consequence of breaking oop good principles.
+
+
+Testing
+----------
+I can hear some people say: apart from this comparison, the "bad code?" is harder to test.
+ 
+Right, but how much harder?
+
+I figured out (although I didn't implement anything yet), that to test such a code, we only need to things:
+
+- an autoloader that loads an XTest class rather than a X class, when in test environment
+- a helper that scans the code and creates the corresponding method empty shells, so that dependencies are honored
+
+So, I testing doesn't sound like a problem to me.
+
+
+
+Mini conclusion
+---------------
+So be careful if you use X, it's not for everyone.
+If you start to use X, then you will benefit faster (simpler?) development, and auto-completion redirection for free.
+But then, if somebody needs to code after you, he's stuck with the X dependency, is that what you want?
+
+That's not for me to say.
+
+I will confess that in kamille (this framework), I will not hesitate to use X (and Hooks) wherever I feel like it.
+That's because that's how it was suggested in kam.
+However, you will always be able to recreate non X versions if you like, so don't blame me and don't wine: it's 
+always possible to get EXACTLY what you want.
+
+   
+   
+   
+Super services: Xlog, Xpdo
+-------------
+Some services are common to multiple objects, like paradigms in oop conception.
+I call them super services.
+
+- log
+- database access
+- ...?
+
+
+So if you decide to go along with the X philosophy, here is the code you would probably write to write the log.
+
+
+```php
+X::log()->log("ppp", "info");
+```
+
+The idea behind Xlog is to shorten this one liner to this:
+   
+   
+```php
+Xlog::log("ppp", "info");
+```
+
+It might seem like a very tiny improvement, but remember that this is a common service, which means you will type 
+this a lot. So, in kamille I decided to create one class per super service.
+
+Makes the calls easier.
+
+In kamille, the Services directory is in the userland side, which means you can add/remove the super services
+as you want.
+ 
+ 
+By convention in kamille we use Xlog as the logger.
+
+Of course, Xlog is just an empty container in which you can put any log logic you might need, but the access to this
+logic is done via the Xlog call.
+
+Then, I personally will use Xpdo as my database access tool, and I will put it in the Services directory for your convenience.
+But if you want to use another service, that's fine too.
+
+
+
+   
+        
+        
         
         
         
@@ -431,6 +644,17 @@ Renderer. And so, the Renderer will choose for itself what's better.
 Delegating this choice to the Renderer gives us more flexibility.
 I will create such a Renderer which will make accessible the $l variable, so that the $l->widget() call becomes possible.
 
+Concretely, it allows me to create the following method in the Layout:
+
+
+```php
+function getWidget(widgetName)
+```
+
+This method will throw an exception if the widget is not set, or it could return false (I don't know yet, I need to think
+again...). But the point is that if I throw an exception from the Layout, I still can use an object that will encapsulate
+the call to the getWidget method and catch the possible exception when it occurs, and returns an empty string,
+so that if ONE widget fails rendering, the Layout can still be renderered.
 
 
  

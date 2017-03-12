@@ -9,8 +9,9 @@
  * will be executed.
  */
 
-use Architecture\Environment\Web\Environment;
+
 use BumbleBee\Autoload\ButineurAutoloader;
+use Kamille\Architecture\Environment\Web\Environment;
 
 
 //------------------------------------------------------------------------------/
@@ -30,6 +31,14 @@ ButineurAutoloader::getInst()
     ->addLocation(__DIR__ . "/class-planets");
 ButineurAutoloader::getInst()->start();
 // require_once __DIR__ . '/vendor/autoload.php';
+
+
+
+//--------------------------------------------
+// FUNCTIONS
+//--------------------------------------------
+require_once __DIR__ . "/functions/main-functions.php";
+
 
 
 
@@ -54,7 +63,4 @@ if ('dev' === $environment) {
 
 
 
-//--------------------------------------------
-// FUNCTIONS
-//--------------------------------------------
-require_once __DIR__ . "/functions/main-functions.php";
+

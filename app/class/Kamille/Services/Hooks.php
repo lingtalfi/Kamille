@@ -1,10 +1,17 @@
 <?php
 
 
-namespace Services;
+namespace Kamille\Services;
 
 
 /**
+ *
+ * -- DO NOT USE THIS CLASS DIRECTLY - (THIS IS JUST AN EXAMPLE CLASS) --
+ * -- COPY PASTE THIS CLASS INTO YOUR APPLICATION AND REMOVE THIS STUPID COMMENT --
+ * -- AND THEN REPLACE THE NAMESPACE WITH namespace Services; --
+ *
+ *
+ *
  * This class is used to hook modules dynamically.
  * This class is written by modules, so, be careful I guess.
  *
