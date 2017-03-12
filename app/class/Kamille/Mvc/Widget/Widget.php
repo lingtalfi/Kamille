@@ -16,7 +16,7 @@ use Kamille\Mvc\Widget\WidgetInterface;
 class Widget implements WidgetInterface
 {
     private $templateName;
-    private $variables;
+    protected $variables;
 
 
     /**

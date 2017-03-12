@@ -9,6 +9,7 @@ use Kamille\Mvc\Loader\LoaderInterface;
 use Kamille\Mvc\Renderer\Exception\RendererException;
 use Kamille\Mvc\Renderer\LayoutRendererInterface;
 use Kamille\Mvc\Renderer\RendererInterface;
+use Kamille\Mvc\Widget\LayoutAwareWidgetInterface;
 use Kamille\Mvc\Widget\WidgetInterface;
 
 /**
@@ -55,6 +56,9 @@ class Layout implements LayoutInterface
     public function bindWidget($name, WidgetInterface $widget)
     {
         $this->widgets[$name] = $widget;
+        if ($widget instanceof LayoutAwareWidgetInterface) {
+            $widget->setLayout($this);
+        }
         return $this;
     }
 
@@ -70,7 +74,7 @@ class Layout implements LayoutInterface
     }
 
 
-    public function render(array $variables=[])
+    public function render(array $variables = [])
     {
 
         if (null === $this->templateName) {
@@ -105,6 +109,7 @@ class Layout implements LayoutInterface
         $this->loader = $loader;
         return $this;
     }
+
     /**
      * @return $this
      */
