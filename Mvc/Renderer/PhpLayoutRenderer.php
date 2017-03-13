@@ -60,7 +60,7 @@ class PhpLayoutRenderer extends LayoutRenderer
              * Convert all variables accessible as objects.
              * (i.e. $v->my_var withing the template)
              */
-            $v = json_decode(json_encode($variables), false);
+            $v = $variables;
             $l = $this->getLayoutProxy();
 
 

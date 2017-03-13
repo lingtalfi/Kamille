@@ -150,6 +150,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.1.0 -- 2017-03-13
+
+    - now PhpLayoutRenderer passes the v variable as an array instead of an object 
+
 - 1.0.0 -- 2017-03-12
 
     - initial commit
