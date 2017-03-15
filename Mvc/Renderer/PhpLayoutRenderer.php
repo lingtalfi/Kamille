@@ -52,7 +52,7 @@ class PhpLayoutRenderer extends LayoutRenderer
             $__varsKeys = [];
             $__varsValues = [];
             foreach ($variables as $k => $v) {
-                if (!is_array($v)) {
+                if (!is_array($v) && !is_object($v)) {
                     $__varsKeys[] = '{' . $k . '}';
                     $__varsValues[] = $v;
                 }
