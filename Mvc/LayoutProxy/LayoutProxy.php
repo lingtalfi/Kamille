@@ -4,10 +4,11 @@
 namespace Kamille\Mvc\LayoutProxy;
 
 
+use Kamille\Mvc\Layout\LayoutAwareInterface;
 use Kamille\Mvc\Layout\LayoutInterface;
 use Kamille\Mvc\Widget\Exception\WidgetException;
 
-class LayoutProxy implements LayoutProxyInterface
+class LayoutProxy implements LayoutProxyInterface, LayoutAwareInterface
 {
 
 
