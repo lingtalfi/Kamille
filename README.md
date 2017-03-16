@@ -18,14 +18,6 @@ uni import Kamille
 ```
 
 
-Once you've installed Kamille, you should create the following classes at your application level:
-
-- Services\Hooks: this is the Hooks class for your modules 
-- Services\X: the service container in kamille
-
-
-
-
 
 
 Getting started
@@ -51,18 +43,37 @@ use Kamille\Architecture\Request\Web\HttpRequest;
 use Kamille\Architecture\RequestListener\Web\ControllerExecuterRequestListener;
 use Kamille\Architecture\RequestListener\Web\ResponseExecuterListener;
 use Kamille\Architecture\RequestListener\Web\RouterRequestListener;
+use Kamille\Architecture\Router\Web\StaticObjectRouter;
 use Kamille\Architecture\Router\Web\StaticPageRouter;
+use Services\X;
+
 
 require_once __DIR__ . "/../init.php";
 
 
-WebApplication::inst()
-    ->addListener(RouterRequestListener::create()->addRouter(StaticPageRouter::create()))
+$app = WebApplication::inst(); // be sure to instantiate app first, so that other objects can use app params
+
+
+$app
+    ->set('theme', "gentelella")// this application uses a theme
+    ->addListener(RouterRequestListener::create()
+        ->addRouter(StaticObjectRouter::create()->setUri2Controller(X::getStaticObjectRouter_Uri2Controller()))
+        ->addRouter(StaticPageRouter::create()
+            ->setStaticPageController(X::getStaticPageRouter_StaticPageController())
+            ->setUri2Page(X::getStaticPageRouter_Uri2Page()))
+    )
     ->addListener(ControllerExecuterRequestListener::create())
     ->addListener(ResponseExecuterListener::create())
     ->handleRequest(HttpRequest::create());
 
+
+
 ```
+
+
+Note: in the example above I used two different static routers for pedagogical reasons; in reality one static
+router is usually enough.
+
 
 
 Example MVC code (should be inside a Controller)
@@ -149,6 +160,10 @@ echo HtmlLayout::create()
 
 History Log
 ===============
+    
+- 1.5.0 -- 2017-03-16
+
+    - Remove built-in dependencies to X and Hooks
     
 - 1.4.0 -- 2017-03-16
 
