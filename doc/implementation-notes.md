@@ -14,6 +14,13 @@ Architecture
 
 The kam framework doesn't define (purposely) precisely what a Controller is.
 
+Does the Controller exist only in web applications, or does it exist too in console applications? 
+I will assume that yes.
+
+If it exists in web applications, does it exist only in the three request listeners model (router, controller, response)?
+I will assume that no.
+
+
 
 Using the proposed model with three RequestListeners (Router, Controller, Response),
 I found out that the Router's returned controller should be a callable (exactly like in symfony).
@@ -709,7 +716,17 @@ to ensure that only one jquery lib would be loaded).
  
 
 
+A themable application
+============================
 
+As discussed before, the notion of theme is the ability to change the design of a page in one click.
+With the MVC implementation of kamille, it concretely means changing the template of the layout and changing
+the template of the widgets.
+
+At the level application, it makes only sense that all pages of the application can be changed in one click.
+
+To allow this, I suggest that the application (probably web application) provides a "theme" parameter,
+which should spread across the whole system. 
 
 
 

@@ -150,6 +150,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.3.0 -- 2017-03-16
+
+    - Added WebControllerInterface 
+    
 - 1.2.0 -- 2017-03-15
 
     - LayoutProxy catches Exception on widget rendering 
