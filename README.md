@@ -150,6 +150,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.4.0 -- 2017-03-16
+
+    - Undo add WebControllerInterface
+    
 - 1.3.0 -- 2017-03-16
 
     - Added WebControllerInterface 
