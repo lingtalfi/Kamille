@@ -161,6 +161,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.6.0 -- 2017-03-16
+
+    - add possibility of choosing the method from the StaticObjectRouter's controller string
+    
+    
 - 1.5.0 -- 2017-03-16
 
     - Remove built-in dependencies to X and Hooks

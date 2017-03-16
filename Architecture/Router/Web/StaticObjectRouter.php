@@ -6,16 +6,16 @@ namespace Kamille\Architecture\Router\Web;
 
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
 use Kamille\Architecture\Router\RouterInterface;
+use Router\Exception\RouterException;
 
 
 /**
  * This router will instantiate a Controller from a controllerString
  * returned from the uri2Controller array.
  *
- * The controllerString is the full path to a controller, which must be an object with a render method.
+ * The controllerString has the following format:
  *
- * The constructor must not have any parameters, nor does the render method.
- *
+ * - <controllerFullPath> <:> <method>
  *
  */
 class StaticObjectRouter implements RouterInterface
@@ -47,14 +47,16 @@ class StaticObjectRouter implements RouterInterface
         $uri = $request->uri(false);
         $uri2Controller = $this->uri2Controller;
         if (array_key_exists($uri, $uri2Controller)) {
-            $controller = $uri2Controller[$uri];
-            $o = new $controller;
-            return [
-                [$o, 'render'],
-                [],
-            ];
+            $controllerString = $uri2Controller[$uri];
+            $p = explode(':', $controllerString, 2);
+            if (2 === count($p)) {
+                $o = new $p[0];
+                return [
+                    [$o, $p[1]],
+                    [],
+                ];
+            }
+            throw new RouterException("invalid controller string format: expected format is controllerFullPath:method");
         }
     }
-
-
 }

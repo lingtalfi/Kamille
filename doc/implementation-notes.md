@@ -762,12 +762,15 @@ And then the answer appeared: the router loops through all instances of the arra
 potential controllers were instantiated: that would be a fair waste of performances. Passing string is much cheaper
 and much adapted. 
 
-As a counterpart, I used convention such as:
  
-- the designated controller method's name must be: render (and it accepts no arguments)
+Now to keep the flexibility of choosing the controller method, we also pass the method in the string.
  
- 
-But all parties agree on that convention, the system works fine.
+The format of that controller string will be: 
+
+- My\MyController:method
+
+
+
 
 Now what's the benefit of using StaticObjectRouter vs the older StaticPageRouter?
 
