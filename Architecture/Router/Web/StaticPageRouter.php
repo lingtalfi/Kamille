@@ -51,7 +51,7 @@ class StaticPageRouter implements RouterInterface
         $uri2Page = $this->uri2Page;
         if (array_key_exists($uri, $uri2Page)) {
             $page = $uri2Page[$uri];
-            $o = X::StaticPageRouter_getStaticPageController();
+            $o = $this->getStaticPageController();
             return [
                 [$o, 'handlePage'],
                 [
