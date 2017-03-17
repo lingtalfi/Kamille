@@ -38,29 +38,32 @@ Example index.php controller
 <?php
 
 
+
 use Kamille\Architecture\Application\Web\WebApplication;
+use Kamille\Architecture\ApplicationParameters\Web\WebApplicationParameters;
 use Kamille\Architecture\Request\Web\HttpRequest;
 use Kamille\Architecture\RequestListener\Web\ControllerExecuterRequestListener;
 use Kamille\Architecture\RequestListener\Web\ResponseExecuterListener;
 use Kamille\Architecture\RequestListener\Web\RouterRequestListener;
 use Kamille\Architecture\Router\Web\StaticObjectRouter;
-use Kamille\Architecture\Router\Web\StaticPageRouter;
 use Services\X;
 
 
 require_once __DIR__ . "/../init.php";
 
+WebApplicationParameters::boot();
 
-$app = WebApplication::inst(); // be sure to instantiate app first, so that other objects can use app params
 
 
-$app
+
+
+WebApplication::inst()
     ->set('theme', "gentelella")// this application uses a theme
     ->addListener(RouterRequestListener::create()
         ->addRouter(StaticObjectRouter::create()->setUri2Controller(X::getStaticObjectRouter_Uri2Controller()))
-        ->addRouter(StaticPageRouter::create()
-            ->setStaticPageController(X::getStaticPageRouter_StaticPageController())
-            ->setUri2Page(X::getStaticPageRouter_Uri2Page()))
+//        ->addRouter(StaticPageRouter::create()
+//            ->setStaticPageController(X::getStaticPageRouter_StaticPageController())
+//            ->setUri2Page(X::getStaticPageRouter_Uri2Page()))
     )
     ->addListener(ControllerExecuterRequestListener::create())
     ->addListener(ResponseExecuterListener::create())
@@ -68,11 +71,8 @@ $app
 
 
 
+
 ```
-
-
-Note: in the example above I used two different static routers for pedagogical reasons; in reality one static
-router is usually enough.
 
 
 
@@ -160,6 +160,10 @@ echo HtmlLayout::create()
 
 History Log
 ===============
+    
+- 1.8.0 -- 2017-03-17
+
+    - moved application parameters outside the Application
     
 - 1.7.0 -- 2017-03-16
 
