@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.10.0 -- 2017-03-20
+
+    - added AbstractX and AbstractXConfig
+    
 - 1.9.0 -- 2017-03-20
 
     - added ModuleInstaller and StepTracker
