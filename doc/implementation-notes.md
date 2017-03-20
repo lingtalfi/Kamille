@@ -802,6 +802,49 @@ In the end, the overall system architecture wins by having more routers to choos
 
 
 
+Exceptions
+================
+2017-03-20
+
+
+There are at least two different uses for exceptions:
+
+- exceptions thrown when something exceptional occurs (that's the default usage of exceptions)
+- exceptions thrown as signals (meant to be caught in the first place)
+ 
+ 
+ 
+UserErrorException
+------------------
+Today, I implemented an UserErrorException and I thought the reasoning behind it was interesting.
+
+An UserErrorException belongs to the second type of exceptions: the signal type.
+It basically carries an user error. For instance, the user forgot to setup some value, and so the program goes wrong.
+
+In this case, we want to display a message to the user: "Hey, you forgot to set this value (blabla), please try again...".
+So basically, we just need the exception message, but we don't really need the debug trace in this case.
+
+That said we could have chosen other mechanisms to bubble up such an error.
+So why choosing an exception?
+Because exceptions have this unique ability to jump over blocks of code, which makes the development faster:
+just throw an (user error) exception when something goes wrong, and you know that it will be caught and display
+as an error message to the user.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
 
 
 
