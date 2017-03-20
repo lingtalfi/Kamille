@@ -1,33 +1,29 @@
 <?php
 
 
-namespace Kamille\Utils\ModuleInstaller;
+namespace Kamille\Architecture\ModuleInstaller;
 
 
-use Kamille\Utils\ModuleInstaller\Exception\ModuleInstallerException;
+use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
+use Kamille\Architecture\ModuleInstaller\Exception\ModuleInstallerException;
 use Kamille\Module\ModuleInterface;
-use Kamille\Utils\StepTracker\StepTrackerAwareInterface;
-use Kamille\Utils\StepTracker\StepTrackerInterface;
 
 /**
- * This is a hacked version of the ModuleInstaller class (from the Kamille framework).
- * It works exactly the same, except on how to access the modules.txt file.
+ * This module installer will create a modules.txt file at the application root level.
+ * This modules.txt file contains the list of available modules, one per line.
+ *
+ *
  *
  */
-class ModuleInstaller implements StepTrackerAwareInterface
+class ModuleInstaller implements ModuleInstallerInterface
 {
 
     private $file;
-    private $appDir;
-    private $stepTracker;
 
 
     public function install($moduleName)
     {
         $oClass = $this->getClassInstance($moduleName);
-        if (null !== $this->stepTracker && $oClass instanceof StepTrackerAwareInterface) {
-            $oClass->setStepTracker($this->stepTracker);
-        }
         $oClass->install();
         $list = $this->getInstalledModulesList();
         if (!in_array($moduleName, $list)) {
@@ -40,12 +36,9 @@ class ModuleInstaller implements StepTrackerAwareInterface
     public function uninstall($moduleName)
     {
         $oClass = $this->getClassInstance($moduleName);
-        if (null !== $this->stepTracker && $oClass instanceof StepTrackerAwareInterface) {
-            $oClass->setStepTracker($this->stepTracker);
-        }
         $oClass->uninstall();
         $list = $this->getInstalledModulesList();
-        unset($list[array_search($moduleName, $list)]);
+        unset($list[$moduleName]);
         $this->writeList($list);
         return true;
     }
@@ -67,31 +60,13 @@ class ModuleInstaller implements StepTrackerAwareInterface
         return $ret;
     }
 
-
-    public function setAppDir($appDir)
-    {
-        $this->appDir = $appDir;
-        return $this;
-    }
-
-    public function setStepTracker(StepTrackerInterface $stepTracker)
-    {
-        $this->stepTracker = $stepTracker;
-        return $this;
-    }
-
-
-
-
-
-
     //--------------------------------------------
     //
     //--------------------------------------------
     private function getFile()
     {
         if (null === $this->file) {
-            $this->file = $this->appDir . "/modules.txt";
+            $this->file = ApplicationParameters::get('app_dir') . "/modules.txt";
         }
         return $this->file;
     }
@@ -99,11 +74,12 @@ class ModuleInstaller implements StepTrackerAwareInterface
 
     /**
      * @param $moduleName
+     * @return ModuleInterface
      * @throws ModuleInstallerException
      */
     private function getClassInstance($moduleName)
     {
-        $modulesDir = $this->appDir . "/class-modules/$moduleName";
+        $modulesDir = ApplicationParameters::get('app_dir') . "/class-modules/$moduleName";
         if (is_dir($modulesDir)) {
             $moduleFile = $modulesDir . "/$moduleName" . "Module.php";
             if (file_exists($moduleFile)) {

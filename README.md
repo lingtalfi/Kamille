@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.9.0 -- 2017-03-20
+
+    - added ModuleInstaller and StepTracker
+    
 - 1.8.0 -- 2017-03-17
 
     - moved application parameters outside the Application
