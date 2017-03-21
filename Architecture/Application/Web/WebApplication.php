@@ -4,8 +4,7 @@
 namespace Kamille\Architecture\Application\Web;
 
 
-use Kamille\Architecture\ApplicationParameters\Web\WebApplicationParameters;
-use Kamille\Architecture\Environment\Web\Environment;
+use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
 use Kamille\Architecture\RequestListener\Web\HttpRequestListenerInterface;
 
@@ -137,6 +136,6 @@ class WebApplication implements WebApplicationInterface
     //--------------------------------------------
     protected function getParams()
     {
-        return WebApplicationParameters::all();
+        return ApplicationParameters::all();
     }
 }
