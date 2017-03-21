@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.13.0 -- 2017-03-21
+
+    - update StepTrackerAwareModule
+    
 - 1.12.0 -- 2017-03-21
 
     - added StepTrackerAwareInterface.getStepTracker
