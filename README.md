@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.12.0 -- 2017-03-21
+
+    - added StepTrackerAwareInterface.getStepTracker
+    
 - 1.11.0 -- 2017-03-21
 
     - removed WebApplicationParameters (moved to app specific like kaminos)
