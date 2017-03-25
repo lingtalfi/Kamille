@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.14.0 -- 2017-03-25
+
+    - added XInstalledModules
+    
 - 1.13.0 -- 2017-03-21
 
     - update StepTrackerAwareModule
