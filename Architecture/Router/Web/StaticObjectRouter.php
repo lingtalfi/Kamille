@@ -22,6 +22,7 @@ class StaticObjectRouter implements RouterInterface
 {
 
     protected $uri2Controller;
+    protected $defaultController;
 
     public function __construct()
     {
@@ -39,6 +40,14 @@ class StaticObjectRouter implements RouterInterface
         return $this;
     }
 
+    public function setDefaultController($defaultController)
+    {
+        $this->defaultController = $defaultController;
+        return $this;
+    }
+
+
+
     //--------------------------------------------
     //
     //--------------------------------------------
@@ -46,8 +55,14 @@ class StaticObjectRouter implements RouterInterface
     {
         $uri = $request->uri(false);
         $uri2Controller = $this->uri2Controller;
+        $controllerString = null;
         if (array_key_exists($uri, $uri2Controller)) {
             $controllerString = $uri2Controller[$uri];
+        } elseif (null !== $this->defaultController) {
+            $controllerString = $this->defaultController;
+        }
+
+        if (null !== $controllerString) {
             $p = explode(':', $controllerString, 2);
             if (2 === count($p)) {
                 $o = new $p[0];

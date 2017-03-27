@@ -161,6 +161,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.16.0 -- 2017-03-27
+
+    - add param to the Hook.call method
+    - add StaticObjectRouter.setDefaultController
+    
 - 1.15.0 -- 2017-03-26
 
     - added KamilleNaiveImporter

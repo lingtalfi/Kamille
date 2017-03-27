@@ -13,7 +13,7 @@ class AbstractX
      * Modules can use this property inside their code to store a service for re-usability purposes.
      * (re-using the SAME instance on every method call)
      */
-    protected static $cache;
+    protected static $cache = [];
 
 
     /**

@@ -18,10 +18,14 @@ class AbstractHooks
      * And then, create an Hooks container which extends this AbstractX class,
      * and has a protected static Connexion_someHook method.
      *
+     * If param is an array, it will be passed by reference.
+     *      You still need to prefix your variable name with the ampersand symbol to benefit the reference mechanism.
+     *      If you don't prefix the variable name with the ampersand, it will have the same result as if it was passed by copy.
+     * It is assumed that it's an object otherwise, or a scalar value.
      *
      *
      */
-    public static function call($hook, $default = null, $throwEx = true)
+    public static function call($hook, &$param = null, $default = null, $throwEx = true)
     {
         $p = explode('.', $hook, 2);
         $error = null;
@@ -37,7 +41,10 @@ class AbstractHooks
                      * the static::class technique does not work in 5.4:  syntax error, unexpected 'class'  (tested in mamp 5.4.45)
                      * It worked on 5.5.38 (mamp).
                      */
-                    return call_user_func([static::class, $method]);
+                    if (is_array($param)) {
+                        return call_user_func_array([static::class, $method], [&$param]);
+                    }
+                    return call_user_func([static::class, $method], $param);
                 } else {
                     $error = "hook not found: $hook";
                 }

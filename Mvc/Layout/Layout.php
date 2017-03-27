@@ -76,7 +76,6 @@ class Layout implements LayoutInterface
 
     public function render(array $variables = [])
     {
-
         if (null === $this->templateName) {
             throw new RendererException("Template not set");
         }
