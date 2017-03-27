@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.15.0 -- 2017-03-26
+
+    - added KamilleNaiveImporter
+    
 - 1.14.0 -- 2017-03-25
 
     - added XInstalledModules
