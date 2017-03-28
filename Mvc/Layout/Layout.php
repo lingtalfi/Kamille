@@ -73,6 +73,11 @@ class Layout implements LayoutInterface
         return $default;
     }
 
+    public function getWidgets()
+    {
+        return $this->widgets;
+    }
+
 
     public function render(array $variables = [])
     {

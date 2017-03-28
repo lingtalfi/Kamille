@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.17.0 -- 2017-03-28
+
+    - add LawsLayoutProxy
+    
 - 1.16.0 -- 2017-03-27
 
     - add param to the Hook.call method

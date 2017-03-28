@@ -126,7 +126,7 @@ class PhpLayoutRenderer extends LayoutRenderer
     }
 
 
-    private function getLayoutProxy()
+    protected function getLayoutProxy()
     {
         if (null === $this->layoutProxy) {
             $this->layoutProxy = new LayoutProxy();

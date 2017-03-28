@@ -15,7 +15,7 @@ class LayoutProxy implements LayoutProxyInterface, LayoutAwareInterface
     /**
      * @var LayoutInterface
      */
-    private $layout;
+    protected $layout;
 
     public function __construct()
     {
