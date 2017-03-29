@@ -4,6 +4,9 @@
 namespace Kamille\Mvc\Widget;
 
 
+/**
+ * A widget is an element you can place on a page.
+ */
 interface WidgetInterface
 {
     public function setVariables(array $variables);

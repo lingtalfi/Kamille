@@ -22,7 +22,7 @@ class LawsLayoutProxy extends LayoutProxy
     {
         $widgets = $this->layout->getWidgets();
         foreach ($widgets as $id => $widget) {
-            $id;
+
 
 
 

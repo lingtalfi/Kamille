@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.18.0 -- 2017-03-29
+
+    - add WidgetInstallerInterface
+    
 - 1.17.0 -- 2017-03-28
 
     - add LawsLayoutProxy
