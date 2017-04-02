@@ -5,6 +5,7 @@ namespace Kamille\Services;
 
 
 use Kamille\Services\Exception\XException;
+use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
 
 class AbstractHooks
 {
@@ -32,7 +33,7 @@ class AbstractHooks
         if (2 === count($p)) {
 
             $module = $p[0];
-            if (XModuleInstaller::isInstalled($module)) {
+            if (ModuleInstallationRegister::isInstalled($module)) {
                 $method = str_replace('.', '_', $hook);
                 if (method_exists(get_called_class(), $method)) {
 
