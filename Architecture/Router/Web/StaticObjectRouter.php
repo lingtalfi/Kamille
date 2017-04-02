@@ -5,6 +5,7 @@ namespace Kamille\Architecture\Router\Web;
 
 
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
+use Kamille\Architecture\Router\Helper\RouterHelper;
 use Kamille\Architecture\Router\RouterInterface;
 use Router\Exception\RouterException;
 
@@ -63,15 +64,7 @@ class StaticObjectRouter implements RouterInterface
         }
 
         if (null !== $controllerString) {
-            $p = explode(':', $controllerString, 2);
-            if (2 === count($p)) {
-                $o = new $p[0];
-                return [
-                    [$o, $p[1]],
-                    [],
-                ];
-            }
-            throw new RouterException("invalid controller string format: expected format is controllerFullPath:method");
+            return RouterHelper::routerControllerToCallable($controllerString);
         }
     }
 }

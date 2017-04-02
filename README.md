@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.21.0 -- 2017-04-02
+
+    - add RouterHelper
+    
 - 1.20.0 -- 2017-04-02
 
     - add Z.requestParam
