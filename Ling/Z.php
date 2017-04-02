@@ -51,4 +51,17 @@ class Z
         }
         return $defaultValue;
     }
+
+
+    /**
+     * @return mixed
+     */
+    public static function requestParam($key, $defaultValue = null)
+    {
+        $request = WebApplication::inst()->get('request');
+        if ($request instanceof HttpRequestInterface) {
+            return $request->get($key, $defaultValue);
+        }
+        return $defaultValue;
+    }
 }

@@ -161,7 +161,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
-- 1.19.0 -- 2017-04-01
+- 1.20.0 -- 2017-04-02
+
+    - add Z.requestParam
+    
+- 1.19.0 -- 2017-04-02
 
     - add FakeHttpRequest
     
