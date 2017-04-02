@@ -9,7 +9,7 @@ use Kamille\Architecture\Request\Request;
 class HttpRequest extends Request implements HttpRequestInterface
 {
 
-    private $server;
+    protected $server;
     private $uriNoQuery;
 
     public static function create()
