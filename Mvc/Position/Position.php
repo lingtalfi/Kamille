@@ -28,6 +28,9 @@ class Position implements PositionInterface
      */
     private $renderer;
 
+
+    private $variables;
+
     public function __construct()
     {
         $this->variables = [];
@@ -50,8 +53,16 @@ class Position implements PositionInterface
         return $this;
     }
 
-    public function render(array $variables=[])
+    public function setVariables(array $variables)
     {
+        $this->variables = $variables;
+        return $this;
+    }
+
+
+    public function render(array $variables = [])
+    {
+        $variables = array_merge($this->variables, $variables);
         if (null === $this->templateName) {
             throw new RendererException("Template not set");
         }
@@ -98,7 +109,6 @@ class Position implements PositionInterface
     {
         throw new WidgetException("Failed to load template: $templateName");
     }
-
 
 
 }

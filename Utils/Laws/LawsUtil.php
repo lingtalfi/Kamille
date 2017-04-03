@@ -31,8 +31,17 @@ class LawsUtil
         throw new LawsUtilException("laws config file not found: $file");
     }
 
-    public static function renderLawsView(array $config)
+    public static function renderLawsView(array $config, array $variables=[])
     {
+
+
+        /**
+         * Todo: allow all variables override
+         */
+        if(array_key_exists('wwwww?', $variables)){
+
+        }
+
 
 
         $layoutTemplate = $config['layout']['name'];
@@ -53,9 +62,12 @@ class LawsUtil
         //--------------------------------------------
         foreach ($positions as $positionName => $pInfo) {
             $tplName = $pInfo['name'];
+            $pVars = (array_key_exists('conf', $pInfo)) ? $pInfo['conf'] : [];
+
             $proxy->bindPosition($positionName, Position::create()
                 ->setTemplate($tplName)
                 ->setLoader($ploader)
+                ->setVariables($pVars)
                 ->setRenderer($commonRenderer));
         }
         $commonRenderer->setLayoutProxy($proxy);

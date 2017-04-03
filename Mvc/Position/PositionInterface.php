@@ -9,6 +9,7 @@ namespace Kamille\Mvc\Position;
  */
 interface PositionInterface
 {
+
     public function setTemplate($templateName);
 
     public function render(array $variables=[]);
