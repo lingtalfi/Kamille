@@ -69,6 +69,7 @@ class LayoutProxy implements LayoutProxyInterface, LayoutAwareInterface
 
     protected function onWidgetException(\Exception $e, $widgetName)
     {
+        // todo: XLog
         return "Problem with rendering the widget $widgetName";
     }
 }

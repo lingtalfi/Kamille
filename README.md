@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.23.0 -- 2017-04-02
+
+    - add laws implementation
+    
 - 1.22.0 -- 2017-04-02
 
     - integrated ex-KaminosUtils class
