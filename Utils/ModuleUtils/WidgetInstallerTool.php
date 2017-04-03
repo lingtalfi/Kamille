@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kamille\ModuleUtils;
+namespace Kamille\Utils\ModuleUtils;
 
 
 use Bat\FileSystemTool;

@@ -1,20 +1,49 @@
 <?php
 
 
-namespace Kamille\ModuleUtils;
+namespace Kamille\Utils\ModuleUtils;
 
 
 use Bat\FileSystemTool;
 use CopyDir\SimpleCopyDirUtil;
 use DirScanner\DirScanner;
+use DirScanner\YorgDirScannerTool;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Module\ModuleInterface;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
 use Kamille\Utils\StepTracker\StepTrackerAwareInterface;
 use MethodInjector\MethodInjector;
+use TokenFun\TokenFinder\Tool\TokenFinderTool;
 
 class ModuleInstallTool
 {
+
+    public static function installConfig(ModuleInterface $module, $replaceMode = true)
+    {
+        $moduleName = self::getModuleName($module);
+
+
+        $appDir = ApplicationParameters::get('app_dir');
+        if (is_dir($appDir)) {
+            $configFile = $appDir . "/class-modules/$moduleName/conf.php";
+            if (file_exists($configFile)) {
+                $target = $appDir . "/config/modules/$moduleName.conf.php";
+                if (true === $replaceMode || false === file_exists($target)) {
+                    copy($configFile, $target);
+                }
+            }
+        }
+    }
+
+    public static function uninstallConfig(ModuleInterface $module, $replaceMode = true)
+    {
+        $moduleName = self::getModuleName($module);
+        $appDir = ApplicationParameters::get('app_dir');
+        $target = $appDir . "/config/modules/$moduleName.conf.php";
+        if (is_file($target)) {
+            unlink($target);
+        }
+    }
 
 
     /**
@@ -35,16 +64,7 @@ class ModuleInstallTool
     public static function installFiles(ModuleInterface $module, $replaceMode = true)
     {
 
-        $moduleClassName = get_class($module);
-        $p = explode('\\', $moduleClassName);
-        array_shift($p); // drop Module prefix
-        $moduleName = $p[0];
-
-
-        if ($module instanceof StepTrackerAwareInterface) {
-            $module->getStepTracker()->startStep('files');
-        }
-
+        $moduleName = self::getModuleName($module);
 
         $appDir = ApplicationParameters::get('app_dir');
         if (is_dir($appDir)) {
@@ -57,24 +77,13 @@ class ModuleInstallTool
             }
         }
 
-        if ($module instanceof StepTrackerAwareInterface) {
-            $module->getStepTracker()->stopStep('files');
-        }
     }
 
 
     public static function uninstallFiles(ModuleInterface $module, $replaceMode = true)
     {
 
-        $moduleClassName = get_class($module);
-        $p = explode('\\', $moduleClassName);
-        array_shift($p); // drop Module prefix
-        $moduleName = $p[0];
-
-
-        if ($module instanceof StepTrackerAwareInterface) {
-            $module->getStepTracker()->startStep('files');
-        }
+        $moduleName = self::getModuleName($module);
 
 
         $appDir = ApplicationParameters::get('app_dir');
@@ -101,9 +110,6 @@ class ModuleInstallTool
             }
         }
 
-        if ($module instanceof StepTrackerAwareInterface) {
-            $module->getStepTracker()->stopStep('files');
-        }
     }
 
 
@@ -112,7 +118,7 @@ class ModuleInstallTool
         $o = new MethodInjector();
         $filter = [
             [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PUBLIC, \ReflectionMethod::IS_PROTECTED],
+            [\ReflectionMethod::IS_PUBLIC],
         ];
 
 
@@ -136,7 +142,7 @@ class ModuleInstallTool
         $o = new MethodInjector();
         $filter = [
             [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PUBLIC, \ReflectionMethod::IS_PROTECTED],
+            [\ReflectionMethod::IS_PUBLIC],
         ];
 
         $methods = $o->getMethodsList($candidateModule, $filter);
@@ -154,7 +160,7 @@ class ModuleInstallTool
         $o = new MethodInjector();
         $filter = [
             [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PUBLIC, \ReflectionMethod::IS_PROTECTED],
+            [\ReflectionMethod::IS_PROTECTED],
         ];
         /**
          * The strategy here is that hook method which name starts with the module name is a provider method,
@@ -333,8 +339,47 @@ class ModuleInstallTool
                 }
             }
         }
-
     }
+
+    public static function installControllers($moduleName)
+    {
+        $appDir = ApplicationParameters::get("app_dir");
+        $controllersDir = $appDir . "/class-modules/$moduleName/Controller";
+        if (is_dir($controllersDir)) {
+            $files = YorgDirScannerTool::getFilesWithExtension($controllersDir, "php", false, true, true);
+            foreach ($files as $f) {
+                $file = $controllersDir . "/$f";
+                if ('Controller.php' === substr($file, -14)) {
+                    $c = file_get_contents($file);
+
+                    /**
+                     * non safe namespace replacing technique, but should work 98% of the time,
+                     * good for now...
+                     */
+                    $newNamespace = "namespace Controller\\$moduleName;";
+                    $c = preg_replace('!namespace .*;!', $newNamespace, $c, 1);
+                    $targetFile = $appDir . "/class-controllers/$moduleName/$f";
+                    FileSystemTool::mkfile($targetFile, $c);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * I believe you don't want to remove userland code,
+     * otherwise some users might get VERY upset!
+     */
+//    public static function uninstallControllers($moduleName)
+//    {
+//        $appDir = ApplicationParameters::get("app_dir");
+//        $controllersDir = $appDir . "/class-controller/$moduleName";
+//        if (is_dir($controllersDir)) {
+//            FileSystemTool::remove($controllersDir);
+//        }
+//    }
+
+
     //--------------------------------------------
     //
     //--------------------------------------------
@@ -352,4 +397,12 @@ class ModuleInstallTool
         return '// mit-' . $type . ':' . $module . PHP_EOL;
     }
 
+
+    private static function getModuleName(ModuleInterface $module)
+    {
+        $moduleClassName = get_class($module);
+        $p = explode('\\', $moduleClassName);
+        array_shift($p); // drop Module prefix
+        return $p[0];
+    }
 }

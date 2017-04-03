@@ -62,3 +62,92 @@ That's it.
 The KamilleModule class will do the rest for you upon the installation of the module. 
 
 
+
+
+
+Hooks
+=========
+
+Hooks is a way for modules to collect information from other modules.
+A hook binds two modules together, one being the provider, and the other the subscriber.
+
+There can be many subscribers modules for a given provider module.
+
+
+How to
+-------------
+
+Create a $moduleName"Hooks" class at the top of your module directory.
+
+Now to create a provider hook, create a protected static method which name follows this convention:
+
+- $moduleName_$hookMethodName
+
+As for now, you can only have ONE parameter (if you need one), so use it wisely (this was done for performances reasons,
+and it might change based on pragmatic requirements). 
+That's it.
+
+
+Now to create a subscriber hook, do the same as above, but replace the moduleName with the moduleName of the module
+you want to subscribe to.
+
+That's it.
+
+
+
+Services
+=========
+
+Services is the primary way for modules to bring functionality with the outer world.
+A service could be anything, which makes the X container a swiss army knife for the developers. 
+
+
+
+
+How to
+-------------
+
+Create a $moduleName"Services" class at the top of your module directory.
+
+Now to create a service, create a protected static method which name follows this convention:
+
+- $moduleName_$hookMethodName
+
+As for now, services don't accept argument (this was done for simplicity reasons),
+but it might change based on pragmatic requirements). 
+That's it.
+
+
+
+
+Files
+=========
+
+A module might provide files to the application (web assets, email templates, and so on...).
+Rather than copying the files manually, you can use the KamilleModule feature for files.
+
+
+How to
+-------------
+
+Create a files directory at the top of your module directory.
+
+Then create an app file inside your files directory; this app files represents the application:
+every file within that directory will be mapped exactly as is in the application.
+
+
+So for instance, if you create this file at the top of your module's directory:
+
+- files/app/doo/doo.txt
+
+Then upon your module installation, the following file will be created:
+
+- /app/doo/doo.txt
+
+
+Files are removed when you uninstall the module.
+
+
+
+
+

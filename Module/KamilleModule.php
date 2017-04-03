@@ -7,7 +7,7 @@ namespace Kamille\Module;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 
 use Kamille\Module\Exception\KamilleModuleException;
-use Kamille\ModuleUtils\ModuleInstallTool;
+use Kamille\Utils\ModuleUtils\ModuleInstallTool;
 use Output\ProgramOutputAwareInterface;
 use Output\ProgramOutputInterface;
 
@@ -128,6 +128,8 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         if (array_key_exists($stepId, $this->steps)) {
             if ("done" === $text) {
                 $this->getOutput()->success($text);
+            } else {
+                $this->getOutput()->info($text);
             }
         } else {
             throw new KamilleModuleException("step $stepId doesn't exist");
@@ -137,6 +139,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 
     protected function collectAutoSteps(array &$steps, $type)
     {
+        if (true === $this->useConfig()) {
+            if ('install' === $type) {
+                $steps['config'] = "Copying module config file";
+            } else {
+                $steps['config'] = "Removing module config file";
+            }
+        }
         if (true === $this->useAutoFiles()) {
             if ('install' === $type) {
                 $steps['files'] = "Installing files";
@@ -158,10 +167,23 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
                 $steps['hooks'] = "Uninstalling hooks";
             }
         }
+        if (true === $this->useControllers()) {
+            if ('install' === $type) {
+                $steps['controllers'] = "Installing controllers";
+            } else {
+                $steps['controllers'] = "Uninstalling controllers";
+            }
+        }
     }
 
     protected function installAuto()
     {
+        if (true === $this->useConfig()) {
+            $this->startStep('config');
+            ModuleInstallTool::installConfig($this);
+            $this->stopStep('config', "done");
+        }
+
         if (true === $this->useAutoFiles()) {
             $this->startStep('files');
             ModuleInstallTool::installFiles($this);
@@ -183,10 +205,25 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             ModuleInstallTool::bindModuleHooks($moduleName);
             $this->stopStep('hooks', "done");
         }
+
+
+        if (true === $this->useControllers()) {
+            $this->startStep('controllers');
+            $moduleName = $this->getModuleName();
+            ModuleInstallTool::installControllers($moduleName);
+            $this->stopStep('controllers', "done");
+        }
     }
 
     protected function uninstallAuto()
     {
+        if (true === $this->useConfig()) {
+            $this->startStep('config');
+            ModuleInstallTool::uninstallConfig($this);
+            $this->stopStep('config', "done");
+        }
+
+
         if (true === $this->useAutoFiles()) {
             $this->startStep('files');
             ModuleInstallTool::uninstallFiles($this);
@@ -208,6 +245,17 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             ModuleInstallTool::unbindModuleHooks($moduleName);
             $this->stopStep('hooks', "done");
         }
+
+
+        if (true === $this->useControllers()) {
+            $this->startStep('controllers');
+            /**
+             * you don't want to remove userland code, do you?
+             */
+//            $moduleName = $this->getModuleName();
+//            ModuleInstallTool::uninstallControllers($moduleName);
+            $this->stopStep('controllers', "skipped, don't want to remove userland code");
+        }
     }
 
     //--------------------------------------------
@@ -217,6 +265,20 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     {
         $d = $this->getModuleDir();
         $f = $d . "/files/app";
+        return (file_exists($f));
+    }
+
+    private function useConfig()
+    {
+        $d = $this->getModuleDir();
+        $f = $d . "/conf.php";
+        return (file_exists($f));
+    }
+
+    private function useControllers()
+    {
+        $d = $this->getModuleDir();
+        $f = $d . "/Controller";
         return (file_exists($f));
     }
 
