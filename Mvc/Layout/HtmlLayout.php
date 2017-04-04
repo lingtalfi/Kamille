@@ -17,6 +17,8 @@ class HtmlLayout extends Layout
     public function render(array $variables = [])
     {
 
+        ob_start();
+
         $out = parent::render($variables);
 
 
@@ -33,6 +35,8 @@ class HtmlLayout extends Layout
         echo $out;
         HtmlPageHelper::displayBodyEndAssets(true);
         echo '</html>' . PHP_EOL;
+
+        return ob_get_clean();
     }
 
 

@@ -867,24 +867,6 @@ This simple overriding mechanism choice was made to keep the application simple.
 Note that theme purposely don't depend on the theme.
 
  
- 
-Layout and mvc again
-=========================
-2017-04-03
-
-
-
-----Brainstorm
-
-So to display a web page, we use controllers.
-A controller will use a Layout object, with widgets attached to it.
-
-The layout and the widgets are both configured.
-
-This configured ensemble is referenced with a viewId.
-
-A view is just a configured instance of a Layout skeleton.
-
 
 
 

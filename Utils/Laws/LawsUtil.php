@@ -19,28 +19,33 @@ class LawsUtil
 {
 
 
-    public static function renderLawsViewById($viewId)
+    public static function renderLawsViewById($viewId, array $config = [])
     {
         $appDir = ApplicationParameters::get("app_dir");
         $file = $appDir . "/config/laws/$viewId.conf.php";
         if (file_exists($file)) {
             $conf = [];
             include $file;
+            $conf = array_replace_recursive($conf, $config);
             return self::renderLawsView($conf);
         }
         throw new LawsUtilException("laws config file not found: $file");
     }
 
-    public static function renderLawsView(array $config, array $variables=[])
+
+    /**
+     * $variables: allow us to change config on the fly (i.e. from the controller).
+     *      it can contain the following keys:
+     *          - layout: yourConf
+     *          - widgets
+     *              - widgetId: yourConf
+     *          - positions:
+     *              - positionName: yourConf
+     *
+     *
+     */
+    public static function renderLawsView(array $config)
     {
-
-
-        /**
-         * Todo: allow all variables override
-         */
-        if(array_key_exists('wwwww?', $variables)){
-
-        }
 
 
 
@@ -90,6 +95,7 @@ class LawsUtil
             $id = $widgetInfo['id'];
             $name = $widgetInfo['name'];
             $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
+
             $layout
                 ->bindWidget($id, Widget::create()
                     ->setTemplate($name)
