@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.24.0 -- 2017-04-04
+
+    - fix ModuleInstallTool problem with unbind hooks
+    
 - 1.23.0 -- 2017-04-02
 
     - add laws implementation

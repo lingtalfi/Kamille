@@ -70,6 +70,8 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 
     public function uninstall()
     {
+
+        a(ApplicationParameters::get("debug"));
         $steps = [];
         $this->collectAutoSteps($steps, 'uninstall');
         $this->registerSteps($steps, 'uninstall');
@@ -219,30 +221,38 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     {
         if (true === $this->useConfig()) {
             $this->startStep('config');
-            ModuleInstallTool::uninstallConfig($this);
+            $this->handleStep(function () {
+                ModuleInstallTool::uninstallConfig($this);
+            });
             $this->stopStep('config', "done");
         }
 
 
         if (true === $this->useAutoFiles()) {
             $this->startStep('files');
-            ModuleInstallTool::uninstallFiles($this);
+            $this->handleStep(function () {
+                ModuleInstallTool::uninstallFiles($this);
+            });
             $this->stopStep('files', "done");
         }
 
         if (true === $this->useXServices()) {
             $this->startStep('xservices');
-            $n = $this->getModuleName();
-            $moduleName = 'Module\\' . $n . '\\' . $n . "Services";
-            ModuleInstallTool::unbindModuleServices($moduleName);
+            $this->handleStep(function () {
+                $n = $this->getModuleName();
+                $moduleName = 'Module\\' . $n . '\\' . $n . "Services";
+                ModuleInstallTool::unbindModuleServices($moduleName);
+            });
             $this->stopStep('xservices', "done");
         }
 
         if (true === $this->useHooks()) {
             $this->startStep('hooks');
-            $n = $this->getModuleName();
-            $moduleName = 'Module\\' . $n . '\\' . $n . "Hooks";
-            ModuleInstallTool::unbindModuleHooks($moduleName);
+            $this->handleStep(function () {
+                $n = $this->getModuleName();
+                $moduleName = 'Module\\' . $n . '\\' . $n . "Hooks";
+                ModuleInstallTool::unbindModuleHooks($moduleName);
+            });
             $this->stopStep('hooks', "done");
         }
 
@@ -338,4 +348,18 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         return $msg;
     }
 
+
+    private function handleStep($fn)
+    {
+        try {
+            call_user_func($fn);
+        } catch (\Exception $e) {
+            $debug = ApplicationParameters::get("debug");
+            if (true === $debug) {
+                echo $e;
+            } else {
+                throw $e;
+            }
+        }
+    }
 }

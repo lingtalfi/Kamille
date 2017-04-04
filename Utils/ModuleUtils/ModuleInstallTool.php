@@ -207,6 +207,10 @@ class ModuleInstallTool
         //--------------------------------------------
         // FIRST, BIND PROVIDERS OF THE CANDIDATE MODULE
         //--------------------------------------------
+        $filter = [
+            [\ReflectionMethod::IS_STATIC],
+            [\ReflectionMethod::IS_PUBLIC],
+        ];
         foreach ($providerMethods as $method) {
             $m = $o->getMethodByName($candidateModule, $method);
             if (false === $o->hasMethod($m, $appHooksClass, $filter)) {
@@ -298,10 +302,9 @@ class ModuleInstallTool
             [\ReflectionMethod::IS_STATIC],
             [\ReflectionMethod::IS_PUBLIC],
         ];
-        // unbind providers
         $hooksMethods = $o->getMethodsList($targetClass, $filter);
 
-        // unbind subscribers
+        // unbind code subscribing the candidateModule to other module's hooks
         foreach ($hooksMethods as $method) {
             if (0 !== strpos($method, $module . "_")) {
                 if (false !== ($m = $o->getMethodByName($targetClass, $method))) {
@@ -330,15 +333,25 @@ class ModuleInstallTool
         /**
          * Then unbind providers.
          * I don't know why but unbinding providers has to be done AFTER unbinding subscribers (with the current code
-         * at least)
+         * at least).
+         *
+         *
+         * Also, with the current cut technique, the methods have to be removed from the
+         * last one (at the bottom) to the first one (at the top).
+         *
+         *
+         *
          */
+        // unbind providers provided by the candidate module
+        $methodsToRemove = [];
         foreach ($hooksMethods as $method) {
             if (0 === strpos($method, $module . "_")) {
                 if (false !== ($m = $o->getMethodByName($targetClass, $method))) {
-                    $o->removeMethod($m, $targetClass);
+                    $methodsToRemove[] = $m;
                 }
             }
         }
+        $o->removeMethods($methodsToRemove, $targetClass);
     }
 
     public static function installControllers($moduleName)
