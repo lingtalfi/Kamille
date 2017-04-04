@@ -91,8 +91,7 @@ class LawsUtil
         //--------------------------------------------
         // WIDGETS
         //--------------------------------------------
-        foreach ($widgets as $widgetInfo) {
-            $id = $widgetInfo['id'];
+        foreach ($widgets as $id => $widgetInfo) {
             $name = $widgetInfo['name'];
             $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
 

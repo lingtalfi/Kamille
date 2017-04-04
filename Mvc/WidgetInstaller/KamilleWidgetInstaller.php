@@ -1,12 +1,11 @@
 <?php
 
 
-namespace KaminosUtils\WidgetInstaller;
+namespace Kamille\Mvc\WidgetInstaller;
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
-use Kamille\Mvc\WidgetInstaller\WidgetInstallerInterface;
-use KaminosUtils\ModuleUtils\WidgetInstallerTool;
-use KaminosUtils\WidgetInstaller\Exception\KaminosWidgetInstallerException;
+use Kamille\Utils\ModuleUtils\WidgetInstallerTool;
+use Kamille\WidgetInstaller\Exception\KamilleWidgetInstallerException;
 use Output\ProgramOutputAwareInterface;
 use Output\ProgramOutputInterface;
 
@@ -37,7 +36,7 @@ use Output\ProgramOutputInterface;
  *
  *
  */
-abstract class KaminosWidgetInstaller implements ProgramOutputAwareInterface, WidgetInstallerInterface
+abstract class KamilleWidgetInstaller implements ProgramOutputAwareInterface, WidgetInstallerInterface
 {
     /**
      * @var ProgramOutputInterface $output
@@ -117,7 +116,7 @@ abstract class KaminosWidgetInstaller implements ProgramOutputAwareInterface, Wi
             $label = $this->getStepLabel($stepId);
             $this->getOutput()->notice($label, false);
         } else {
-            throw new KaminosWidgetInstallerException("step $stepId doesn't exist");
+            throw new KamilleWidgetInstallerException("step $stepId doesn't exist");
         }
     }
 
@@ -129,7 +128,7 @@ abstract class KaminosWidgetInstaller implements ProgramOutputAwareInterface, Wi
                 $this->getOutput()->success($text);
             }
         } else {
-            throw new KaminosWidgetInstallerException("step $stepId doesn't exist");
+            throw new KamilleWidgetInstallerException("step $stepId doesn't exist");
         }
     }
 

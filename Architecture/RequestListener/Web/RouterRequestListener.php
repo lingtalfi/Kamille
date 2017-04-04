@@ -59,6 +59,7 @@ class RouterRequestListener implements HttpRequestListenerInterface
         $urlParams = [];
         foreach ($this->routers as $router) {
             if (null !== ($res = $router->match($request))) {
+
                 if (is_array($res)) {
                     $controller = $res[0];
                     $urlParams = $res[1];
@@ -70,6 +71,7 @@ class RouterRequestListener implements HttpRequestListenerInterface
                 }
             }
         }
+
         if (null !== $controller) {
             $request->set("controller", $controller);
             $urlParams = array_merge($request->get('urlParams', []), $urlParams);
