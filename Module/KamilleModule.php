@@ -70,8 +70,6 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 
     public function uninstall()
     {
-
-        a(ApplicationParameters::get("debug"));
         $steps = [];
         $this->collectAutoSteps($steps, 'uninstall');
         $this->registerSteps($steps, 'uninstall');
