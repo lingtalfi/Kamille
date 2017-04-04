@@ -26,9 +26,9 @@ class KamilleController implements ControllerInterface
      *
      * @return HttpResponseInterface
      */
-    protected function renderByViewId($viewId, array $config = [])
+    protected function renderByViewId($viewId, array $config = [], callable $fn = null)
     {
-        return HttpResponse::create(LawsUtil::renderLawsViewById($viewId, $config));
+        return HttpResponse::create(LawsUtil::renderLawsViewById($viewId, $config, $fn));
     }
 
 }

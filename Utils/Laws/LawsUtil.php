@@ -19,7 +19,7 @@ class LawsUtil
 {
 
 
-    public static function renderLawsViewById($viewId, array $config = [])
+    public static function renderLawsViewById($viewId, array $config = [], callable $fn = null)
     {
         $appDir = ApplicationParameters::get("app_dir");
         $file = $appDir . "/config/laws/$viewId.conf.php";
@@ -27,7 +27,7 @@ class LawsUtil
             $conf = [];
             include $file;
             $conf = array_replace_recursive($conf, $config);
-            return self::renderLawsView($conf);
+            return self::renderLawsView($conf, $fn);
         }
         throw new LawsUtilException("laws config file not found: $file");
     }
@@ -44,10 +44,8 @@ class LawsUtil
      *
      *
      */
-    public static function renderLawsView(array $config)
+    public static function renderLawsView(array $config, callable $fn = null)
     {
-
-
 
         $layoutTemplate = $config['layout']['name'];
         $positions = (array_key_exists('positions', $config)) ? $config['positions'] : [];
@@ -92,16 +90,23 @@ class LawsUtil
         // WIDGETS
         //--------------------------------------------
         foreach ($widgets as $id => $widgetInfo) {
-            $name = $widgetInfo['name'];
-            $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
+            if (true === array_key_exists('name', $widgetInfo)) {
 
-            $layout
-                ->bindWidget($id, Widget::create()
-                    ->setTemplate($name)
-                    ->setVariables($conf)
-                    ->setLoader($wloader)
-                    ->setRenderer($commonRenderer)
-                );
+                $name = $widgetInfo['name'];
+                $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
+
+                $layout
+                    ->bindWidget($id, Widget::create()
+                        ->setTemplate($name)
+                        ->setVariables($conf)
+                        ->setLoader($wloader)
+                        ->setRenderer($commonRenderer)
+                    );
+            } else {
+                if (null !== $fn) {
+                    call_user_func($fn, ["widgetNameNotFound", $id, $widgetInfo]);
+                }
+            }
         }
 
         return $layout->render($layoutConf);
