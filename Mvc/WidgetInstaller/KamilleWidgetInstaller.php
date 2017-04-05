@@ -4,8 +4,8 @@
 namespace Kamille\Mvc\WidgetInstaller;
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
+use Kamille\Mvc\WidgetInstaller\Exception\KamilleWidgetInstallerException;
 use Kamille\Utils\ModuleUtils\WidgetInstallerTool;
-use Kamille\WidgetInstaller\Exception\KamilleWidgetInstallerException;
 use Output\ProgramOutputAwareInterface;
 use Output\ProgramOutputInterface;
 

@@ -4,6 +4,7 @@
 namespace Kamille\Utils\ModuleUtils;
 
 
+use ApplicationItemManager\ApplicationItemManagerInterface;
 use Bat\FileSystemTool;
 use CopyDir\SimpleCopyDirUtil;
 use DirScanner\DirScanner;
@@ -11,12 +12,23 @@ use DirScanner\YorgDirScannerTool;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Module\ModuleInterface;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
-use Kamille\Utils\StepTracker\StepTrackerAwareInterface;
 use MethodInjector\MethodInjector;
-use TokenFun\TokenFinder\Tool\TokenFinderTool;
 
 class ModuleInstallTool
 {
+
+
+    /**
+     * Note: maybe we will change the fact that the first argument is an ApplicationItemManagerInterface object,
+     * so don't rely too much on it.
+     */
+    public static function installWidgets(ApplicationItemManagerInterface $manager, array $widgets)
+    {
+        foreach ($widgets as $widget) {
+            $manager->install($widget);
+        }
+    }
+
 
     public static function installConfig(ModuleInterface $module, $replaceMode = true)
     {

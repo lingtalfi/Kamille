@@ -4,6 +4,8 @@
 namespace Kamille\Module;
 
 
+use ApplicationItemManager\ApplicationItemManagerInterface;
+use ApplicationItemManager\Aware\ApplicationItemManagerAwareInterface;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 
 use Kamille\Module\Exception\KamilleModuleException;
@@ -38,8 +40,13 @@ use Output\ProgramOutputInterface;
  *
  *
  */
-abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInterface
+abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInterface, ApplicationItemManagerAwareInterface
 {
+
+    /**
+     * @var ApplicationItemManagerInterface
+     */
+    private $widgetApplicationItemManager;
     /**
      * @var ProgramOutputInterface $output
      */
@@ -88,6 +95,21 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         return $this;
     }
 
+    /**
+     * Note: maybe we don't need to pass the whole itemManager to
+     * this class, we just need an interface with the installWidget method.
+     *
+     * So, as for now, I'm passing the whole ApplicationItemManager, but
+     * consider this as a private mean, you should't rely on that,
+     * I might change it in the future.
+     */
+    public function setApplicationItemManager(ApplicationItemManagerInterface $widgetApplicationItemManager)
+    {
+        $this->widgetApplicationItemManager = $widgetApplicationItemManager;
+        return $this;
+    }
+
+
 
     //--------------------------------------------
     //
@@ -127,7 +149,10 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     {
         if (array_key_exists($stepId, $this->steps)) {
             if ("done" === $text) {
-                $this->getOutput()->success($text);
+                $counter = $this->getStepCounter($stepId);
+//                $msg = $counter . " " . $text; // try that if you prefer..?
+                $msg = $text;
+                $this->getOutput()->success($msg);
             } else {
                 $this->getOutput()->info($text);
             }
@@ -174,6 +199,21 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
                 $steps['controllers'] = "Uninstalling controllers";
             }
         }
+
+        if (true === $this->useWidgets()) {
+            if ('install' === $type) {
+                $steps['widgets'] = "Installing widgets";
+            } else {
+                /**
+                 * Actually, let the user remove the widgets herself,
+                 * if it's a module dependent widget, you should use the file system (files/app)
+                 * to bring/remove your widgets to the app.
+                 *
+                 * But here, we are installing standalone widgets that might be used by other modules.
+                 */
+//                $steps['widgets'] = "Uninstalling widgets";
+            }
+        }
     }
 
     protected function installAuto()
@@ -212,6 +252,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             $moduleName = $this->getModuleName();
             ModuleInstallTool::installControllers($moduleName);
             $this->stopStep('controllers', "done");
+        }
+
+        if (true === $this->useWidgets()) {
+            $this->startStep('widgets');
+            $this->output->notice(""); // just br
+            ModuleInstallTool::installWidgets($this->widgetApplicationItemManager, $this->getWidgets());
+            $this->stopStep('widgets', "done");
         }
     }
 
@@ -266,6 +313,15 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         }
     }
 
+
+    protected function getWidgets()
+    {
+        /**
+         * Override this if your module uses widgets
+         */
+        return [];
+    }
+
     //--------------------------------------------
     //
     //--------------------------------------------
@@ -281,6 +337,11 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         $d = $this->getModuleDir();
         $f = $d . "/conf.php";
         return (file_exists($f));
+    }
+
+    private function useWidgets()
+    {
+        return (count($this->getWidgets()) > 0);
     }
 
     private function useControllers()
@@ -343,6 +404,22 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         }
         $count = count($this->steps);
         $msg = "----> Step $n/$count: $label ... ";
+        return $msg;
+    }
+
+
+    private function getStepCounter($stepId)
+    {
+        $n = 0;
+        $label = null;
+        foreach ($this->steps as $id => $label) {
+            $n++;
+            if ($id === $stepId) {
+                break;
+            }
+        }
+        $count = count($this->steps);
+        $msg = "$n/$count";
         return $msg;
     }
 
