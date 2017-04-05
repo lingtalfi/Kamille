@@ -12,6 +12,7 @@ use Kamille\Mvc\Loader\FileLoader;
 use Kamille\Mvc\Position\Position;
 use Kamille\Mvc\Renderer\PhpLayoutRenderer;
 use Kamille\Mvc\Widget\Widget;
+use Kamille\Services\XLog;
 use Kamille\Utils\Laws\Exception\LawsUtilException;
 
 
@@ -19,7 +20,7 @@ class LawsUtil
 {
 
 
-    public static function renderLawsViewById($viewId, array $config = [], callable $fn = null)
+    public static function renderLawsViewById($viewId, array $config = [])
     {
         $appDir = ApplicationParameters::get("app_dir");
         $file = $appDir . "/config/laws/$viewId.conf.php";
@@ -27,7 +28,7 @@ class LawsUtil
             $conf = [];
             include $file;
             $conf = array_replace_recursive($conf, $config);
-            return self::renderLawsView($conf, $fn);
+            return self::renderLawsView($conf, $viewId, $file);
         }
         throw new LawsUtilException("laws config file not found: $file");
     }
@@ -44,7 +45,7 @@ class LawsUtil
      *
      *
      */
-    public static function renderLawsView(array $config, callable $fn = null)
+    public static function renderLawsView(array $config, $viewId = null, $file = null)
     {
 
         $layoutTemplate = $config['layout']['name'];
@@ -60,6 +61,53 @@ class LawsUtil
         $commonRenderer = PhpLayoutRenderer::create();
         $proxy = LawsLayoutProxy::create();
 
+
+        if (true === ApplicationParameters::get('debug')) {
+
+            $sWidgets = "";
+            $c = 0;
+            foreach ($widgets as $id => $widgetInfo) {
+                if (0 !== $c) {
+                    $sWidgets .= ", ";
+                }
+                $name = "unknown";
+                if (true === array_key_exists('name', $widgetInfo)) {
+                    $name = $widgetInfo["name"];
+                }
+                $sWidgets .= "$name";
+                $c++;
+            }
+
+            $viewIdFile = $file;
+            if (null !== $viewIdFile) {
+                $appDir = ApplicationParameters::get("app_dir");
+                $viewIdFile = str_replace($appDir, '', $viewIdFile);
+                $viewIdFile = ' (' . $viewIdFile . ')';
+            }
+
+            $trace = [];
+            $theme = ApplicationParameters::get("theme", "no theme");
+            $trace[] = "LawsUtil trace with theme: $theme, viewId: $viewId" . $viewIdFile . ":";
+            $trace[] = "- layout: $layoutTemplate";
+            $trace[] = "- positions: " . implode(", ", array_keys($positions));
+            $trace[] = "- widgets: " . $sWidgets;
+
+
+            XLog::trace(implode(PHP_EOL, $trace));
+        }
+
+
+        //--------------------------------------------
+        // LAYOUT
+        //--------------------------------------------
+        $layout = HtmlLayout::create()
+            ->setTemplate($layoutTemplate)
+            ->setLoader(FileLoader::create()
+                ->addDir(Z::appDir() . "/theme/$theme/layouts")
+            )
+            ->setRenderer($commonRenderer);
+
+
         //--------------------------------------------
         // POSITIONS
         //--------------------------------------------
@@ -74,16 +122,6 @@ class LawsUtil
                 ->setRenderer($commonRenderer));
         }
         $commonRenderer->setLayoutProxy($proxy);
-
-        //--------------------------------------------
-        // LAYOUT
-        //--------------------------------------------
-        $layout = HtmlLayout::create()
-            ->setTemplate($layoutTemplate)
-            ->setLoader(FileLoader::create()
-                ->addDir(Z::appDir() . "/theme/$theme/layouts")
-            )
-            ->setRenderer($commonRenderer);
 
 
         //--------------------------------------------
@@ -103,9 +141,8 @@ class LawsUtil
                         ->setRenderer($commonRenderer)
                     );
             } else {
-                if (null !== $fn) {
-                    call_user_func($fn, ["widgetNameNotFound", $id, $widgetInfo]);
-                }
+                $end = (null !== $viewId) ? " (viewId=$viewId)" : "";
+                XLog::error("LawsUtil: name is not a valid key for widgetId $id" . $end);
             }
         }
 

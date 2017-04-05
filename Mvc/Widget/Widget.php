@@ -3,10 +3,13 @@
 
 namespace Kamille\Mvc\Widget;
 
+use Core\Services\H;
+use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Mvc\Loader\LoaderInterface;
 use Kamille\Mvc\Renderer\Exception\RendererException;
 use Kamille\Mvc\Renderer\RendererInterface;
 use Kamille\Mvc\Widget\Exception\WidgetException;
+use Kamille\Services\XLog;
 
 
 /**
@@ -62,7 +65,13 @@ class Widget implements WidgetInterface
         if (false !== $uninterpretedTemplate) {
             $this->prepareVariables($variables);
 
-            $renderedTemplate = $this->renderer->render($uninterpretedTemplate, $variables);
+            try {
+                $renderedTemplate = $this->renderer->render($uninterpretedTemplate, $variables);
+            } catch (\Exception $e) {
+                $renderedTemplate = $this->onRenderFailed($e, $this->templateName, $this);
+            }
+
+
             $this->onRenderedTemplateReady($renderedTemplate);
             return $renderedTemplate;
         }
@@ -127,6 +136,23 @@ class Widget implements WidgetInterface
     protected function prepareVariables(array &$variables)
     {
 
+    }
+
+
+    /**
+     * @return string, the fallback widget content.
+     */
+    protected function onRenderFailed(\Exception $e, $templateName, WidgetInterface $widget)
+    {
+        $msg = "Error with rendering of widget " . get_class($widget) . " and template $templateName";
+        $log = "Widget: " . $msg . ": " . H::exceptionToString($e);
+
+
+        XLog::error($log);
+        if (true === ApplicationParameters::get("debug")) {
+            return "debug: " . $msg;
+        }
+        return "";
     }
 
 

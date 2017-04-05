@@ -4,6 +4,7 @@
 namespace Kamille\Mvc\Layout;
 
 
+use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Mvc\Layout\Exception\LayoutException;
 use Kamille\Mvc\Loader\LoaderInterface;
 use Kamille\Mvc\Renderer\Exception\RendererException;
@@ -11,6 +12,7 @@ use Kamille\Mvc\Renderer\LayoutRendererInterface;
 use Kamille\Mvc\Renderer\RendererInterface;
 use Kamille\Mvc\Widget\LayoutAwareWidgetInterface;
 use Kamille\Mvc\Widget\WidgetInterface;
+use Kamille\Services\XLog;
 
 /**
  * In this implementation, we use the following pattern:
@@ -93,6 +95,10 @@ class Layout implements LayoutInterface
                 $this->renderer->setLayout($this);
             }
 
+
+            if (true === ApplicationParameters::get("debug")) {
+                XLog::debug("Rendering layout " . $this->templateName);
+            }
             $renderedTemplate = $this->renderer->render($uninterpretedTemplate, $variables);
             $this->onRenderedTemplateReady($renderedTemplate);
             return $renderedTemplate;

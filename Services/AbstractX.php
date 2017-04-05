@@ -31,13 +31,13 @@ class AbstractX
      */
     public static function get($service, $default = null, $throwEx = true)
     {
-        $p = explode('.', $service, 2);
+        $p = explode('_', $service, 2);
         $error = null;
         if (2 === count($p)) {
 
             $module = $p[0];
             if (ModuleInstallationRegister::isInstalled($module)) {
-                $method = str_replace('.', '_', $service);
+                $method = $service;
 
                 if (method_exists(get_called_class(), $method)) {
                     /**

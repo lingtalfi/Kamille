@@ -28,13 +28,13 @@ class AbstractHooks
      */
     public static function call($hook, &$param = null, $default = null, $throwEx = true)
     {
-        $p = explode('.', $hook, 2);
+        $p = explode('_', $hook, 2);
         $error = null;
         if (2 === count($p)) {
 
             $module = $p[0];
             if (ModuleInstallationRegister::isInstalled($module)) {
-                $method = str_replace('.', '_', $hook);
+                $method = $hook;
                 if (method_exists(get_called_class(), $method)) {
 
                     /**

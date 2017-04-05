@@ -4,9 +4,10 @@
 namespace Kamille\Mvc\LayoutProxy;
 
 
+use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Mvc\Layout\LayoutAwareInterface;
 use Kamille\Mvc\Layout\LayoutInterface;
-use Kamille\Mvc\Widget\Exception\WidgetException;
+use Kamille\Services\XLog;
 
 class LayoutProxy implements LayoutProxyInterface, LayoutAwareInterface
 {
@@ -41,36 +42,30 @@ class LayoutProxy implements LayoutProxyInterface, LayoutAwareInterface
     //--------------------------------------------
     public function widget($name)
     {
-        try {
-
-            if (null !== ($widget = $this->layout->getWidget($name))) {
-                echo $widget->render();
-            } else {
-                $this->onWidgetNotFound($name);
-                /**
-                 * If the widget if not found, we return an empty string,
-                 * so that the layout can still render the other widgets...
-                 */
-                echo "";
-            }
-
-        } catch (\Exception $e) {
-            echo $this->onWidgetException($e, $name);
+        if (null !== ($widget = $this->layout->getWidget($name))) {
+            echo $widget->render();
+        } else {
+            echo $this->onWidgetNotFound($name);
         }
     }
 
     //--------------------------------------------
     //
     //--------------------------------------------
+    /**
+     * If the widget if not found, we return an empty string,
+     * so that the layout can still render the other widgets...
+     */
     protected function onWidgetNotFound($name)
     {
-        throw new WidgetException("Widget not found: $name");
-    }
 
-    protected function onWidgetException(\Exception $e, $widgetName)
-    {
-        // todo: XLog
-        return "Problem with rendering the widget $widgetName";
+        $msg = "Widget not found: $name";
+        $log = "LayoutProxy: " . $msg;
+        XLog::error($log);
+        if (true === ApplicationParameters::get("debug")) {
+            return "debug: " . $msg;
+        }
+        return "";
     }
 }
 
