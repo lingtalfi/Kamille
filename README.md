@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.25.0 -- 2017-04-06
+
+    - add LawsLayoutProxy.includes method
+    
 - 1.24.0 -- 2017-04-04
 
     - fix ModuleInstallTool problem with unbind hooks

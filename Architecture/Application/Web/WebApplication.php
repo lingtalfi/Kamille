@@ -49,7 +49,8 @@ class WebApplication implements WebApplicationInterface
      *          Dev mode basically just means local environment (database local pass for instance).
      *          But debug mode goes one step further: it can enable extra debug messages, useful
      *          for occasional debugging, or fake mail sending, or...
-     * - request: HttpRequestInterface, the request to handle
+     * - theme: the name of the theme (if you are using a themable application)
+     * - request: HttpRequestInterface, the request to handle (only set when the application handle method is called)
      *
      *
      *
