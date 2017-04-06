@@ -74,11 +74,11 @@ class PhpLayoutRenderer extends LayoutRenderer
              * First interpret the template's php if any
              */
             ob_start();
-            $exception = false;
+            $__exCEption_ = false;
             try {
                 include $path;
             } catch (\Exception $e) {
-                $exception = $e;
+                $__exCEption_ = $e;
             }
             $content = ob_get_clean();
 
@@ -88,8 +88,8 @@ class PhpLayoutRenderer extends LayoutRenderer
              */
             $content = str_replace($__varsKeys, $__varsValues, $content);
 
-            if (false !== $exception) {
-                throw $exception;
+            if (false !== $__exCEption_) {
+                throw $__exCEption_;
             }
 
             return $content;

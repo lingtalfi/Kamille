@@ -6,6 +6,7 @@ namespace Kamille\Utils\Laws;
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Ling\Z;
+use Kamille\Mvc\HtmlPageHelper\HtmlPageHelper;
 use Kamille\Mvc\Layout\HtmlLayout;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxy;
 use Kamille\Mvc\Loader\FileLoader;
@@ -20,7 +21,7 @@ class LawsUtil
 {
 
 
-    public static function renderLawsViewById($viewId, array $config = [])
+    public static function renderLawsViewById($viewId, array $config = [], $autoloadCss = false)
     {
         $appDir = ApplicationParameters::get("app_dir");
         $file = $appDir . "/config/laws/$viewId.conf.php";
@@ -28,7 +29,7 @@ class LawsUtil
             $conf = [];
             include $file;
             $conf = array_replace_recursive($conf, $config);
-            return self::renderLawsView($conf, $viewId, $file);
+            return self::renderLawsView($conf, $viewId, $file, $autoloadCss);
         }
         throw new LawsUtilException("laws config file not found: $file");
     }
@@ -45,9 +46,8 @@ class LawsUtil
      *
      *
      */
-    public static function renderLawsView(array $config, $viewId = null, $file = null)
+    public static function renderLawsView(array $config, $viewId = null, $file = null, $autoloadCss = false)
     {
-
         $layoutTemplate = $config['layout']['name'];
         $positions = (array_key_exists('positions', $config)) ? $config['positions'] : [];
         $widgets = (array_key_exists('widgets', $config)) ? $config['widgets'] : [];
@@ -118,6 +118,12 @@ class LawsUtil
             )
             ->setRenderer($commonRenderer);
 
+        if (true === $autoloadCss) {
+            $css = "theme/$theme/css/layouts/" . str_replace('/', '.', $layoutTemplate) . ".css";
+            if (file_exists(Z::appDir() . "/www/$css")) {
+                HtmlPageHelper::css("/$css");
+            }
+        }
 
         //--------------------------------------------
         // POSITIONS
@@ -131,6 +137,14 @@ class LawsUtil
                 ->setLoader($ploader)
                 ->setVariables($pVars)
                 ->setRenderer($commonRenderer));
+
+
+            if (true === $autoloadCss) {
+                $css = "theme/$theme/css/positions/" . str_replace('/', '.', $tplName) . ".css";
+                if (file_exists(Z::appDir() . "/www/$css")) {
+                    HtmlPageHelper::css("/$css");
+                }
+            }
         }
         $commonRenderer->setLayoutProxy($proxy);
 
@@ -151,6 +165,16 @@ class LawsUtil
                         ->setLoader($wloader)
                         ->setRenderer($commonRenderer)
                     );
+
+
+                if (true === $autoloadCss) {
+                    $css = "theme/$theme/css/widgets/" . str_replace('/', '.', $name) . ".css";
+                    if (file_exists(Z::appDir() . "/www/$css")) {
+                        HtmlPageHelper::css("/$css");
+                    }
+                }
+
+
             } else {
                 $end = (null !== $viewId) ? " (viewId=$viewId)" : "";
                 XLog::error("LawsUtil: name is not a valid key for widgetId $id" . $end);
