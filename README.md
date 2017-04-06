@@ -161,6 +161,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.26.0 -- 2017-04-06
+
+    - fix LawsLayoutProxy.includes 
+    - created PublicWidgetInterface 
+    
 - 1.25.0 -- 2017-04-06
 
     - add LawsLayoutProxy.includes method

@@ -59,7 +59,7 @@ class LawsUtil
 
 
         $commonRenderer = PhpLayoutRenderer::create();
-        $proxy = LawsLayoutProxy::create();
+        $proxy = LawsLayoutProxy::create()->setRenderer($commonRenderer);
 
 
         if (true === ApplicationParameters::get('debug')) {
@@ -74,7 +74,7 @@ class LawsUtil
                 if (true === array_key_exists('name', $widgetInfo)) {
                     $name = $widgetInfo["name"];
                 }
-                $sWidgets .= "$name";
+                $sWidgets .= "#$id: $name";
                 $c++;
             }
 
@@ -85,11 +85,22 @@ class LawsUtil
                 $viewIdFile = ' (' . $viewIdFile . ')';
             }
 
+            $sPos = "";
+            $c = 0;
+            foreach ($positions as $name => $info) {
+                if (0 !== $c) {
+                    $sPos .= ", ";
+                }
+                $sPos .= "#$name: " . $info['name'];
+                $c++;
+            }
+
+
             $trace = [];
             $theme = ApplicationParameters::get("theme", "no theme");
             $trace[] = "LawsUtil trace with theme: $theme, viewId: $viewId" . $viewIdFile . ":";
             $trace[] = "- layout: $layoutTemplate";
-            $trace[] = "- positions: " . implode(", ", array_keys($positions));
+            $trace[] = "- positions: " . $sPos;
             $trace[] = "- widgets: " . $sWidgets;
 
 

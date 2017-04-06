@@ -16,7 +16,7 @@ use Kamille\Services\XLog;
  * In this implementation, we use the following pattern:
  * https://github.com/lingtalfi/loader-renderer-pattern/blob/master/loader-renderer.pattern.md
  */
-class Widget implements WidgetInterface
+class Widget implements PublicWidgetInterface
 {
     private $templateName;
     protected $variables;
@@ -53,6 +53,17 @@ class Widget implements WidgetInterface
         $this->templateName = $templateName;
         return $this;
     }
+
+    public function getTemplate()
+    {
+        return $this->templateName;
+    }
+
+    public function getVariables()
+    {
+        return $this->variables;
+    }
+
 
     public function render()
     {

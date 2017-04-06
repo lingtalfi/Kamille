@@ -7,6 +7,7 @@ use Kamille\Mvc\Layout\LayoutAwareInterface;
 use Kamille\Mvc\Layout\LayoutInterface;
 use Kamille\Mvc\LayoutProxy\LayoutProxy;
 use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
+use Kamille\Mvc\LayoutProxy\VariablesAwareLayoutProxyInterface;
 use Kamille\Mvc\Renderer\Exception\RendererException;
 
 
@@ -64,6 +65,9 @@ class PhpLayoutRenderer extends LayoutRenderer
              */
             $v = $variables;
             $l = $this->getLayoutProxy();
+            if ($l instanceof VariablesAwareLayoutProxyInterface) {
+                $l->setVariables($variables);
+            }
 
 
             /**

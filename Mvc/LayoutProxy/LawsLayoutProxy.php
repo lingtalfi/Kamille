@@ -5,6 +5,7 @@ namespace Kamille\Mvc\LayoutProxy;
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Mvc\Position\PositionInterface;
+use Kamille\Mvc\Renderer\RendererInterface;
 use Kamille\Services\XLog;
 
 
@@ -18,11 +19,17 @@ use Kamille\Services\XLog;
  *
  * See laws documentation for more info.
  */
-class LawsLayoutProxy extends LayoutProxy
+class LawsLayoutProxy extends LayoutProxy implements LawsLayoutProxyInterface, VariablesAwareLayoutProxyInterface
 {
 
     private $positions;
     private $includesDir;
+
+    /**
+     * @var RendererInterface
+     */
+    private $renderer;
+    private $variables;
 
 
     public function __construct()
@@ -31,6 +38,19 @@ class LawsLayoutProxy extends LayoutProxy
         $this->positions = [];
         $this->includesDir = ApplicationParameters::get("app_dir") . "/theme/" . ApplicationParameters::get("theme") . "/includes";
     }
+
+    public function setRenderer(RendererInterface $renderer)
+    {
+        $this->renderer = $renderer;
+        return $this;
+    }
+
+    public function setVariables(array $variables)
+    {
+        $this->variables = $variables;
+        return $this;
+    }
+
 
     public function bindPosition($position, PositionInterface $p)
     {
@@ -78,7 +98,7 @@ class LawsLayoutProxy extends LayoutProxy
     {
         $f = $this->includesDir . "/$includePath";
         if (file_exists($f)) {
-            include $f;
+            echo $this->renderer->render(file_get_contents($f), $this->variables);
         } else {
             $msg = "Include not found: $includePath ($f)";
             if (true === ApplicationParameters::get("debug")) {
