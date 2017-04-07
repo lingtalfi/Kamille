@@ -21,7 +21,7 @@ class LawsUtil
 {
 
 
-    public static function renderLawsViewById($viewId, array $config = [], $autoloadCss = false)
+    public static function renderLawsViewById($viewId, array $config = [], array $options = [])
     {
         $appDir = ApplicationParameters::get("app_dir");
         $file = $appDir . "/config/laws/$viewId.conf.php";
@@ -29,7 +29,7 @@ class LawsUtil
             $conf = [];
             include $file;
             $conf = array_replace_recursive($conf, $config);
-            return self::renderLawsView($conf, $viewId, $file, $autoloadCss);
+            return self::renderLawsView($conf, $viewId, $file, $options);
         }
         throw new LawsUtilException("laws config file not found: $file");
     }
@@ -46,8 +46,18 @@ class LawsUtil
      *
      *
      */
-    public static function renderLawsView(array $config, $viewId = null, $file = null, $autoloadCss = false)
+    private static function renderLawsView(array $config, $viewId = null, $file = null, array $options = [])
     {
+        $options = array_merge([
+            'autoloadCss' => true,
+            'widgetClass' => "Widget", // todo
+        ], $options);
+        $autoloadCss = $options['autoloadCss'];
+
+
+
+
+
         $layoutTemplate = $config['layout']['name'];
         $positions = (array_key_exists('positions', $config)) ? $config['positions'] : [];
         $widgets = (array_key_exists('widgets', $config)) ? $config['widgets'] : [];
@@ -65,17 +75,12 @@ class LawsUtil
         if (true === ApplicationParameters::get('debug')) {
 
             $sWidgets = "";
-            $c = 0;
             foreach ($widgets as $id => $widgetInfo) {
-                if (0 !== $c) {
-                    $sWidgets .= ", ";
-                }
                 $name = "unknown";
                 if (true === array_key_exists('name', $widgetInfo)) {
                     $name = $widgetInfo["name"];
                 }
-                $sWidgets .= "#$id: $name";
-                $c++;
+                $sWidgets .= PHP_EOL . "----- id: $id; tplName: $name";
             }
 
             $viewIdFile = $file;
@@ -91,7 +96,7 @@ class LawsUtil
                 if (0 !== $c) {
                     $sPos .= ", ";
                 }
-                $sPos .= "#$name: " . $info['name'];
+                $sPos .= "name: $name; tplName: " . $info['name'];
                 $c++;
             }
 

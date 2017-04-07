@@ -3,7 +3,6 @@
 
 namespace Kamille\Mvc\Widget;
 
-use Core\Services\H;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Mvc\Loader\LoaderInterface;
 use Kamille\Mvc\Renderer\Exception\RendererException;
@@ -156,10 +155,7 @@ class Widget implements PublicWidgetInterface
     protected function onRenderFailed(\Exception $e, $templateName, WidgetInterface $widget)
     {
         $msg = "Error with rendering of widget " . get_class($widget) . " and template $templateName";
-        $log = "Widget: " . $msg . ": " . H::exceptionToString($e);
-
-
-        XLog::error($log);
+        XLog::error($msg);
         if (true === ApplicationParameters::get("debug")) {
             return "debug: " . $msg;
         }

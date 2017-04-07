@@ -322,6 +322,28 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         return [];
     }
 
+
+    /**
+     * This is experimental and might be removed in the future,
+     * don't use/override it: it's just a memo for me.
+     *
+     * Basically, the idea is that your module is saying:
+     * Hi, I will be using layout convention lnc1 (https://github.com/lingtalfi/layout-naming-conventions),
+     * and therefore I expect some files to be there (basically the lnc1 files for the _default_ theme):
+     *
+     * - theme/_default_/layouts/sandwich_1c/default.php
+     * - theme/_default_/layouts/sandwich_2c/default.php
+     * - ...
+     * and
+     * - www/theme/_default_/layouts/sandwich_2c.default.css
+     * - ...
+     *
+     *
+     */
+    protected function getLayoutConventionName(){
+        return 'lnc1';
+    }
+
     //--------------------------------------------
     //
     //--------------------------------------------

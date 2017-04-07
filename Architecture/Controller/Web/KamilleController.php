@@ -28,12 +28,12 @@ class KamilleController implements ControllerInterface
      *
      * @return HttpResponseInterface
      */
-    protected function renderByViewId($viewId, array $config = [])
+    protected function renderByViewId($viewId, array $config = [], $autoloadCss = null)
     {
         if (true === ApplicationParameters::get('debug')) {
             XLog::debug("[Controller " . get_called_class() . "] - renderByViewId with viewId $viewId");
         }
-        return HttpResponse::create(LawsUtil::renderLawsViewById($viewId, $config));
+        return HttpResponse::create(LawsUtil::renderLawsViewById($viewId, $config, $autoloadCss));
     }
 
 }
