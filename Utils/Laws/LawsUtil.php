@@ -50,12 +50,10 @@ class LawsUtil
     {
         $options = array_merge([
             'autoloadCss' => true,
-            'widgetClass' => "Widget", // todo
+            'widgetClass' => "Widget",
         ], $options);
         $autoloadCss = $options['autoloadCss'];
-
-
-
+        $widgetClass = $options['widgetClass'];
 
 
         $layoutTemplate = $config['layout']['name'];
@@ -163,8 +161,11 @@ class LawsUtil
                 $name = $widgetInfo['name'];
                 $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
 
+
+                $wid = new $widgetClass;
+
                 $layout
-                    ->bindWidget($id, Widget::create()
+                    ->bindWidget($id, $wid
                         ->setTemplate($name)
                         ->setVariables($conf)
                         ->setLoader($wloader)

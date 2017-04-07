@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.27.0 -- 2017-04-07
+
+    - update LawsUtil arguments 
+    
 - 1.26.0 -- 2017-04-06
 
     - fix LawsLayoutProxy.includes 
