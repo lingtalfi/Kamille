@@ -122,7 +122,8 @@ class LawsUtil
             ->setRenderer($commonRenderer);
 
         if (true === $autoloadCss) {
-            $css = "theme/$theme/css/layouts/" . str_replace('/', '.', $layoutTemplate) . ".css";
+            $p = explode("/", $layoutTemplate);
+            $css = "theme/$theme/layouts/" . $p[0] . "/" . $p[0] . '.' . $p[1] . ".css";
             if (file_exists(Z::appDir() . "/www/$css")) {
                 HtmlPageHelper::css("/$css");
             }
@@ -143,7 +144,8 @@ class LawsUtil
 
 
             if (true === $autoloadCss) {
-                $css = "theme/$theme/css/positions/" . str_replace('/', '.', $tplName) . ".css";
+                $p = explode("/", $tplName);
+                $css = "theme/$theme/positions/" . $p[0] . "/" . $p[0] . '.' . $p[1] . ".css";
                 if (file_exists(Z::appDir() . "/www/$css")) {
                     HtmlPageHelper::css("/$css");
                 }
@@ -174,7 +176,8 @@ class LawsUtil
 
 
                 if (true === $autoloadCss) {
-                    $css = "theme/$theme/css/widgets/" . str_replace('/', '.', $name) . ".css";
+                    $p = explode("/", $name);
+                    $css = "theme/$theme/widgets/" . $p[0] . "/" . $p[0] . '.' . $p[1] . ".css";
                     if (file_exists(Z::appDir() . "/www/$css")) {
                         HtmlPageHelper::css("/$css");
                     }
