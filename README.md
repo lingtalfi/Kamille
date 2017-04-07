@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.28.0 -- 2017-04-07
+
+    - fix LawsUtil default Widget class 
+    
 - 1.27.0 -- 2017-04-07
 
     - update LawsUtil arguments 

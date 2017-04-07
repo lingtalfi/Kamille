@@ -50,7 +50,7 @@ class LawsUtil
     {
         $options = array_merge([
             'autoloadCss' => true,
-            'widgetClass' => "Widget",
+            'widgetClass' => 'Kamille\Mvc\Widget\Widget',
         ], $options);
         $autoloadCss = $options['autoloadCss'];
         $widgetClass = $options['widgetClass'];
