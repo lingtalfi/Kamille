@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.29.0 -- 2017-04-08
+
+    - add Z::uri method 
+    
 - 1.28.0 -- 2017-04-07
 
     - fix LawsUtil default Widget class 
