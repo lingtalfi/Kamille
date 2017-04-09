@@ -161,6 +161,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.30.0 -- 2017-04-09
+
+    - XConfig now uses dot notation to access deep array levels 
+    - Z::uri method now works without request 
+    
 - 1.29.0 -- 2017-04-08
 
     - add Z::uri method 

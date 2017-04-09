@@ -67,26 +67,24 @@ class Z
     }
 
 
-    public static function uri(array $params = [], $replace = true, $absolute = false)
+    public static function uri($uri = null, array $params = [], $replace = true, $absolute = false)
     {
-        $request = WebApplication::inst()->get('request');
-        if ($request instanceof HttpRequestInterface) {
-
-            $uri = $request->uri(false);
-            if (false === $replace) {
-                $params = array_merge($_GET, $params);
-            }
-            $prefix = "";
-            if (true === $absolute) {
-                $proto = "http";
-                if (true === $request->isHttps()) {
-                    $proto = "https";
-                }
-                $prefix = $proto . "://" . $request->host();
-            }
-            return $prefix . UriTool::appendQueryString($uri, $params);
-
+        // assuming we are not using a cli environment
+        if (null === $uri) {
+            $uri = $_SERVER['REQUEST_URI'];
+            $p = explode("?", $uri, 2);
+            $uri = $p[0];
         }
-        throw new LingException("request not set, are you really inside a Controller?");
+
+        if (false === $replace) {
+            $params = array_merge($_GET, $params);
+        }
+
+        $prefix = "";
+        if (true === $absolute) {
+            $prefix = UriTool::getWebsiteAbsoluteUrl();
+        }
+        return $prefix . UriTool::appendQueryString($uri, $params);
+
     }
 }

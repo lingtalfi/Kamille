@@ -22,17 +22,18 @@ class XConfig
     /**
      * @param $key :
      *      key: <module> <.> <moduleKey>
+     *      moduleKey, a dot separated string, each dot goes down one level in the array
+     *
      *
      * For instance: Core.paramOne
      *
      */
     public static function get($key, $default = null, $throwEx = false)
     {
-        $p = explode('.', $key, 2);
+        $p = explode('.', $key);
         $error = null;
-        if (2 === count($p)) {
-            $module = $p[0];
-            $parameter = $p[1];
+        if (count($p) > 1) {
+            $module = array_shift($p);
 
             if (ModuleInstallationRegister::isInstalled($module)) {
 
@@ -48,13 +49,24 @@ class XConfig
                     self::$confs[$module] = $conf;
                 }
 
-                if (array_key_exists($parameter, self::$confs[$module])) {
-                    return self::$confs[$module][$parameter];
-                } else {
-                    $error = "Parameter not found: $key";
+                $holder = self::$confs[$module];
+                $ret = null;
+                $found = true;
+                while ($parameter = array_shift($p)) {
+                    if (array_key_exists($parameter, $holder)) {
+                        $ret = $holder[$parameter];
+                        $holder = $holder[$parameter];
+                    } else {
+                        $error = "Parameter not found: $key";
+                        $found = false;
+                        break;
+                    }
+                }
+                if (true === $found) {
+                    return $ret;
                 }
             } else {
-                $error = "Module $module is not installed";
+                $error = "Module $module is not installed, cannot access $key";
             }
         } else {
             $error = "Invalid parameter syntax: $key";
