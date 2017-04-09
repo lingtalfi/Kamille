@@ -28,7 +28,7 @@ class KamilleController implements ControllerInterface
      *
      * @return HttpResponseInterface
      */
-    protected function renderByViewId($viewId, array $config = [], array $options = [])
+    protected function renderByViewId($viewId, $config = null, array $options = [])
     {
         if (true === ApplicationParameters::get('debug')) {
             XLog::debug("[Controller " . get_called_class() . "] - renderByViewId with viewId $viewId");

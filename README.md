@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.31.0 -- 2017-04-09
+
+    - WebApplication now has the lang parameter 
+    
 - 1.30.0 -- 2017-04-09
 
     - XConfig now uses dot notation to access deep array levels 

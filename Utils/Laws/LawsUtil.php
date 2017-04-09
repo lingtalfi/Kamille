@@ -21,14 +21,27 @@ class LawsUtil
 {
 
 
-    public static function renderLawsViewById($viewId, array $config = [], array $options = [])
+    /**
+     * $config: callable|array
+     *          If it's an array, it will be merged with the laws config array.
+     *          If it's a callable, the laws config array will be passed by reference as the argument of that callable.
+     *
+     *
+     */
+    public static function renderLawsViewById($viewId, $config = null, array $options = [])
     {
+
         $appDir = ApplicationParameters::get("app_dir");
         $file = $appDir . "/config/laws/$viewId.conf.php";
         if (file_exists($file)) {
             $conf = [];
             include $file;
-            $conf = array_replace_recursive($conf, $config);
+
+            if (is_array($config)) {
+                $conf = array_replace_recursive($conf, $config);
+            } elseif (is_callable($config)) {
+                call_user_func_array($config, [&$conf]);
+            }
             return self::renderLawsView($conf, $viewId, $file, $options);
         }
         throw new LawsUtilException("laws config file not found: $file");

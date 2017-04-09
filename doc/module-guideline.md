@@ -167,6 +167,27 @@ a(Z::uri(XConfig::get("Kaminos.uri.login"), ["more" => "ko"], false));
 ```
  
  
+Naming config keys
+----------------------
+Todo: to name a key, start with the WHAT first, and use it as a namespace.
+It makes things a little more organized, like so:
+
+
+
+```php
+"conf" => [
+    "formModel" => null, // to be set by the controller
+    "uriOnSuccess" => "/home",
+    "nameUserName" => "username",
+    "namePassword" => "password",
+    "textUserName" => "Username",
+    "textPassword" => "Password",
+    "textSubmit" => "Send",
+    "showForgotPasswordLink" => true,
+    "uriForgotPassword" => "/password-forgotten",
+],
+```
+
 
 
 
