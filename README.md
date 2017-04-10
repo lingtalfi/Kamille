@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.34.0 -- 2017-04-10
+
+    - removed ModuleInstaller 
+    
 - 1.33.0 -- 2017-04-10
 
     - ModuleInstaller moved to Module subdirectory 
