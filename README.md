@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.33.0 -- 2017-04-10
+
+    - ModuleInstaller moved to Module subdirectory 
+    
 - 1.32.0 -- 2017-04-10
 
     - add reuse argument to the AbstractX.get method 
