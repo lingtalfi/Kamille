@@ -29,8 +29,11 @@ class AbstractX
      *
      *
      */
-    public static function get($service, $default = null, $throwEx = true)
+    public static function get($service, $default = null, $throwEx = true, $reuse = true)
     {
+        if (true === $reuse && array_key_exists($service, self::$cache)) {
+            return self::$cache[$service];
+        }
         $p = explode('_', $service, 2);
         $error = null;
         if (2 === count($p)) {
@@ -45,7 +48,11 @@ class AbstractX
                      * the static::class technique does not work in 5.4:  syntax error, unexpected 'class'  (tested in mamp 5.4.45)
                      * It worked on 5.5.38 (mamp).
                      */
-                    return call_user_func([static::class, $method]);
+                    $ret = call_user_func([static::class, $method]);
+                    if (true === $reuse) {
+                        self::$cache[$service] = $ret;
+                    }
+                    return $ret;
                 } else {
                     $error = "service not found: $service";
                 }

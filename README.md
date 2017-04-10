@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.32.0 -- 2017-04-10
+
+    - add reuse argument to the AbstractX.get method 
+    
 - 1.31.0 -- 2017-04-09
 
     - WebApplication now has the lang parameter 
