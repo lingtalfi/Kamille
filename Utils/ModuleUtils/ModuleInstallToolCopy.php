@@ -14,7 +14,7 @@ use Kamille\Module\ModuleInterface;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
 use MethodInjector\MethodInjector;
 
-class ModuleInstallTool
+class ModuleInstallToolCopy
 {
 
 
