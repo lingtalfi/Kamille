@@ -161,6 +161,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.35.0 -- 2017-04-12
+
+    - AbstractX.get accept service arguments 
+    - fix ModuleInstallTool methods using ClassCooker
+    
 - 1.34.0 -- 2017-04-10
 
     - removed ModuleInstaller 

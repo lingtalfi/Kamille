@@ -6,13 +6,13 @@ namespace Kamille\Utils\ModuleUtils;
 
 use ApplicationItemManager\ApplicationItemManagerInterface;
 use Bat\FileSystemTool;
+use ClassCooker\ClassCooker;
 use CopyDir\SimpleCopyDirUtil;
 use DirScanner\DirScanner;
 use DirScanner\YorgDirScannerTool;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Module\ModuleInterface;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
-use MethodInjector\MethodInjector;
 
 class ModuleInstallTool
 {
@@ -127,27 +127,37 @@ class ModuleInstallTool
 
     public static function bindModuleServices($moduleServicesClassName)
     {
-        $o = new MethodInjector();
-        $moduleFilter = [
-            [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PROTECTED],
-        ];
+        $moduleFile = self::getModuleFile($moduleServicesClassName);
+        $xContainerFile = self::getXContainerFile();
 
-        $xFilter = [
-            [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PUBLIC],
-        ];
+        /**
+         * Adding all methods from the ModuleServices class
+         * to the X container, if they don't exist
+         *
+         * Note: methods from the ModuleServices class have to be
+         * protected static.
+         */
 
-        $methods = $o->getMethodsList($moduleServicesClassName, $moduleFilter);
-        foreach ($methods as $method) {
-            $m = $o->getMethodByName($moduleServicesClassName, $method);
-            if (false === $o->hasMethod($m, 'Core\Services\X', $xFilter)) {
-                $c = trim($m->getContent());
-                if (0 === stripos($c, 'protected')) {
-                    $c = 'public' . substr($c, 9);
-                    $m->setContent($c);
-                }
-                $o->appendMethod($m, 'Core\Services\X');
+        $moduleCooker = ClassCooker::create()->setFile($moduleFile);
+        $moduleMethods = $moduleCooker->getMethods(["protected", "static"]);
+
+        $xCooker = ClassCooker::create()->setFile($xContainerFile);
+        $xMethods = $xCooker->getMethods(["public", "static"]);
+        $xMethods = array_reverse($xMethods);
+
+
+        foreach ($moduleMethods as $method) {
+            if (false === array_key_exists($method, $xMethods)) {
+                // if it doesn't exist in the X class, we add it
+                $methodContent = $moduleCooker->getMethodContent($method);
+
+                // however, we change the visibility from protected to public
+                $methodContent = preg_replace('!protected!i', 'public', $methodContent, 1);
+
+                $xCooker->addMethod($method, $methodContent);
+            } else {
+                // for now, if it doesn't exist, then
+                // we don't update it (that might change)
             }
         }
     }
@@ -155,33 +165,27 @@ class ModuleInstallTool
 
     public static function unbindModuleServices($candidateModule)
     {
-        $o = new MethodInjector();
-        $moduleFilter = [
-            [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PROTECTED],
-        ];
-        $xFilter = [
-            [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PUBLIC],
-        ];
+        /**
+         * remove all methods from the X container
+         * that come from the candidate module
+         */
+        $moduleFile = self::getModuleFile($candidateModule);
+        $xContainerFile = self::getXContainerFile();
+        $moduleCooker = ClassCooker::create()->setFile($moduleFile);
 
-        $methods = $o->getMethodsList($candidateModule, $moduleFilter);
-        foreach ($methods as $method) {
-            $m = $o->getMethodByName($candidateModule, $method);
-            if (false !== $o->hasMethod($m, 'Core\Services\X', $xFilter)) {
-                $o->removeMethod($m, 'Core\Services\X');
-            }
+        $moduleMethods = $moduleCooker->getMethods(["protected", "static"]);
+
+        $xCooker = ClassCooker::create()->setFile($xContainerFile);
+        foreach ($moduleMethods as $method) {
+            $xCooker->removeMethod($method);
         }
+
     }
 
 
     public static function bindModuleHooks($candidateModule)
     {
-        $o = new MethodInjector();
-        $filter = [
-            [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PROTECTED],
-        ];
+
         /**
          * The strategy here is that hook method which name starts with the module name is a provider method,
          * and other methods are subscriber methods.
@@ -198,14 +202,22 @@ class ModuleInstallTool
          *
          *
          */
+        $moduleFile = self::getModuleFile($candidateModule);
+        $moduleCooker = ClassCooker::create()->setFile($moduleFile);
+        $moduleMethods = $moduleCooker->getMethods(["protected", "static"]);
 
-        // list candidate module's methods
+
+        $xHooksFile = self::getHooksFile();
+        $hookCooker = ClassCooker::create()->setFile($xHooksFile);
+
         $p = explode('\\', $candidateModule); // Module is the first component
         $module = $p[1];
-        $methods = $o->getMethodsList($candidateModule, $filter);
+
+
+        // list all modules methods and distribute them into providers and subscribers
         $providerMethods = [];
         $subscriberMethods = [];
-        foreach ($methods as $method) {
+        foreach ($moduleMethods as $method) {
             $p = explode('_', $method, 2);
             $moduleName = $p[0];
             if ($module === $moduleName) {
@@ -215,9 +227,9 @@ class ModuleInstallTool
             }
         }
 
-        // list application hooks methods
-        $appHooksClass = 'Core\Services\Hooks';
-        $appHooksMethods = $o->getMethodsList($appHooksClass, $filter);
+
+        $hookMethods = $hookCooker->getMethods(['protected', 'static']);
+        $hookMethods = array_reverse($hookMethods);
 
 
         // installed modules
@@ -225,84 +237,96 @@ class ModuleInstallTool
 
 
         //--------------------------------------------
-        // FIRST, BIND PROVIDERS OF THE CANDIDATE MODULE
+        // FIRST, CREATE THE PROVIDERS AND BIND OTHER MODULES TO IT
         //--------------------------------------------
-        $filter = [
-            [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PUBLIC],
-        ];
         foreach ($providerMethods as $method) {
-            $m = $o->getMethodByName($candidateModule, $method);
-            if (false === $o->hasMethod($m, $appHooksClass, $filter)) {
-                $content = trim($m->getContent());
-                if (0 === stripos($content, 'protected')) {
-                    $content = 'public' . substr($content, 9);
-                }
 
 
-                // compile the method content
-                $innerContents = [];
-                $innerContents[] = $m->getInnerContent();
+            if (false === array_key_exists($method, $hookMethods)) {
+
+                $signature = $moduleCooker->getMethodSignature($method);
+                $currentInnerContent = trim($moduleCooker->getMethodContent($method, false));
+
 
                 // do other modules want to subscribe to it?
+                $innerContents = [];
                 foreach ($installed as $mod) {
-                    $candidateModuleHookClass = 'Module\\' . $mod . '\\' . $mod . 'Hooks';
-                    if (false !== ($mSource = $o->getMethodByName($candidateModuleHookClass, $method))) {
-                        $innerContent = $mSource->getInnerContent();
-                        // prepare inner content
-                        $startComment = self::getHookComment($mod, "start");
-                        $endComment = self::getHookComment($mod, "end");
-                        $innerContent = $startComment . $innerContent . PHP_EOL . trim($endComment);
-                        $innerContents[] = $innerContent;
+
+                    if ($module === $mod) {
+                        continue;
+                    }
+
+
+                    $modFile = self::getModuleHooksFileByModuleName($mod);
+                    if (file_exists($modFile)) {
+
+                        $modCooker = ClassCooker::create()->setFile($modFile);
+                        $modMethods = $modCooker->getMethods(["protected", "static"]);
+
+                        foreach ($modMethods as $m) {
+                            if ($m === $method) {
+
+                                $innerContent = trim($modCooker->getMethodContent($m, false));
+                                if ('' !== trim($innerContent)) {
+
+                                    $startComment = self::getHookComment($mod, "start");
+                                    $endComment = self::getHookComment($mod, "end");
+                                    $innerContent = "\t\t" . $startComment . "\t\t" . $innerContent . PHP_EOL . "\t\t" . trim($endComment) . PHP_EOL;
+                                    $innerContents[] = $innerContent;
+                                }
+                            }
+                        }
                     }
                 }
 
+                if ("" !== $currentInnerContent) {
+                    $newInnerContent = "\t\t" . $currentInnerContent . PHP_EOL;
+                } else {
+                    $newInnerContent = "";
+                }
+                $newInnerContent .= implode(PHP_EOL, $innerContents);
+                $methodContent = "\t" . $signature . PHP_EOL . "\t{" . PHP_EOL . $newInnerContent . "\t}" . PHP_EOL;
+                $hookCooker->addMethod($method, $methodContent);
 
-                $p = explode('{', $content, 2);
-                $start = trim($p[0]) . PHP_EOL . "\t{";
-                $end = "\t}";
-                $innerContents = array_filter($innerContents);
-                $body = implode(PHP_EOL, $innerContents);
-                $body = self::trimMethodContent($body);
-                $lines = explode(PHP_EOL, $body);
-                $body = "\t\t" . implode(PHP_EOL . "\t\t", $lines);
-                $content = $start . PHP_EOL . $body . PHP_EOL . $end;
 
-                $m->setContent($content);
-                $o->appendMethod($m, $appHooksClass);
+            } else {
+                /**
+                 * If the provider already exist, we do nothing,
+                 * we assume it has already been properly treated.
+                 */
             }
         }
 
 
         //--------------------------------------------
-        // BIND SUBSCRIBERS OF THE CLASS BEING INSTALLED
+        // BIND SUBSCRIBERS OF THIS MODULE TO OTHER MODULES' PROVIDERS
         //--------------------------------------------
         foreach ($installed as $mod) {
             if (array_key_exists($mod, $subscriberMethods)) {
                 $methods = $subscriberMethods[$mod];
-                $installedHooksClassName = 'Core\Services\Hooks';
                 foreach ($methods as $method) {
-                    if (false !== ($m = $o->getMethodByName($installedHooksClassName, $method))) {
-                        // take the inner content, and add it to the target module's hook method
 
-                        if (false !== ($mSource = $o->getMethodByName($candidateModule, $method))) {
-                            $innerContent = $mSource->getInnerContent();
 
-                            // does the target hook class already contain the hook?
-                            $startComment = self::getHookComment($module, "start");
-                            $targetInnerContent = $m->getInnerContent();
+                    if (false !== ($innerContent = $moduleCooker->getMethodContent($method, false))) {
 
-                            if (false === strpos($targetInnerContent, $startComment)) { // if not, we add the hook
+                        $targetInnerContent = $hookCooker->getMethodContent($method, false);
 
-                                $innerContent = self::trimMethodContent($innerContent);
-                                $targetInnerContent = self::trimMethodContent($targetInnerContent);
-                                $endComment = self::getHookComment($module, "end");
-                                $innerContent = $startComment . $innerContent . PHP_EOL . $endComment;
-                                $targetInnerContent .= PHP_EOL . $innerContent;
-                                $targetInnerContent = trim($targetInnerContent);
+                        // does the target hook class already contain the hook?
+                        $startComment = self::getHookComment($module, "start");
 
-                                $o->replaceMethodByInnerContent($installedHooksClassName, $method, $targetInnerContent);
-                            }
+
+                        if (false === strpos($targetInnerContent, $startComment)) { // if not, we add the hook
+
+                            $targetInnerContent = trim($targetInnerContent);
+
+                            $endComment = self::getHookComment($module, "end");
+                            $innerContent = "\t\t" . $startComment . "\t\t" . trim($innerContent) . PHP_EOL . "\t\t" . $endComment;
+                            $targetInnerContent .= PHP_EOL . PHP_EOL . $innerContent;
+                            $targetInnerContent = "\t\t" . $targetInnerContent;
+
+                            $hookCooker->updateMethodContent($method, function ($v) use ($targetInnerContent) {
+                                return $targetInnerContent;
+                            });
                         }
                     }
                 }
@@ -312,66 +336,58 @@ class ModuleInstallTool
 
     public static function unbindModuleHooks($candidateModule)
     {
-        $targetClass = 'Core\Services\Hooks';
+
+
         $p = explode('\\', $candidateModule); // Module is the first component
         $module = $p[1];
 
 
-        $o = new MethodInjector();
-        $filter = [
-            [\ReflectionMethod::IS_STATIC],
-            [\ReflectionMethod::IS_PUBLIC],
-        ];
-        $hooksMethods = $o->getMethodsList($targetClass, $filter);
+        $moduleFile = self::getModuleFile($candidateModule);
+        $moduleCooker = ClassCooker::create()->setFile($moduleFile);
+        $moduleMethods = $moduleCooker->getMethods(["protected", "static"]);
 
-        // unbind code subscribing the candidateModule to other module's hooks
-        foreach ($hooksMethods as $method) {
+
+        $xHooksFile = self::getHooksFile();
+        $hookCooker = ClassCooker::create()->setFile($xHooksFile);
+        $hookMethods = $hookCooker->getMethods(["protected", 'static']);
+
+
+        // parse all methods of the hook class, and remove this module code by matching of comments
+        foreach ($hookMethods as $method) {
+            // parsing a foreign module's method?
             if (0 !== strpos($method, $module . "_")) {
-                if (false !== ($m = $o->getMethodByName($targetClass, $method))) {
 
-                    $innerContent = $m->getInnerContent();
-                    // does the target hook class already contain the hook?
-                    $startComment = self::getHookComment($module, "start");
-                    $startComment = trim($startComment);
 
-                    if (false !== strpos($innerContent, $startComment)) {
-                        $endComment = self::getHookComment($module, "end");
-                        $endComment = trim($endComment);
+                $innerContent = $hookCooker->getMethodContent($method, false);
 
+                // does the target hook class already contain the hook?
+                $startComment = self::getHookComment($module, "start");
+                $startComment = trim($startComment);
+
+                if (false !== strpos($innerContent, $startComment)) {
+
+                    $endComment = self::getHookComment($module, "end");
+                    $endComment = trim($endComment);
+
+                    $hookCooker->updateMethodContent($method, function ($content) use ($startComment, $endComment) {
 
                         $pattern = '!' . $startComment . '.*' . $endComment . '!Ums';
-                        $innerContent = preg_replace($pattern, '', $innerContent);
-                        $innerContent = self::trimMethodContent($innerContent);
-                        $innerContent = trim($innerContent);
-                        $o->replaceMethodByInnerContent($targetClass, $method, $innerContent);
-                    }
+                        $innerContent = preg_replace($pattern, '', $content);
+                        $innerContent = "\t\t" . trim($innerContent); // remove spacing left by the removal of the module's snippet
+                        return $innerContent . PHP_EOL; // add a last phpeol to have the final wrapping } of the method on the next line
+                    });
                 }
+
             }
         }
 
 
-        /**
-         * Then unbind providers.
-         * I don't know why but unbinding providers has to be done AFTER unbinding subscribers (with the current code
-         * at least).
-         *
-         *
-         * Also, with the current cut technique, the methods have to be removed from the
-         * last one (at the bottom) to the first one (at the top).
-         *
-         *
-         *
-         */
-        // unbind providers provided by the candidate module
-        $methodsToRemove = [];
-        foreach ($hooksMethods as $method) {
+        // remove provider methods
+        foreach ($hookMethods as $method) {
             if (0 === strpos($method, $module . "_")) {
-                if (false !== ($m = $o->getMethodByName($targetClass, $method))) {
-                    $methodsToRemove[] = $m;
-                }
+                $hookCooker->removeMethod($method);
             }
         }
-        $o->removeMethods($methodsToRemove, $targetClass);
     }
 
     public static function installControllers($moduleName)
@@ -416,15 +432,6 @@ class ModuleInstallTool
     //--------------------------------------------
     //
     //--------------------------------------------
-    private static function trimMethodContent($content)
-    {
-        $p = explode(PHP_EOL, $content);
-        $p = array_map(function ($v) {
-            return trim($v);
-        }, $p);
-        return implode(PHP_EOL, $p);
-    }
-
     private static function getHookComment($module, $type = "start")
     {
         return '// mit-' . $type . ':' . $module . PHP_EOL;
@@ -437,5 +444,37 @@ class ModuleInstallTool
         $p = explode('\\', $moduleClassName);
         array_shift($p); // drop Module prefix
         return $p[0];
+    }
+
+    private static function getModuleFile($moduleServicesClassName)
+    {
+        $appDir = ApplicationParameters::get("app_dir");
+        $p = explode('\\', $moduleServicesClassName);
+        array_shift($p); // drop Module prefix
+        return $appDir . "/class-modules/" . implode('/', $p) . '.php';
+    }
+
+    private static function getModuleServicesFileByModuleName($moduleName)
+    {
+        $appDir = ApplicationParameters::get("app_dir");
+        return $appDir . "/class-modules/$moduleName/$moduleName" . 'Services.php';
+    }
+
+    private static function getModuleHooksFileByModuleName($moduleName)
+    {
+        $appDir = ApplicationParameters::get("app_dir");
+        return $appDir . "/class-modules/$moduleName/$moduleName" . 'Hooks.php';
+    }
+
+    private static function getXContainerFile()
+    {
+        $appDir = ApplicationParameters::get("app_dir");
+        return $appDir . "/class-core/Services/X.php";
+    }
+
+    private static function getHooksFile()
+    {
+        $appDir = ApplicationParameters::get("app_dir");
+        return $appDir . "/class-core/Services/Hooks.php";
     }
 }
