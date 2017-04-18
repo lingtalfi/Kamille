@@ -48,9 +48,6 @@ class Routes implements RoutesInterface
         return false;
     }
 
-    //--------------------------------------------
-    //
-    //--------------------------------------------
     public function addRoute($id, RouteInterface $route)
     {
         $this->routes[$id] = $route;

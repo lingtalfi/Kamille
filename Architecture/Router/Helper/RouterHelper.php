@@ -8,6 +8,15 @@ use Kamille\Architecture\Router\Exception\RouterException;
 
 class RouterHelper
 {
+
+    /**
+     *
+     * This method takes the output of a matching Route/Router, and
+     * converts it to an actual callable (which is currently required by the controller request listener
+     * of this current kamille implementation).
+     *
+     * Note: implementation details might change in the future.
+     */
     public static function routerControllerToCallable($controller)
     {
 

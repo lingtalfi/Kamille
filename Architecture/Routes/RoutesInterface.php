@@ -1,13 +1,13 @@
 <?php
 
 
-
 namespace Kamille\Architecture\Routes;
 
 
 use Kamille\Architecture\Route\RouteInterface;
 
-interface RoutesInterface{
+interface RoutesInterface
+{
 
 
     /**
@@ -20,4 +20,6 @@ interface RoutesInterface{
      * @return RouteInterface|false
      */
     public function getRoute($id);
+
+    public function addRoute($id, RouteInterface $route);
 }

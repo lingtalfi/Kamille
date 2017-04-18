@@ -7,7 +7,7 @@ namespace Kamille\Architecture\Router\Web;
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
 use Kamille\Architecture\Router\Helper\RouterHelper;
 use Kamille\Architecture\Router\RouterInterface;
-use Router\Exception\RouterException;
+
 
 
 /**

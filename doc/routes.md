@@ -99,6 +99,30 @@ you should always use it.
 
 
 
+For modules authors
+=======================
+The only problem I have with this new Routes system is that the module author chooses the route id,
+not the user.
+
+To me that's only a problem because of the potential conflicts it could generate,
+not because I care about a developer not being able to choose its own id.
+
+
+So, as for now, I would recommend that modules routes are prefixed with the name of the module,
+followed by an underscore.
+For instance, a route id of the module MyModule should start with this:
+
+- My_route1
+
+That should do it as long as modules authors respect the convention.
+
+(and if they don't, well, we are not there yet are we?)
+
+
+
+
+
+
 
 
 
