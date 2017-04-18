@@ -11,6 +11,11 @@ class StaticRoute extends Route
 
     private $uri;
 
+    /**
+     * @var string|mixed, the controller to return
+     */
+    private $controller;
+
 
     /**
      * @return string, the uri of the route
@@ -22,7 +27,9 @@ class StaticRoute extends Route
 
     public function match(HttpRequestInterface $request)
     {
-        return ($this->uri === $request->uri(false));
+        if ($this->uri === $request->uri(false)) {
+            return $this->controller;
+        }
     }
 
 
@@ -35,5 +42,10 @@ class StaticRoute extends Route
         return $this;
     }
 
+    public function setController($controller)
+    {
+        $this->controller = $controller;
+        return $this;
+    }
 
 }

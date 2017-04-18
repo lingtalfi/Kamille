@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.37.1 -- 2017-04-18
+
+    - fix StaticRoute implementation 
+    
 - 1.37.0 -- 2017-04-18
 
     - add addRoute method to RouteInterface 
