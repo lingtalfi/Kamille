@@ -6,7 +6,7 @@ namespace Kamille\Architecture\Request\Web;
 
 use Kamille\Architecture\Request\Request;
 
-class WritableHttpRequest extends Request
+class WritableHttpRequest extends Request implements HttpRequestInterface
 {
     private $_uri;
     private $_queryString;
