@@ -5,13 +5,14 @@ namespace Kamille\Utils\Routsy;
 
 
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
+use Kamille\Architecture\Router\RouterInterface;
 use Kamille\Utils\Routsy\Exception\RoutsyException;
 use Kamille\Utils\Routsy\Util\ConstraintsChecker\AppleConstraintsChecker;
 use Kamille\Utils\Routsy\Util\DynamicUriMatcher\CherryDynamicUriMatcher;
 use Kamille\Utils\Routsy\Util\RequirementsChecker\KiwiRequirementsChecker;
 
 
-class RoutsyRouter
+class RoutsyRouter implements RouterInterface
 {
 
     private $routes;

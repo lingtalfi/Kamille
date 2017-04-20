@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.40.0 -- 2017-04-20
+
+    - add RoutsyUtil class 
+    
 - 1.39.0 -- 2017-04-20
 
     - add Routsy system 
