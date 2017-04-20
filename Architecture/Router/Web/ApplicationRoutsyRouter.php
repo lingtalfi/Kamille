@@ -4,14 +4,13 @@
 namespace Kamille\Architecture\Router\Web;
 
 
+use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
+use Kamille\Architecture\Router\Helper\RouterHelper;
 use Kamille\Architecture\Router\RouterInterface;
-use Kamille\Utils\Routsy\Exception\RoutsyException;
-use Kamille\Utils\Routsy\RoutsyConfig;
+use Kamille\Services\XLog;
 use Kamille\Utils\Routsy\RoutsyRouter;
-use Kamille\Utils\Routsy\Util\ConstraintsChecker\AppleConstraintsChecker;
-use Kamille\Utils\Routsy\Util\DynamicUriMatcher\CherryDynamicUriMatcher;
-use Kamille\Utils\Routsy\Util\RequirementsChecker\KiwiRequirementsChecker;
+use Kamille\Utils\Routsy\RoutsyUtil;
 
 
 class ApplicationRoutsyRouter implements RouterInterface
@@ -29,7 +28,14 @@ class ApplicationRoutsyRouter implements RouterInterface
 
     public function match(HttpRequestInterface $request)
     {
-
+        $router = $this->getRouter();
+        if (false !== ($res = $router->match($request))) {
+            list($routeId, $controller, $urlParams) = $res;
+            if (true === ApplicationParameters::get("debug")) {
+                XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched");
+            }
+            return RouterHelper::routerControllerToCallable($controller, $urlParams);
+        }
     }
 
     public function setRoutes(array $routes)
@@ -42,12 +48,10 @@ class ApplicationRoutsyRouter implements RouterInterface
     //
     //--------------------------------------------
 
-    private function getRouter(){
-        if(null === $this->router){
-$f = RoutsyConfig::getConfPath();
-            $routes = [];
-            include
-            $this->router = RoutsyRouter::create()->setRoutes($routes);
+    private function getRouter()
+    {
+        if (null === $this->router) {
+            $this->router = RoutsyRouter::create()->setRoutes(RoutsyUtil::getRoutes());
         }
         return $this->router;
     }

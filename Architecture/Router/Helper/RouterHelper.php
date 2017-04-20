@@ -17,7 +17,7 @@ class RouterHelper
      *
      * Note: implementation details might change in the future.
      */
-    public static function routerControllerToCallable($controller)
+    public static function routerControllerToCallable($controller, array $urlParams=[])
     {
 
         if (is_string($controller)) {
@@ -27,7 +27,7 @@ class RouterHelper
                 $o = new $p[0];
                 return [
                     [$o, $p[1]],
-                    [],
+                    $urlParams,
                 ];
             }
         }
