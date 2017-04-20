@@ -161,6 +161,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.39.0 -- 2017-04-20
+
+    - add Routsy system 
+    - add ModuleInstallationRegister.getUninstalled method 
+    
 - 1.38.0 -- 2017-04-19
 
     - add WritableHttpRequest 

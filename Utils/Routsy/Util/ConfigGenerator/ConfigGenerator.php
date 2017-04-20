@@ -4,9 +4,11 @@
 namespace Kamille\Utils\Routsy\Util\ConfigGenerator;
 
 
-use ArrayExport\ArrayExport;
 use Bat\FileSystemTool;
+use Bat\FileTool;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
+use Kamille\Utils\Routsy\Util\ConfigGenerator\Exception\ConfigGeneratorException;
+use LinearFile\LineSet\LineSetInterface;
 use LinearFile\LineSetFinder\BiggestWrapLineSetFinder;
 
 class ConfigGenerator
@@ -21,67 +23,110 @@ class ConfigGenerator
         return new static();
     }
 
-    public function generate()
+    public function refresh()
+    {
+        $confFile = $this->confFile;
+        $installedModules = ModuleInstallationRegister::getInstalled();
+        $uninstalledModules = ModuleInstallationRegister::getUninstalled();
+
+
+        //--------------------------------------------
+        // REGISTER INSTALLED MODULES
+        //--------------------------------------------
+        $this->registerModules($installedModules);
+
+
+        //--------------------------------------------
+        // UNREGISTER UNINSTALLED MODULES
+        //--------------------------------------------
+        $this->unregisterModules($uninstalledModules);
+    }
+
+    public function registerModule($module)
     {
         $confFile = $this->confFile;
         $routes = [];
         if (file_exists($confFile)) {
             include $confFile;
+        } else {
+            $this->createEmptyConfFile();
         }
         $_routes = $routes;
 
-
-        $installedModules = ModuleInstallationRegister::getInstalled();
-        $changed = false;
         $newRoutesDynamic = [];
         $newRoutesStatic = [];
 
 
-        foreach ($installedModules as $mod) {
-            $modConfFile = $this->modulesTargetDir . "/$mod/routsy/conf.php";
-            if (file_exists($modConfFile)) {
-                $routes = [];
-                include $modConfFile;
+        $modConfFile = $this->modulesTargetDir . "/$module/routsy/conf.php";
+        if (file_exists($modConfFile)) {
+            $routes = [];
+            include $modConfFile;
 
-                $lines = file($modConfFile);
+            $lines = file($modConfFile);
+            $lineSets = $this->getLineSets($lines);
 
-                foreach ($routes as $id => $route) {
-                    // we only override routes that don't exist (don't want to accidentally override the user's work)
-                    if (!array_key_exists($id, $_routes)) {
 
-                        // doesn't exist?
-                        // ok, is it dynamic or static (make two groups)
-                        $routeContent = $this->getRouteContent($id, $lines);
+            foreach ($routes as $id => $route) {
+                // we only override routes that don't exist (don't want to accidentally override the user's work)
+                if (!array_key_exists($id, $_routes)) {
+                    // doesn't exist?
+                    // ok, is it dynamic or static (make two groups)?
 
-                        if (true === $this->isDynamic($route[0])) {
-                            $newRoutesDynamic[$id] = $route;
-                        } else {
-                            $newRoutesStatic[$id] = $route;
-                        }
-                        $changed = true;
+                    /**
+                     * @var LineSetInterface $lineSet
+                     */
+                    $lineSet = $lineSets[$id];
+                    $routeContent = $lineSet->toString();
+                    if (true === $this->isDynamic($route[0])) {
+                        $newRoutesDynamic[$id] = $routeContent;
+                    } else {
+                        $newRoutesStatic[$id] = $routeContent;
                     }
                 }
             }
         }
 
-
         // append in static Section
+        if (count($newRoutesStatic) > 0) {
+            foreach ($newRoutesStatic as $id => $routeContent) {
+                $dynamicSectionLineNumber = $this->getSectionLineNumber("dynamic", $confFile);
+                FileTool::insert($dynamicSectionLineNumber, PHP_EOL . $routeContent . PHP_EOL, $confFile);
+            }
+        }
+
+
         // append in dynamic Section
+        if (count($newRoutesDynamic) > 0) {
+            foreach ($newRoutesDynamic as $id => $routeContent) {
+                $userAfterSectionLineNumber = $this->getSectionLineNumber("user - after", $confFile);
+                FileTool::insert($userAfterSectionLineNumber, PHP_EOL . $routeContent . PHP_EOL, $confFile);
+            }
+        }
+
+        FileTool::cleanVerticalSpaces($confFile, 2);
+    }
+
+    public function unregisterModule($module)
+    {
+        $confFile = $this->confFile;
+        if (file_exists($confFile)) {
+            $lines = file($confFile);
+            $lineSets = $this->getLineSets($lines);
 
 
-//        if (true === $changed) {
-//            $routesArr = ArrayExport::export($_routes, 2);
-//
-//            $newContent = <<<EEE
-//<?php
-//use Kamille\Architecture\Request\Web\HttpRequestInterface;
-//
-//\$routes = $routesArr;
-//EEE;
-//
-//
-//            FileSystemTool::mkfile($confFile, $newContent);
-//        }
+            $slices = [];
+            foreach ($lineSets as $id => $lineSet) {
+                if (0 === strpos($id, $module . "_")) {
+                    /**
+                     * @var LineSetInterface $lineSet
+                     */
+                    $slices[] = [$lineSet->getStartLine(), $lineSet->getEndLine()];
+                }
+
+            }
+            FileTool::extract($confFile, $slices, true);
+            FileTool::cleanVerticalSpaces($confFile, 2);
+        }
     }
 
     public function setConfFile($confFile)
@@ -99,12 +144,28 @@ class ConfigGenerator
     //--------------------------------------------
     //
     //--------------------------------------------
+    private function unregisterModules(array $uninstalledModules)
+    {
+        foreach ($uninstalledModules as $mod) {
+            $this->unregisterModule($mod);
+        }
+    }
+
+
+    private function registerModules(array $installedModules)
+    {
+
+        foreach ($installedModules as $mod) {
+            $this->registerModule($mod);
+        }
+    }
+
     private function isDynamic($uri)
     {
         return (false !== strpos($uri, '{'));
     }
 
-    private function getRouteContent($routeId, array $lines)
+    private function getLineSets(array $lines)
     {
         $pat = '!^\$routes\[([^\]]+)\]\s*=!';
         $lineSets = BiggestWrapLineSetFinder::create()
@@ -118,4 +179,33 @@ class ConfigGenerator
         return $lineSets;
     }
 
+    private function getSectionLineNumber($section, $file)
+    {
+        $lines = file($file);
+
+
+        $patternLine = '!//--------------------------------------------!';
+        $pattern2 = '!//\s*' . strtoupper($section) . '!';
+        $n = 1;
+        $match1 = false;
+        $match2 = false;
+        foreach ($lines as $line) {
+            if (false === $match1 && preg_match($patternLine, $line)) {
+                $match1 = true;
+            } elseif (true === $match1 && false === $match2 && preg_match($pattern2, $line)) {
+                $match2 = true;
+            } elseif (true === $match1 && true === $match2 && preg_match($patternLine, $line)) {
+                return $n - 2;
+            }
+            $n++;
+        }
+        throw new ConfigGeneratorException("section not found $section");
+    }
+
+    private function createEmptyConfFile()
+    {
+        $confFile = $this->confFile;
+        $data = file_get_contents(__DIR__ . "/assets/routsy.conf.tpl.php");
+        FileSystemTool::mkfile($confFile, $data);
+    }
 }

@@ -77,6 +77,10 @@ So the route id looks like this for instance (for the My module):
 - My_routeId1
 - My_routeId2
 
+Note that if a module doesn't respect this convention, the unregistering phase of the ConfigGenerator tool
+will not work (i.e. when you uninstall a module, the parts of the routsy configuration pertaining to this module
+will not be removed).
+
 Then the application can use the "routes" array for both httpRequest matching and links generation,
 maybe with the help of the tools provided by the Routsy planet.
 

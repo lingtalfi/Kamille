@@ -13,10 +13,15 @@ use DirScanner\YorgDirScannerTool;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Module\ModuleInterface;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
+use Kamille\Utils\Routsy\Util\ConfigGenerator\ConfigGenerator;
 
 class ModuleInstallTool
 {
 
+    /**
+     * @var ConfigGenerator
+     */
+    private static $routsyGen;
 
     /**
      * Note: maybe we will change the fact that the first argument is an ApplicationItemManagerInterface object,
@@ -28,6 +33,8 @@ class ModuleInstallTool
             $manager->install($widget);
         }
     }
+
+
 
 
     public static function installConfig(ModuleInterface $module, $replaceMode = true)
@@ -56,6 +63,31 @@ class ModuleInstallTool
             unlink($target);
         }
     }
+
+    public static function installRoutsy(ModuleInterface $module)
+    {
+        $moduleName = self::getModuleName($module);
+        $appDir = ApplicationParameters::get('app_dir');
+        if (is_dir($appDir)) {
+            $modulesDir = $appDir . "/class-modules";
+            $appConf = $appDir . "/config/routsy/routes.php";
+            $gen = self::getRoutsyGen($appConf, $modulesDir);
+            $gen->registerModule($moduleName);
+        }
+    }
+
+    public static function uninstallRoutsy(ModuleInterface $module)
+    {
+        $moduleName = self::getModuleName($module);
+        $appDir = ApplicationParameters::get('app_dir');
+        if (is_dir($appDir)) {
+            $modulesDir = $appDir . "/class-modules";
+            $appConf = $appDir . "/config/routsy/routes.php";
+            $gen = self::getRoutsyGen($appConf, $modulesDir);
+            $gen->unregisterModule($moduleName);
+        }
+    }
+
 
 
     /**
@@ -476,5 +508,15 @@ class ModuleInstallTool
     {
         $appDir = ApplicationParameters::get("app_dir");
         return $appDir . "/class-core/Services/Hooks.php";
+    }
+
+    private static function getRoutsyGen($confFile, $modulesDir)
+    {
+        if (null === self::$routsyGen) {
+            self::$routsyGen = ConfigGenerator::create()
+                ->setConfFile($confFile)
+                ->setModulesTargetDir($modulesDir);
+        }
+        return self::$routsyGen;
     }
 }

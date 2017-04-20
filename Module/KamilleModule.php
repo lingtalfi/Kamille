@@ -171,6 +171,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
                 $steps['config'] = "Removing module config file";
             }
         }
+        if (true === $this->useRoutsy()) {
+            if ('install' === $type) {
+                $steps['routsy'] = "Copying routsy configuration to the application";
+            } else {
+                $steps['routsy'] = "Removing routsy configuration from the application";
+            }
+        }
         if (true === $this->useAutoFiles()) {
             if ('install' === $type) {
                 $steps['files'] = "Installing files";
@@ -224,6 +231,12 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             $this->stopStep('config', "done");
         }
 
+        if (true === $this->useRoutsy()) {
+            $this->startStep('routsy');
+            ModuleInstallTool::installRoutsy($this);
+            $this->stopStep('routsy', "done");
+        }
+
         if (true === $this->useAutoFiles()) {
             $this->startStep('files');
             ModuleInstallTool::installFiles($this);
@@ -270,6 +283,14 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
                 ModuleInstallTool::uninstallConfig($this);
             });
             $this->stopStep('config', "done");
+        }
+
+        if (true === $this->useRoutsy()) {
+            $this->startStep('routsy');
+            $this->handleStep(function () {
+                ModuleInstallTool::uninstallRoutsy($this);
+            });
+            $this->stopStep('routsy', "done");
         }
 
 
@@ -340,7 +361,8 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
      *
      *
      */
-    protected function getLayoutConventionName(){
+    protected function getLayoutConventionName()
+    {
         return 'lnc1';
     }
 
@@ -358,6 +380,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     {
         $d = $this->getModuleDir();
         $f = $d . "/conf.php";
+        return (file_exists($f));
+    }
+
+    private function useRoutsy()
+    {
+        $d = $this->getModuleDir();
+        $f = $d . "/routsy/conf.php";
         return (file_exists($f));
     }
 
