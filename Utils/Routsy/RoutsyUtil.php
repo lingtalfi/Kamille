@@ -5,6 +5,7 @@ namespace Kamille\Utils\Routsy;
 
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
+use Kamille\Utils\Routsy\LinkGenerator\ApplicationLinkGenerator;
 
 class RoutsyUtil
 {
@@ -29,5 +30,17 @@ class RoutsyUtil
         }
         self::$routes = $routes;
         return self::$routes;
+    }
+
+
+    public static function routeIdentifierToUri($routeIdentifier)
+    {
+        if (is_array($routeIdentifier)) {
+            list($routeId, $params) = $routeIdentifier;
+        } else {
+            $routeId = $routeIdentifier;
+            $params = [];
+        }
+        return ApplicationLinkGenerator::getUri($routeId, $params);
     }
 }
