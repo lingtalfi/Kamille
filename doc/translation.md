@@ -20,6 +20,11 @@ You create translation files in the lang directory, using any sub-organization y
 and the file must end with the ".trans.php" extension.
 
 
+By convention, we try to organize the translation files by the type of the item that provide them
+(modules, widgets, controllers, ...), then followed by the item name.
+
+
+
 For instance:
 
 ```php
@@ -27,14 +32,37 @@ For instance:
 ----- lang
 --------- en
 ------------- widgets
------------------ myWidget
---------------------- myWidget.trans.php
+----------------- MyWidget
+--------------------- MyWidget.trans.php
 --------- fr
+------------- common
+----------------- form.trans.php
 ------------- widgets
------------------ myWidget
---------------------- myWidget.trans.php
+----------------- MyWidget
+--------------------- MyWidget.trans.php
+------------- controllers
+----------------- Authenticate
+--------------------- AuthenticateController.trans.php
+------------- modules
+----------------- ModuleOne
+--------------------- ModuleOne.trans.php
+
 
 ```
+
+There is also the special common directory, as you can see above.
+By convention, this directory is reserved for messages that might be re-used by more than one module.
+A kamille application will provide default messages that you might want to check.
+You can also add your own if you want.
+
+It's recommended that you encapsulate your message identifiers and translations with double quotes
+exclusively (not single quotes), so that it's easier to build tool to manipulate those files later.
+
+You've been warned, use single quotes at your own risks!
+
+
+
+
 
 
 Inside the translation file, you just create a $defs variable containing your definitions,

@@ -85,6 +85,9 @@ Pack the module/widget you are currently working on
 
 Use the **kpack** alias to pack a module, a **kwpack** for a widget.
 
+Those techniques allow you to develop your modules in a reactive way, basically updating the module files
+directly in the context of the application (and pack them later with the one liner alias).
+
 The aliases looks like this on my computer:
 
 ```bash

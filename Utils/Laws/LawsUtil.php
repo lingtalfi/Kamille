@@ -69,7 +69,7 @@ class LawsUtil
         $widgetClass = $options['widgetClass'];
 
 
-        $layoutTemplate = $config['layout']['name'];
+        $layoutTemplate = $config['layout']['tpl'];
         $positions = (array_key_exists('positions', $config)) ? $config['positions'] : [];
         $widgets = (array_key_exists('widgets', $config)) ? $config['widgets'] : [];
         $layoutConf = (array_key_exists('conf', $config['layout'])) ? $config['layout']['conf'] : [];
@@ -88,8 +88,8 @@ class LawsUtil
             $sWidgets = "";
             foreach ($widgets as $id => $widgetInfo) {
                 $name = "unknown";
-                if (true === array_key_exists('name', $widgetInfo)) {
-                    $name = $widgetInfo["name"];
+                if (true === array_key_exists('tpl', $widgetInfo)) {
+                    $name = $widgetInfo["tpl"];
                 }
                 $sWidgets .= PHP_EOL . "----- id: $id; tplName: $name";
             }
@@ -107,7 +107,7 @@ class LawsUtil
                 if (0 !== $c) {
                     $sPos .= ", ";
                 }
-                $sPos .= "name: $name; tplName: " . $info['name'];
+                $sPos .= "name: $name; tplName: " . $info['tpl'];
                 $c++;
             }
 
@@ -146,7 +146,7 @@ class LawsUtil
         // POSITIONS
         //--------------------------------------------
         foreach ($positions as $positionName => $pInfo) {
-            $tplName = $pInfo['name'];
+            $tplName = $pInfo['tpl'];
             $pVars = (array_key_exists('conf', $pInfo)) ? $pInfo['conf'] : [];
 
             $proxy->bindPosition($positionName, Position::create()
@@ -171,9 +171,9 @@ class LawsUtil
         // WIDGETS
         //--------------------------------------------
         foreach ($widgets as $id => $widgetInfo) {
-            if (true === array_key_exists('name', $widgetInfo)) {
+            if (true === array_key_exists('tpl', $widgetInfo)) {
 
-                $name = $widgetInfo['name'];
+                $name = $widgetInfo['tpl'];
                 $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
 
 
