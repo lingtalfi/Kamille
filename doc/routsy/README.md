@@ -32,3 +32,22 @@ Structure
 --------- routsy
 ------------- routes.php  
 ```
+
+
+Routsy route identifier
+==========================
+
+A routsy route identifier is either a route id, or an array containing two
+entries: the route id, and the route params.
+
+Here is a more formal definition:
+
+```txt
+- routsyRouteIdentifier: routeId | routeIdAndParams
+- routeId: string, the route id 
+- routeIdAndParams: [routeId, routeParams]
+- routeParams: array, the parameters for generating the route uri
+```
+
+The ApplicationLinkGenerator object is generally used in 
+the kamille framework to convert the route identifier to an uri. 

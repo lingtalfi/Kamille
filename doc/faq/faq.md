@@ -42,13 +42,16 @@ if (true === XConfig::get("Core.showExceptionTrace")) {
 ```
 
 
-How to pack the module you are currently working on?
+How to pack the module/widget you are currently working on?
 ------------------------
 
-Use the **kpack** alias.
+Use the **kpack** alias to pack a module, a **kwpack** for a widget.
+
+The aliases looks like this on my computer:
 
 ```bash
 alias kpack='php -f /mytasks/kamille/pack-modules.php'
+alias kwpack='php -f /mytasks/kamille/pack-widgets.php'
 ```
 
 See those tasks for more info: https://github.com/lingtalfi/task-manager/tree/master/tasks/ling-personal-tasks/kamille
