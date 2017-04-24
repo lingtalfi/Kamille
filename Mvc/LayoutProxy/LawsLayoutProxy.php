@@ -6,6 +6,7 @@ namespace Kamille\Mvc\LayoutProxy;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Mvc\Position\PositionInterface;
 use Kamille\Mvc\Renderer\RendererInterface;
+use Kamille\Mvc\WidgetDecorator\WidgetDecoratorInterface;
 use Kamille\Services\XLog;
 
 
@@ -19,23 +20,32 @@ use Kamille\Services\XLog;
  *
  * See laws documentation for more info.
  */
-class LawsLayoutProxy extends LayoutProxy implements LawsLayoutProxyInterface, VariablesAwareLayoutProxyInterface
+class LawsLayoutProxy extends LayoutProxy implements LawsLayoutProxyInterface, VariablesAwareLayoutProxyInterface, RendererAwareLayoutProxyInterface, ConfigAwareLayoutProxyInterface
 {
 
     private $positions;
     private $includesDir;
+    private $config; // the laws configuration from the viewId
 
     /**
      * @var RendererInterface
+     * Used as a proxy to render includes.
      */
     private $renderer;
     private $variables;
+
+    /**
+     * @var WidgetDecoratorInterface[]
+     */
+    private $decorators;
 
 
     public function __construct()
     {
         parent::__construct();
         $this->positions = [];
+        $this->decorators = [];
+        $this->config = [];
         $this->includesDir = ApplicationParameters::get("app_dir") . "/theme/" . ApplicationParameters::get("theme") . "/includes";
     }
 
@@ -51,33 +61,51 @@ class LawsLayoutProxy extends LayoutProxy implements LawsLayoutProxyInterface, V
         return $this;
     }
 
-
-    public function bindPosition($position, PositionInterface $p)
+    public function setConfig(array $config)
     {
-        if (is_array($position)) {
-            foreach ($position as $pos) {
-                $this->positions[$pos] = $p;
-            }
-        } else {
-            $this->positions[$position] = $p;
-        }
+        $this->config = $config;
         return $this;
     }
 
+    public function setDecorators(array $decorators)
+    {
+        $this->decorators = $decorators;
+        return $this;
+    }
+
+    public function addDecorator(WidgetDecoratorInterface $decorator)
+    {
+        $this->decorators[] = $decorator;
+        return $this;
+    }
+
+
+//    public function bindPosition($position, PositionInterface $p)
+//    {
+//        if (is_array($position)) {
+//            foreach ($position as $pos) {
+//                $this->positions[$pos] = $p;
+//            }
+//        } else {
+//            $this->positions[$position] = $p;
+//        }
+//        return $this;
+//    }
+
     public function position($positionName)
     {
+//        $position = null;
+//        if (array_key_exists($positionName, $this->positions)) {
+//            $position = $this->positions[$positionName];
+//        } elseif (array_key_exists('*', $this->positions)) {
+//            $position = $this->positions['*'];
+//        }
 
-        $position = null;
-        if (array_key_exists($positionName, $this->positions)) {
-            $position = $this->positions[$positionName];
-        } elseif (array_key_exists('*', $this->positions)) {
-            $position = $this->positions['*'];
-        }
 
 
+        // filter the widgets bound to that position only
         $allWidgets = $this->layout->getWidgets();
         $widgets = [];
-
         foreach ($allWidgets as $widgetId => $widget) {
             if (0 === strpos($widgetId, $positionName . ".")) {
                 $widgets[$widgetId] = $widget;
@@ -85,36 +113,25 @@ class LawsLayoutProxy extends LayoutProxy implements LawsLayoutProxyInterface, V
         }
 
 
-        if ($position instanceof PositionInterface) {
-            echo $position->render(["widgets" => $widgets]);
-        } else {
-            foreach ($widgets as $widget) {
-                echo $widget->render();
-            }
-        }
+//        if ($position instanceof PositionInterface) {
+//            echo $position->render(["widgets" => $widgets]);
+//        } else {
+//            foreach ($widgets as $widget) {
+//                echo $widget->render();
+//            }
+//        }
+
+        $config = $this->config;
 
 
-
-        $config = 0;
         $i = 0;
-        foreach($widgets as $widgetId => $widget){
+        foreach ($widgets as $widgetId => $widget) {
             $s = $widget->render();
-
-
-//            foreach($decorators as $decorator){
-//                $decorator->decorateWidget($s, $widgetId, $i, $widget, $config);
-//            }
-
-//            // let the user decorate it
-//            if($position instanceof PositionInterface){
-//                $position->decorate($s, $widgetId, $i, $widget, $config);
-//            }
-//
-//            // now assembly the widget in a grid layout if any
-//            $this->decorateWithGrid($s, $widgetId, $i, $widget, $config);
-
-
+            foreach ($this->decorators as $decorator) {
+                $decorator->decorate($s, $positionName, $widgetId, $i, $widget, $config);
+            }
             echo $s;
+            $i++;
         }
     }
 

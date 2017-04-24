@@ -8,44 +8,27 @@ use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Ling\Z;
 use Kamille\Mvc\HtmlPageHelper\HtmlPageHelper;
 use Kamille\Mvc\Layout\HtmlLayout;
-use Kamille\Mvc\LayoutProxy\ConfigAwareLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxy;
-use Kamille\Mvc\LayoutProxy\LawsLayoutProxyInterface;
-use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
-use Kamille\Mvc\LayoutProxy\RendererAwareLayoutProxyInterface;
 use Kamille\Mvc\Loader\FileLoader;
+use Kamille\Mvc\Position\Position;
 use Kamille\Mvc\Renderer\PhpLayoutRenderer;
+use Kamille\Mvc\Widget\Widget;
 use Kamille\Services\XLog;
 use Kamille\Utils\Laws\Exception\LawsUtilException;
 
 
-class LawsUtil
+class LawsUtilCopy
 {
 
-    private $_file; // passed as a debug info
-    /**
-     * @var LayoutProxyInterface
-     */
-    private $layoutProxy;
-
-
-    public static function create()
-    {
-        return new static();
-    }
 
     /**
      * $config: callable|array
-     *          is used to alter the configuration found in the laws configuration file (pointed by the viewId)
-     *
      *          If it's an array, it will be merged with the laws config array.
      *          If it's a callable, the laws config array will be passed by reference as the argument of that callable.
      *
-     * $options: array,
-     *          to alter the behaviour of the method on a per call basis
      *
      */
-    public function renderLawsViewById($viewId, $config = null, array $options = [])
+    public static function renderLawsViewById($viewId, $config = null, array $options = [])
     {
 
         $appDir = ApplicationParameters::get("app_dir");
@@ -59,27 +42,25 @@ class LawsUtil
             } elseif (is_callable($config)) {
                 call_user_func_array($config, [&$conf]);
             }
-            $this->_file = $file;
-            return $this->renderLawsView($conf, $viewId, $options);
+            return self::renderLawsView($conf, $viewId, $file, $options);
         }
         throw new LawsUtilException("laws config file not found: $file");
     }
 
-    public function setLawsLayoutProxy(LawsLayoutProxyInterface $layoutProxy)
+
+    /**
+     * $variables: allow us to change config on the fly (i.e. from the controller).
+     *      it can contain the following keys:
+     *          - layout: yourConf
+     *          - widgets
+     *              - widgetId: yourConf
+     *          - positions:
+     *              - positionName: yourConf
+     *
+     *
+     */
+    private static function renderLawsView(array $config, $viewId = null, $file = null, array $options = [])
     {
-        $this->layoutProxy = $layoutProxy;
-        return $this;
-    }
-
-
-
-
-    //--------------------------------------------
-    //
-    //--------------------------------------------
-    private function renderLawsView(array $config, $viewId = null, array $options = [])
-    {
-        $file = $this->_file;
         $options = array_merge([
             'autoloadCss' => true,
             'widgetClass' => 'Kamille\Mvc\Widget\Widget',
@@ -89,23 +70,17 @@ class LawsUtil
 
 
         $layoutTemplate = $config['layout']['tpl'];
-//        $positions = (array_key_exists('positions', $config)) ? $config['positions'] : [];
+        $positions = (array_key_exists('positions', $config)) ? $config['positions'] : [];
         $widgets = (array_key_exists('widgets', $config)) ? $config['widgets'] : [];
         $layoutConf = (array_key_exists('conf', $config['layout'])) ? $config['layout']['conf'] : [];
 
         $theme = ApplicationParameters::get("theme");
         $wloader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/widgets");
-//        $ploader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/positions");
+        $ploader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/positions");
 
 
         $commonRenderer = PhpLayoutRenderer::create();
-        $proxy = $this->getLayoutProxy();
-        if ($proxy instanceof RendererAwareLayoutProxyInterface) {
-            $proxy->setRenderer($commonRenderer);
-        }
-        if ($proxy instanceof ConfigAwareLayoutProxyInterface) {
-            $proxy->setConfig($config);
-        }
+        $proxy = LawsLayoutProxy::create()->setRenderer($commonRenderer);
 
 
         if (true === ApplicationParameters::get('debug')) {
@@ -126,22 +101,22 @@ class LawsUtil
                 $viewIdFile = ' (' . $viewIdFile . ')';
             }
 
-//            $sPos = "";
-//            $c = 0;
-//            foreach ($positions as $name => $info) {
-//                if (0 !== $c) {
-//                    $sPos .= ", ";
-//                }
-//                $sPos .= "name: $name; tplName: " . $info['tpl'];
-//                $c++;
-//            }
+            $sPos = "";
+            $c = 0;
+            foreach ($positions as $name => $info) {
+                if (0 !== $c) {
+                    $sPos .= ", ";
+                }
+                $sPos .= "name: $name; tplName: " . $info['tpl'];
+                $c++;
+            }
 
 
             $trace = [];
             $theme = ApplicationParameters::get("theme", "no theme");
             $trace[] = "LawsUtil trace with theme: $theme, viewId: $viewId" . $viewIdFile . ":";
             $trace[] = "- layout: $layoutTemplate";
-//            $trace[] = "- positions: " . $sPos;
+            $trace[] = "- positions: " . $sPos;
             $trace[] = "- widgets: " . $sWidgets;
 
 
@@ -170,25 +145,25 @@ class LawsUtil
         //--------------------------------------------
         // POSITIONS
         //--------------------------------------------
-//        foreach ($positions as $positionName => $pInfo) {
-//            $tplName = $pInfo['tpl'];
-//            $pVars = (array_key_exists('conf', $pInfo)) ? $pInfo['conf'] : [];
-//
-//            $proxy->bindPosition($positionName, Position::create()
-//                ->setTemplate($tplName)
-//                ->setLoader($ploader)
-//                ->setVariables($pVars)
-//                ->setRenderer($commonRenderer));
-//
-//
-//            if (true === $autoloadCss) {
-//                $p = explode("/", $tplName);
-//                $css = "theme/$theme/positions/" . $p[0] . "/" . $p[0] . '.' . $p[1] . ".css";
-//                if (file_exists(Z::appDir() . "/www/$css")) {
-//                    HtmlPageHelper::css("/$css");
-//                }
-//            }
-//        }
+        foreach ($positions as $positionName => $pInfo) {
+            $tplName = $pInfo['tpl'];
+            $pVars = (array_key_exists('conf', $pInfo)) ? $pInfo['conf'] : [];
+
+            $proxy->bindPosition($positionName, Position::create()
+                ->setTemplate($tplName)
+                ->setLoader($ploader)
+                ->setVariables($pVars)
+                ->setRenderer($commonRenderer));
+
+
+            if (true === $autoloadCss) {
+                $p = explode("/", $tplName);
+                $css = "theme/$theme/positions/" . $p[0] . "/" . $p[0] . '.' . $p[1] . ".css";
+                if (file_exists(Z::appDir() . "/www/$css")) {
+                    HtmlPageHelper::css("/$css");
+                }
+            }
+        }
         $commonRenderer->setLayoutProxy($proxy);
 
 
@@ -232,12 +207,4 @@ class LawsUtil
 
     }
 
-
-    private function getLayoutProxy()
-    {
-        if (null === $this->layoutProxy) {
-            $this->layoutProxy = LawsLayoutProxy::create();
-        }
-        return $this->layoutProxy;
-    }
 }
