@@ -335,6 +335,19 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     }
 
 
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    protected function getPlanets()
+    {
+        /**
+         * Override this if your module uses planets.
+         * Not implemented yet.
+         */
+        return [];
+    }
+
     protected function getWidgets()
     {
         /**

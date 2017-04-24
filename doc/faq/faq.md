@@ -111,6 +111,39 @@ Application logs
 
 Use my klog alias.
 
-```php
+```bash
 alias klog='tail -f -n 100 /myphp/kaminos/app/logs/kamille.log.txt'
 ```
+
+
+
+Check if a connected user has a given role
+---------------------------------
+
+Use the A::has shortcut method, provided by the Authenticate module.
+
+```php
+A::has("moderator");
+```
+
+
+Install a module
+---------------------------------
+
+Use [kamille installer tool](https://github.com/lingtalfi/kamille-installer-tool), once installed, do this:
+
+```bash
+cd /my/app
+kamille install Authenticate
+```
+
+
+
+How to call an asset (js or css)
+---------------------------------
+
+```php
+HtmlPageHelper::js("/your/js/your.js");
+HtmlPageHelper::js("$prefixUri/build/js/custom.min.js", null, null, false);
+```
+

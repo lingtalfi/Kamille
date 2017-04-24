@@ -12,10 +12,12 @@ class HtmlPageHelper
     private static $listCss = [];
     private static $listJs = [];
     private static $meta = [];
+    private static $metaBlocks = [];
     //
     private static $loadedJsLibs = [];
     private static $bodyClasses = [];
     private static $bodyAttributes = [];
+    private static $htmlAttributes = [];
 
 
     public static function displayHead()
@@ -36,17 +38,42 @@ class HtmlPageHelper
             echo "\t" . '<meta ' . self::htmlAttributes($attr) . '>' . PHP_EOL;
         }
 
+        foreach (self::$metaBlocks as $str) {
+            echo $str . PHP_EOL;
+        }
+
         self::displayHeadAssets();
 
         echo "</head>" . PHP_EOL;
     }
 
+    public static function getHtmlTagAttributes()
+    {
+        return self::$htmlAttributes;
+    }
 
     public static function addKeywords(array $keyWords)
     {
         foreach ($keyWords as $word) {
             self::$keywords[] = $word;
         }
+    }
+
+    public static function addHtmlTagAttribute($k, $v)
+    {
+        self::$htmlAttributes[$k] = $v;
+    }
+
+
+    /**
+     * html lang attribute is important for screen readers (https://www.w3schools.com/html/html_attributes.asp)
+     * Example of langs:
+     * - en-US
+     *
+     */
+    public static function setLang($lang)
+    {
+        self::$htmlAttributes["lang"] = $lang;
     }
 
     public static function addBodyClass($cssClass)
@@ -78,13 +105,25 @@ class HtmlPageHelper
         self::$meta[] = $attributes;
     }
 
+    public static function addMetaBlock($string)
+    {
+        self::$metaBlocks[] = $string;
+    }
+
 
     public static function css($url, $libName = null, array $htmlAttributes = null)
     {
         self::$listCss[$url] = [$htmlAttributes, $libName];
     }
 
-    // inHead: if false, is displayed just before the body end
+    /**
+     * inHead: bool|after
+     * - if true, is displayed in the head
+     * - if false, is displayed just in the bodyEndSection, which is just before the html body tag end
+     * - if after, is displayed after the bodyEndSection, and before the html body tag end
+     *              This allows you to call the js method from your templates,
+     *              and yet you still can have a general init.js file after them.
+     */
     public static function js($url, $libName = null, array $htmlAttributes = null, $inHead = true)
     {
         self::$listJs[$url] = [$htmlAttributes, $libName, $inHead];
@@ -98,7 +137,10 @@ class HtmlPageHelper
         //--------------------------------------------
         $cssLibs = [];
         foreach (self::$listCss as $url => $item) {
-            $s = (null === $item[0]) ? '' : self::htmlAttributes($item[0]);
+            if (null === $item[0]) {
+                $item[0] = ["rel" => "stylesheet"];
+            }
+            $s = self::htmlAttributes($item[0]);
             $lib = $item[1];
 
             if (null !== $lib) {
@@ -109,7 +151,7 @@ class HtmlPageHelper
                 }
             }
 
-            echo "\t" . '<link rel="stylesheet" href="' . htmlspecialchars($url) . '"' . $s . '>' . PHP_EOL;
+            echo "\t" . '<link href="' . htmlspecialchars($url) . '"' . $s . '>' . PHP_EOL;
 
         }
 
@@ -122,7 +164,7 @@ class HtmlPageHelper
             $s = (null === $item[0]) ? '' : self::htmlAttributes($item[0]);
             $lib = $item[1];
             $inHead = $item[2];
-            if (false === $inHead) {
+            if (true !== $inHead) {
                 continue;
             }
             if (null !== $lib) {
@@ -142,14 +184,11 @@ class HtmlPageHelper
     public static function displayBodyEndAssets($displayBodyEnd = true)
     {
         echo PHP_EOL;
+        $after = [];
         foreach (self::$listJs as $url => $item) {
 
             $s = (null === $item[0]) ? '' : self::htmlAttributes($item[0]);
             $lib = $item[1];
-            $inHead = $item[2];
-            if (true === $inHead) {
-                continue;
-            }
             if (null !== $lib) {
                 if (false === array_key_exists($lib, self::$loadedJsLibs)) {
                     self::$loadedJsLibs[$lib] = true;
@@ -157,10 +196,23 @@ class HtmlPageHelper
                     continue;
                 }
             }
+            $inHead = $item[2];
+            if (true === $inHead) {
+                continue;
+            } elseif ('after' === $inHead) {
+                $after[] = [$url, $s];
+                continue;
+            }
 
             echo "\t" . '<script src="' . htmlspecialchars($url) . '"' . $s . '></script>' . PHP_EOL;
-
         }
+
+        //
+        foreach ($after as $item) {
+            list($url, $s) = $item;
+            echo "\t" . '<script src="' . htmlspecialchars($url) . '"' . $s . '></script>' . PHP_EOL;
+        }
+
         if (true === $displayBodyEnd) {
             echo '</body>' . PHP_EOL;
         }

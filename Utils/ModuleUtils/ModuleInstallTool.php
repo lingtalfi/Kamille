@@ -235,9 +235,9 @@ class ModuleInstallTool
          *
          */
         $moduleFile = self::getModuleFile($candidateModule);
+
         $moduleCooker = ClassCooker::create()->setFile($moduleFile);
         $moduleMethods = $moduleCooker->getMethods(["protected", "static"]);
-
 
         $xHooksFile = self::getHooksFile();
         $hookCooker = ClassCooker::create()->setFile($xHooksFile);
@@ -266,7 +266,6 @@ class ModuleInstallTool
 
         // installed modules
         $installed = ModuleInstallationRegister::getInstalled();
-
 
         //--------------------------------------------
         // FIRST, CREATE THE PROVIDERS AND BIND OTHER MODULES TO IT
@@ -321,12 +320,14 @@ class ModuleInstallTool
                 $hookCooker->addMethod($method, $methodContent);
 
 
+
             } else {
                 /**
                  * If the provider already exist, we do nothing,
                  * we assume it has already been properly treated.
                  */
             }
+
         }
 
 

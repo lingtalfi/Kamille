@@ -4,14 +4,12 @@
 namespace Kamille\Mvc\Layout;
 
 
+use Bat\StringTool;
 use Kamille\Mvc\HtmlPageHelper\HtmlPageHelper;
 
 
 class HtmlLayout extends Layout
 {
-
-
-    private $lang;
 
 
     public function render(array $variables = [])
@@ -22,14 +20,8 @@ class HtmlLayout extends Layout
         $out = parent::render($variables);
 
 
-        $lang = $this->lang;
-        if (null !== $lang) {
-            $lang = ' lang="' . $lang . '"';
-        }
-
-
         echo '<!DOCTYPE html>' . PHP_EOL;
-        echo '<html' . $lang . '>' . PHP_EOL;
+        echo '<html' . StringTool::htmlAttributes(HtmlPageHelper::getHtmlTagAttributes()) . '>' . PHP_EOL;
         HtmlPageHelper::displayHead();
         HtmlPageHelper::displayOpeningBodyTag();
         echo $out;
@@ -40,15 +32,4 @@ class HtmlLayout extends Layout
     }
 
 
-    /**
-     * html lang attribute is important for screen readers (https://www.w3schools.com/html/html_attributes.asp)
-     * Example of langs:
-     * - en-US
-     *
-     */
-    public function setHtmlLang($lang)
-    {
-        $this->lang = $lang;
-        return $this;
-    }
 }

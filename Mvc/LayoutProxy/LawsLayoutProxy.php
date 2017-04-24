@@ -92,6 +92,30 @@ class LawsLayoutProxy extends LayoutProxy implements LawsLayoutProxyInterface, V
                 echo $widget->render();
             }
         }
+
+
+
+        $config = 0;
+        $i = 0;
+        foreach($widgets as $widgetId => $widget){
+            $s = $widget->render();
+
+
+//            foreach($decorators as $decorator){
+//                $decorator->decorateWidget($s, $widgetId, $i, $widget, $config);
+//            }
+
+//            // let the user decorate it
+//            if($position instanceof PositionInterface){
+//                $position->decorate($s, $widgetId, $i, $widget, $config);
+//            }
+//
+//            // now assembly the widget in a grid layout if any
+//            $this->decorateWithGrid($s, $widgetId, $i, $widget, $config);
+
+
+            echo $s;
+        }
     }
 
     public function includes($includePath)
