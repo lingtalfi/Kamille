@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.41.0 -- 2017-04-25
+
+    - add GridSystem for LawsUtil 
+    
 - 1.40.0 -- 2017-04-20
 
     - add RoutsyUtil class 

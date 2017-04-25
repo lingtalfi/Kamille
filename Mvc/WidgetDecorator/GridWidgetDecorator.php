@@ -16,82 +16,63 @@ use Kamille\Services\XLog;
  *
  *
  *
- * Nomenclature
- * =================
- * The layout is seen as a stack of rows.
- * Each row can be divided in columns.
  *
- * By default, a widget uses only 1 column which spans the whole row width.
- *
- * We divide that row by using a fragment identifier.
- *
- * The fragment identifier defines how the row will be sliced.
- * For instance, if we bind a fragId of 1/2 to the first widget, it means that the row should be sliced in two equal columns,
- * and the widget should be  put in that first column.
- *
- * Once a row is opened (a division has been defined), subsequent widgets will be used to close the row,
- * even if no fragId is specified explicitly (an implicit version will be used automatically until the row is closed).
- *
- * Or you can specifically specify the row division if you prefer.
- *
- *
- * Basic concept
- * =================
- *
- * Widgets are read in order, so for instance, if we focus only on fragIds the widgets provide, we can
- * have a similar structure (which we will use a lot in this documentation, so take the time to understand it):
- *
- *
- * - 1/2
- * - 1/2
- *
- * The example above means that there are two widgets, the row is divided in two columns of equal width,
- * and each column holds one widget.
- *
- * Now if we do this:
- *
- * - 1/2
- * - (not specified)
- *
- * Notice that no fragId was specified for the second widget, therefore the second widget will be automatically
- * given a fragId of 1/2.
- *
- * Alike the previous example, if we do this:
- *
- * - 1/3
- * - (not specified)
- *
- * Since no fragId was specified on the second widget, it will fill the whole remaining space, and therefore
- * have an implicit fragId of 2/3.
- *
- * Below is how we would make three equal columns:
- *
- * - 1/3
- * - 1/3
- * - 1/3
- *
- * Below is how we would make two columns, the first taking 2/3 of the horizontal available space, and the last column
- * taking the remaining space:
- *
- *
- * - 2/3
- * -
- *
- * Or (equivalent to)
- *
- * - 2/3
- * - 1/3
- *
- * In practice, we generally don't need divisions lower than 1/3 (1/4 and below are generally not used).
- * In theory, we can go down to a 1/12 division.
+ * ==========================
+ * THE GRID LAYOUT
+ * ==========================
  *
  *
  *
- * Children
- * ==============
  *
- * Things get a little bit more complicated when we need a more complex layout.
- * Imagine the following schema:
+ * Nomenclature: row, column and nested column
+ * =============================================
+ *
+ * A grid layout starts with a row.
+ * The row can be divided into columns.
+ * A row cannot contain another row (directly), it can only contain columns.
+ *
+ * If you want to divide a column, you need to create a row first, and then divide that row into columns.
+ * So, a column cannot contain another column (directly), it can only contain rows.
+ *
+ * A column located inside a column (indirectly) is called a nested column.
+ *
+ *
+ *
+ *
+ *
+ * Getting started
+ * ========================
+ *
+ *
+ * Enabling the grid layout
+ * ----------------------------
+ * You first need to enable the grid layout before you can use it.
+ * The grid layout is active on a per position basis.
+ *
+ * This means, for a given position, you either use the grid layout or you don't, but if you use it,
+ * all the widgets, without exception, will be affected by that grid layout.
+ *
+ * To enable the grid layout, you add the "grid" key in your laws configuration, and the value is an array
+ * of positions for which the grid layout should be available.
+ *
+ * For instance, with the following config snippet, the grid layout will be active for the "maincontent" position only.
+ *
+ * - ...
+ * - layout: ...
+ * - widgets: ...
+ * - grid: [maincontent]
+ * - ...
+ *
+ *
+ *
+ * The vision
+ * ----------------------
+ *
+ * You organize the widgets in the grid layout by describing the vision you have with the fragId notation.
+ * fragId stands for fragment/fraction identifier.
+ *
+ * So, for instance, let's say you have this vision in mind:
+ *
  *
  *
  * |---------------|---------------|---------------|
@@ -131,12 +112,7 @@ use Kamille\Services\XLog;
  *
  *
  *
- *
- *
- *
- *
- *
- * Here is how we would notate the above schema:
+ * To achieve such a markup, you use the fragId notation, like so:
  *
  * - w1: 1/3
  * - w2: 1/3
@@ -147,43 +123,157 @@ use Kamille\Services\XLog;
  * - w7: 1/2.
  *
  *
- * Did you notice that we introduced two new syntax elements: the dash (-), and the dot(.).
- * Those are complementary, they mean: open nested level and close nested level respectively.
- * To better understand this, we will focus on the pseudo markup notation.
+ *
+ * So as you can see, each widget has its own fragId.
+ * For instance, widget 1 has a fragId of 1/3, widget 2's fragId is 1/3 too, and so on...
+ *
+ *
+ * So, to recap, by assigning each widget a fragId, you can easily create the vision you have in mind.
+ *
+ *
+ *
+ * Introduction to the notation
+ * --------------------
+ *
+ * Once you have your vision in mind, you need to write it down as fragIds.
+ *
+ * There are a couple of rules useful for your understanding:
+ *
+ * ### A row naturally ends (or closes) when it's complete.
+ *
+ * So, if we write this:
+ *
+ * w1: 1/3
+ * w2: 1/3
+ * w3: 1/3
+ *
+ * At widget 3, the row ends naturally, because we reach the last third.
+ * The markup will be the following
+ *
+ * <row>
+ *      <col 1/3> w1 </col>
+ *      <col 1/3> w2 </col>
+ *      <col 1/3> w3 </col>
+ * </row>
+ *
+ *
+ * ### When a row closes, the system by default creates the new row as a sibling
+ *
+ * So, if we write this:
+ *
+ * w1: 1/3
+ * w2: 1/3
+ * w3: 1/3
+ * w4: 1/3
+ *
+ * At widget 3, the row ends naturally, because we reach the last third.
+ * And so per this rule, the widget 4 will be created on its own row.
+ *
+ * The markup will be the following
+ *
+ * <row>
+ *      <col 1/3> w1 </col>
+ *      <col 1/3> w2 </col>
+ *      <col 1/3> w3 </col>
+ * </row>
+ * <row>
+ *      <col 1/3> w4 </col>
+ *      ...to be continued, this is just a theoretical example shown to illustrate a concept
+ *
+ *
+ *
+ * Doing children
+ * =====================
+ * So now that you've got a gist of the fragId notation, let's get our hands really dirty, and let's make children.
+ *
+ *
+ * Here is our vision (I added some line numbers for further reference):
+ *
+ * 1.               <row>
+ * 2.                    <col 1/3> w4 </col>
+ * 3.                    <col 2/3>
+ * 4.                        <row>
+ * 5.                            <col 1/1> w5 </col>
+ * 6.                        </row>
+ * 7.                        <row>
+ * 8.                            <col 1/2> w6 </col>
+ * 9.                            <col 1/2> w7 </col>
+ * 10.                       </row>
+ * 11.                   </col>
+ * 12.              </row>
+ *
+ * And here is the corresponding notation:
+ *
+ *
+ * w4: 1/3
+ * w5: 2/3-1
+ * w6: 1/2
+ * w7: 1/2.
+ *
  *
  *
  * The dash
- * ------------
- * Understand that widgets are parsed in their order of appearance in the config file.
+ * -----------------
+ * Notice the notation for widget 5 on line 5: "2/3-1".
+ * The dash is just a separator, so the notation should be read: 2/3, then 1/1  (1 is shorthand for 1/1).
+ * THE DASH IS THE NOTATION FOR OPENING A NESTED COLUMN.
  *
- * When two consecutive widgets are separated by the opening of a new row, then we use a dash between
- * the two fragIds (the fragId before the opening row, and the fragId after).
- * That's what we have in the above example with w5: 2/3-1.
- * w4 had 1/3, and w5 opens a nested level (col 2/3), plus a column (1/1).
- * If we combine the two together and separate them with a dash, we obtain this: 2/3-1/1.
- * However, the 1/1 is replaced by 1 for brevity, so our fragId for w5 becomes 2/3-1.
+ * Reminder: a nested column is a column inside a column.
+ * So for instance, the column line 5 is a nested column, and so are the columns line 8 and 9.
  *
+ * However, the column line 5 is an opening nested column, which means it contains the col-row-col pattern (line 3-4-5)
+ * which indicate the opening of a nested column.
+ * When that pattern happen, the col before the row is called the parent column, and the col after the row is called
+ * the child column (or just column).
  *
- *
- * Note:
- * A column only must be the direct children of a row.
- * This means a row cannot be the direct parent of a row, which is why it's not possible to have double dash (consecutive dash)
- * in this notation.
+ * The fragId of an opening nested column is composed of the fraction characteristics of both the parent column AND
+ * the child column, separated by a dash.
  *
  *
  * The dot
- * -----------
- * When you open a nested level, you must at some point close it.
- * Since you can stack any number of rows in a column, you need to specify WHEN that stack ends,
- * and you do so using the dot.
- * It works exactly like the dash, but in reverse.
- * So in the above example again, w7 specifies a fragId of 1/2., which means close the nested columns started at w5.
+ * --------------
+ * If you open a nested column, at some point you have to close it as well.
+ * To close a nested column, we use the dot notation, so that in the end, the number of dashes (opening nested columns)
+ * is equal to the number of dots (closing nested columns), at least in a well balanced/valid fragId notation.
+ *
+ * The reason why you need to specify the dot is that as said before: by default when a row naturally ends,
+ * the system creates the next row as a sibling.
+ * So for instance, on line 6, the row naturally ends (because the widget 5 takes the whole space available
+ * to that row).
+ * And so if the next fragId you specify is 1/2 (like in the example above w6: 1/2), then a new sibling row is created (line7),
+ * which holds the new 1/2 column.
+ *
+ * But what if you wanted widget 6 to be a sibling of widget 4 instead?
+ * So, what if you wanted to do this:
+ *
+ * 1.               <row>
+ * 2.                    <col 1/3> w4 </col>
+ * 3.                    <col 2/3>
+ * 4.                        <row>
+ * 5.                            <col 1/1> w5 </col>
+ * 6.                        </row>
+ * 7.                    </col>
+ * 8.               </row>
+ * 9.               <row>
+ * 10.                   <col 1/2> w6 </col>
+ * 11.                   <col 1/2> w7 </col>
+ * 12.              </row>
+ *
+ *
+ * Then, you would use a dot, to explicitly close the nested column opened by widget 5, and the notation would be the
+ * following:
+ *
+ * w4: 1/3
+ * w5: 2/3-1.
+ * w6: 1/2
+ * w7: 1/2
  *
  *
  *
  *
+ * So, re-read those examples as long as necessary, and when you are ready, meet the big boss of this document,
+ * which make uses of multiple consecutive dots (each dot closes a nested column):
  *
- * Here is one more example of structure and corresponding notation.
  *
  *
  * <row>
@@ -193,48 +283,34 @@ use Kamille\Services\XLog;
  * </row>
  * <row>
  *      <col 1/6> w4 </col>
- *      <col 4/6>
+ *      <col 5/6>
  *          <row>
- *              <col 1/1> w5 </col>
- *          </row>
- *          <row>
- *              <col 1/3> w6 </col>
- *              <col 1/3>
+ *              <col 1/3> w5 </col>
+ *              <col 2/3>
  *                  <row>
- *                      <col 1/1> w7 </col>
+ *                      <col 1/1> w6 </col>
  *                  </row>
  *              </col>
- *              <col 1/3> w8 </col>
- *          </row>
- *          <row>
- *              <col 1/1> w9 </col>
  *          </row>
  *      </col>
- *      <col 1/6> w10 </col>
  * </row>
- *
- *
- * which would be represented by the following notation:
  *
  *
  * - w1: 1/3
  * - w2: 1/3
  * - w3: 1/3
  * - w4: 1/6
- * - w5: 4/6-1
- * - w6: 1/3
- * - w7: 1/3-1.
- * - w8: 1/3
- * - w9: 1.
- * - w10: 1/6
+ * - w5: 5/6-1/3
+ * - w6: 2/3-1..
  *
  *
  *
  *
  *
+ * If you can understand (at least partially) the fragId notation, then you are ready to use it and create
+ * awesome templates.
  *
- *
- *
+ * Enjoy!
  *
  *
  *
@@ -243,40 +319,17 @@ use Kamille\Services\XLog;
 class GridWidgetDecorator implements WidgetDecoratorInterface
 {
 
-    /**
-     * @var array,
-     *
-     * If an array, contains one "info" per level.
-     * The top level has index 0.
-     *
-     * New levels are APPENDED to the array, and popped out as there is vertical/hierarchical movement.
-     *
-     * The info is an array with the following structure:
-     *      0: the max space available
-     *      1: the current space used
-     *
-     *
-     * An info array is only available when it's entered (i.e. when the first widget of the level is being processed).
-     *
-     *
-     *
-     *
-     */
-    private $levelSpaceInfo;
-    private $currentLevel;
+
     private $systemStarted;
-    private $lastColumnWasLastOfRow;
-    private $isInitialized;
-    private $lastWidgetOfPosition;
+    private $store;
+    private $hasJustClosedRow;
 
 
     public function __construct()
     {
-        $this->levelSpaceInfo = [];
-        $this->currentLevel = 0;
         $this->systemStarted = false;
-        $this->lastColumnWasLastOfRow = false;
-        $this->isInitialized = false;
+        $this->store = 0;
+        $this->hasJustClosedRow = false;
     }
 
 
@@ -289,88 +342,162 @@ class GridWidgetDecorator implements WidgetDecoratorInterface
     {
         if (true === $this->isGridSystemActive($positionName, $config)) {
 
-            $this->init($positionName, $config);
-
-
-            $createExtraLevel = false;
-
-
-            // get the current level
-            $parentFragId = "";
-            $fragId = $this->getFragId($widgetId, $config);
-            if (false !== strpos($fragId, '-')) {
-                $p = explode('-', $fragId, 2);
-                $parentFragId = $p[0];
-                $parentFragId = "";
-                $createExtraLevel = true;
-                $this->currentLevel++;
-            }
-            $curLevel = $this->currentLevel;
-
-
-            if (false !== ($levelInfo = $this->getLevelInfo($curLevel, $fragId))) {
-
-                list($currentSpaceUsed, $maxSpaceAvailable) = $levelInfo;
+            if (false !== $fragId = $this->getFragId($widgetId, $config)) {
 
 
                 $closeRow = false;
-                $closeNestedRow = false;
-                $this->lastColumnWasLastOfRow = false;
+
+                list($parentSpaceUsed,
+                    $parentAvailableSpace,
+                    $spaceUsed,
+                    $availableSpace,
+                    $hasDash,
+                    $nbDots) = $this->extractFragId($fragId);
 
 
-                /**
-                 * compute the space information
-                 */
-//                $eatenSpace = $this->getEatenSpace($fragId);
-//                $currentSpaceUsed += $eatenSpace;
-//
-//                $isClosing = false;
-//                if ($currentSpaceUsed >= $maxSpaceAvailable) {
-//                    $isClosing = true;
-//                    if ($currentSpaceUsed > $maxSpaceAvailable) {
-//                        XLog::error("invalid fragId specified: eating too much space! Eating $eatenSpace cols while there is only $maxSpaceAvailable cols available");
-//                    }
-//                }
-
-
-                // wrapping content
-                $sp = str_repeat("&nbsp;", 8);
-                $debug = " - [used: $currentSpaceUsed, max= $maxSpaceAvailable]<br>";
-
-
-                $sPrefix = "";
-                if (false === $this->systemStarted) {
-                    $sPrefix .= "[row]: starter<br>";
-                    $this->systemStarted = true;
+                $this->store += $spaceUsed;
+                if ($availableSpace <= $this->store) {
+                    $closeRow = true;
+                    $this->store = 0;
                 }
-                if (true === $createExtraLevel) {
-                    $sPrefix .= "[row]: extra level<br>";
-                }
-                $sPrefix .= $sp . "[col $fragId]";
-                $sSuffix = "";
-                $sSuffix .= $sp . "[/col]<br>";
 
 
-                $s = "";
-                $s .= $sPrefix . $debug . $content . $sSuffix;
-                $content = $s;
+                $sPrefix = $this->getPrefix($fragId, $parentSpaceUsed,
+                    $parentAvailableSpace,
+                    $spaceUsed,
+                    $availableSpace,
+                    $hasDash,
+                    $nbDots);
 
-
-                $this->setLevelInfo($curLevel, $currentSpaceUsed, $maxSpaceAvailable);
-                // update the level information
-
-
-//                if (true === $isClosing) {
-//                    $this->lastColumnWasLastOfRow = true;
-//                }
-
+                $content = $sPrefix . $this->renderContent($content, $widgetId) . $this->getSuffix($closeRow, $nbDots);
             }
         }
     }
 
+
+
+
+
     //--------------------------------------------
     //
     //--------------------------------------------
+
+    protected function renderContent($content, $widgetId)
+    {
+        return $content;
+    }
+
+    protected function renderRowStart()
+    {
+        return "[row]";
+    }
+
+    protected function renderColStart($fragId, $parentSpaceUsed,
+                                      $parentAvailableSpace,
+                                      $spaceUsed,
+                                      $availableSpace,
+                                      $hasDash,
+                                      $nbDots)
+    {
+        return "[col $fragId]";
+    }
+
+    protected function renderNestedColStart($fragId, $parentSpaceUsed,
+                                            $parentAvailableSpace,
+                                            $spaceUsed,
+                                            $availableSpace,
+                                            $hasDash,
+                                            $nbDots)
+    {
+        $s = "[col $parentSpaceUsed/$parentAvailableSpace]";
+        $s .= "[row]";
+        $s .= "[col $spaceUsed/$availableSpace]";
+        return $s;
+    }
+
+    protected function renderColEnd()
+    {
+        return "[/col]";
+    }
+
+    protected function renderRowEnd()
+    {
+        return "[/row]";
+    }
+
+    protected function renderNestedColEnd()
+    {
+        return "[col][/row]";
+    }
+
+
+    protected function getPrefix($fragId, $parentSpaceUsed,
+                                 $parentAvailableSpace,
+                                 $spaceUsed,
+                                 $availableSpace,
+                                 $hasDash,
+                                 $nbDots)
+    {
+        $sPrefix = "";
+        if (false === $this->systemStarted) {
+//            $sPrefix .= "[row]: starter<br>";
+            $sPrefix .= $this->renderRowStart();
+            $this->systemStarted = true;
+        }
+
+        if (true === $this->hasJustClosedRow) {
+            $this->hasJustClosedRow = false;
+//            $sPrefix .= '[row]: natural start<br>';
+            $sPrefix .= $this->renderRowStart();
+        }
+
+
+        if (true === $hasDash) {
+//            $sPrefix .= "[col $parentSpaceUsed/$parentAvailableSpace]: parent col<br>";
+//            $sPrefix .= "[row]: extra level<br>";
+//            $sPrefix .= "[col $spaceUsed/$availableSpace]: child col";
+            $sPrefix .= $this->renderNestedColStart($fragId, $parentSpaceUsed,
+                $parentAvailableSpace,
+                $spaceUsed,
+                $availableSpace,
+                $hasDash,
+                $nbDots);
+        } else {
+//            $sPrefix .= "[col $fragId]";
+            $sPrefix .= $this->renderColStart($fragId, $parentSpaceUsed,
+                $parentAvailableSpace,
+                $spaceUsed,
+                $availableSpace,
+                $hasDash,
+                $nbDots);
+        }
+//        return $sPrefix . " - [used: $spaceUsed, max= $availableSpace]<br>";
+        return $sPrefix;
+    }
+
+
+    protected function getSuffix($closeRow, $nbDots)
+    {
+        $sSuffix = "";
+//        $sSuffix .= "[/col]<br>";
+        $sSuffix .= $this->renderColEnd();
+
+        if (true === $closeRow) {
+//            $sSuffix .= '[/row]: natural ending<br>';
+            $sSuffix .= $this->renderRowEnd();
+            $this->hasJustClosedRow = true;
+        }
+
+        for ($i = 0; $i < $nbDots; $i++) {
+//            $sSuffix .= '[/col]: dot ending<br>';
+//            $sSuffix .= '[/row]: dot ending<br>';
+            $sSuffix .= $this->renderNestedColEnd();
+
+        }
+        return $sSuffix;
+    }
+
+
     protected function getFragId($widgetId, array $config)
     {
         if (
@@ -380,11 +507,63 @@ class GridWidgetDecorator implements WidgetDecoratorInterface
         ) {
             return $config['widgets'][$widgetId]['grid'];
         }
+        return false;
     }
 
     //--------------------------------------------
     //
     //--------------------------------------------
+    private function extractFragId($fragId)
+    {
+        $parentSpaceUsed = null;
+        $parentAvailableSpace = null;
+        $spaceUsed = null;
+        $availableSpace = null;
+        $hasDash = false;
+        $nbDots = 0;
+
+
+        if ('.' === substr($fragId, -1)) {
+            $len = strlen($fragId);
+            $fragId = rtrim($fragId, '.');
+            $newLen = strlen($fragId);
+            $nbDots = $len - $newLen;
+        }
+
+        $p = explode('-', $fragId, 2);
+        if (2 === count($p)) {
+            $parent = $p[0];
+            $frag = $p[1];
+            if ('1' === $parent) {
+                $parent = "1/1";
+            }
+            $p = explode('/', $parent, 2);
+            $parentSpaceUsed = (int)$p[0];
+            $parentAvailableSpace = (int)$p[1];
+            $hasDash = true;
+        } else {
+            $frag = $p[0];
+        }
+
+        if ('1' === $frag) {
+            $frag = "1/1";
+        }
+        $p = explode('/', $frag, 2);
+        $spaceUsed = (int)$p[0];
+        $availableSpace = (int)$p[1];
+
+
+        return [
+            $parentSpaceUsed,
+            $parentAvailableSpace,
+            $spaceUsed,
+            $availableSpace,
+            $hasDash,
+            $nbDots,
+        ];
+    }
+
+
     private function isGridSystemActive($positionName, array $config)
     {
         if (array_key_exists("grid", $config)) {
@@ -399,56 +578,4 @@ class GridWidgetDecorator implements WidgetDecoratorInterface
         return false;
     }
 
-    private function getLevelInfo($level, $fragId)
-    {
-        if (array_key_exists($level, $this->levelSpaceInfo)) {
-            return $this->levelSpaceInfo[$level];
-        } else {
-            // assert this is the first call of the "session"
-            $p = explode('-', $fragId, 2);
-            $l = array_pop($p);
-            $l = rtrim($l, ".");
-            if ('1' === $l) {
-                $info = [0, 1];
-            } else {
-                $p = explode('/', $l, 2);
-                $info = [$p[0], $p[1]];
-            }
-            $this->levelSpaceInfo[$level] = $info;
-            return $info;
-
-        }
-        XLog::error("GridWidgetDecorator: cannot access levelInfo for level $level, with fragId=$fragId");
-        return false;
-    }
-
-    private function getEatenSpace($fragId)
-    {
-        $p = explode('-', $fragId, 2);
-        $l = array_pop($p);
-        $p = explode('/', $l, 2);
-        return $p[0];
-    }
-
-
-    private function setLevelInfo($level, $currentSpaceUsed, $maxAvailableSpace)
-    {
-        $this->levelSpaceInfo[$level] = [$currentSpaceUsed, $maxAvailableSpace];
-        return $this;
-    }
-
-    private function init($positionName, array $config)
-    {
-        if (false === $this->isInitialized) {
-            $this->isInitialized = true;
-            az($positionName);
-            $positions = $config['widgets'];
-            foreach($positions as $id => $info){
-
-            }
-
-
-            $this->lastWidgetOfPosition = 0;
-        }
-    }
 }

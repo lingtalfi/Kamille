@@ -19,10 +19,11 @@ use Kamille\Services\XLog;
 use Kamille\Utils\Laws\Exception\LawsUtilException;
 
 
-class LawsUtil
+class LawsUtil implements LawsUtilInterface
 {
 
     private $_file; // passed as a debug info
+    private $_viewId; // passed as a debug info
     /**
      * @var LayoutProxyInterface
      */
@@ -60,7 +61,8 @@ class LawsUtil
                 call_user_func_array($config, [&$conf]);
             }
             $this->_file = $file;
-            return $this->renderLawsView($conf, $viewId, $options);
+            $this->_viewId = $viewId;
+            return $this->renderLawsView($conf, $options);
         }
         throw new LawsUtilException("laws config file not found: $file");
     }
@@ -72,14 +74,11 @@ class LawsUtil
     }
 
 
-
-
-    //--------------------------------------------
-    //
-    //--------------------------------------------
-    private function renderLawsView(array $config, $viewId = null, array $options = [])
+    public function renderLawsView(array $config,  array $options = [])
     {
         $file = $this->_file;
+        $viewId = $this->_viewId;
+
         $options = array_merge([
             'autoloadCss' => true,
             'widgetClass' => 'Kamille\Mvc\Widget\Widget',
@@ -233,6 +232,9 @@ class LawsUtil
     }
 
 
+    //--------------------------------------------
+    //
+    //--------------------------------------------
     private function getLayoutProxy()
     {
         if (null === $this->layoutProxy) {
