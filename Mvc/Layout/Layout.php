@@ -33,6 +33,8 @@ class Layout implements LayoutInterface
      */
     private $renderer;
 
+    private $onPrepareVariablesCallback;
+
     public function __construct()
     {
         $this->widgets = [];
@@ -128,6 +130,15 @@ class Layout implements LayoutInterface
         $this->renderer = $renderer;
         return $this;
     }
+
+    public function setOnPrepareVariablesCallback(callable $onPrepareVariablesCallback)
+    {
+        $this->onPrepareVariablesCallback = $onPrepareVariablesCallback;
+        return $this;
+    }
+
+
+
     //--------------------------------------------
     //
     //--------------------------------------------
@@ -155,7 +166,9 @@ class Layout implements LayoutInterface
 
     protected function prepareVariables(array &$variables)
     {
-
+        if (null !== $this->onPrepareVariablesCallback) {
+            $variables = call_user_func($this->onPrepareVariablesCallback, $variables);
+        }
     }
 
 

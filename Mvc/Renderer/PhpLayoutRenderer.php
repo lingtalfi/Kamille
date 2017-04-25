@@ -70,6 +70,7 @@ class PhpLayoutRenderer extends LayoutRenderer
             }
 
 
+
             /**
              * First interpret the template's php if any
              */

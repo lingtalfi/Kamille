@@ -10,7 +10,7 @@ class Bootstrap3GridWidgetDecorator extends GridWidgetDecorator
 
     protected function renderRowStart()
     {
-        return '<div class="row">';
+        return '<div class="' . $this->getExtraCssClass('rowStart') . '">';
     }
 
     protected function renderColStart($fragId, $parentSpaceUsed,
@@ -20,7 +20,10 @@ class Bootstrap3GridWidgetDecorator extends GridWidgetDecorator
                                       $hasDash,
                                       $nbDots)
     {
-        return '<div class="' . $this->getCssClass($spaceUsed, $availableSpace) . '">';
+
+
+        $sExtra = $this->getExtraCssClass('colStart');
+        return '<div class="' . $sExtra . $this->getCssClass($spaceUsed, $availableSpace) . '">';
     }
 
     protected function renderNestedColStart($fragId, $parentSpaceUsed,
@@ -30,9 +33,10 @@ class Bootstrap3GridWidgetDecorator extends GridWidgetDecorator
                                             $hasDash,
                                             $nbDots)
     {
-        $s = '<div class="' . $this->getCssClass($parentSpaceUsed, $parentAvailableSpace) . '">';
-        $s .= '<div class="row">';
-        $s .= '<div class="' . $this->getCssClass($spaceUsed, $availableSpace) . '">';
+
+        $s = '<div class="' . $this->getExtraCssClass('nestedColParentStart') . $this->getCssClass($parentSpaceUsed, $parentAvailableSpace) . '">';
+        $s .= '<div class="' . $this->getExtraCssClass('nestedColRowStart') . '">';
+        $s .= '<div class="' . $this->getExtraCssClass('nestedColChildStart') . $this->getCssClass($spaceUsed, $availableSpace) . '">';
         return $s;
     }
 
@@ -57,6 +61,30 @@ class Bootstrap3GridWidgetDecorator extends GridWidgetDecorator
     //--------------------------------------------
     //
     //--------------------------------------------
+    private function getExtraCssClass($type)
+    {
+        switch ($type) {
+            case 'rowStart':
+            case 'nestedColRowStart':
+                $s = 'row';
+                if (array_key_exists("rowClass", $this->widgetConfig)) {
+                    $s .= " " . $this->widgetConfig['rowClass'];
+                }
+                return $s;
+                break;
+            case 'colStart':
+            case 'nestedColChildStart':
+                if (array_key_exists("colClass", $this->widgetConfig)) {
+                    return $this->widgetConfig['colClass'];
+                }
+                return '';
+                break;
+            default:
+                return "";
+                break;
+        }
+    }
+
     private function getCssClass($spaceUsed, $availableSpace)
     {
         $frag = $spaceUsed . "/" . $availableSpace;

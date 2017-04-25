@@ -14,7 +14,9 @@ use Kamille\Mvc\LayoutProxy\LawsLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\RendererAwareLayoutProxyInterface;
 use Kamille\Mvc\Loader\FileLoader;
+use Kamille\Mvc\Loader\PublicFileLoaderInterface;
 use Kamille\Mvc\Renderer\PhpLayoutRenderer;
+use Kamille\Mvc\Widget\Widget;
 use Kamille\Services\XLog;
 use Kamille\Utils\Laws\Exception\LawsUtilException;
 
@@ -74,7 +76,7 @@ class LawsUtil implements LawsUtilInterface
     }
 
 
-    public function renderLawsView(array $config,  array $options = [])
+    public function renderLawsView(array $config, array $options = [])
     {
         $file = $this->_file;
         $viewId = $this->_viewId;
@@ -94,6 +96,7 @@ class LawsUtil implements LawsUtilInterface
 
         $theme = ApplicationParameters::get("theme");
         $wloader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/widgets");
+
 //        $ploader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/positions");
 
 
@@ -151,11 +154,17 @@ class LawsUtil implements LawsUtilInterface
         //--------------------------------------------
         // LAYOUT
         //--------------------------------------------
+        $layoutLoader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/layouts");
         $layout = HtmlLayout::create()
+            ->setOnPrepareVariablesCallback(function (array $variables) use ($layoutLoader) {
+                if ($layoutLoader instanceof PublicFileLoaderInterface) {
+                    $variables["__FILE__"] = $layoutLoader->getFile();
+                    $variables["__DIR__"] = dirname($variables["__FILE__"]);
+                }
+                return $variables;
+            })
             ->setTemplate($layoutTemplate)
-            ->setLoader(FileLoader::create()
-                ->addDir(Z::appDir() . "/theme/$theme/layouts")
-            )
+            ->setLoader($layoutLoader)
             ->setRenderer($commonRenderer);
 
         if (true === $autoloadCss) {
@@ -201,25 +210,39 @@ class LawsUtil implements LawsUtilInterface
                 $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
 
 
-                $wid = new $widgetClass;
+                $widget = new $widgetClass;
+                if ($widget instanceof Widget) {
+                    $widget->setOnPrepareVariablesCallback(function (array $variables) use ($wloader) {
+                        if ($wloader instanceof PublicFileLoaderInterface) {
+                            $variables["__FILE__"] = $wloader->getFile();
+                            $variables["__DIR__"] = dirname($variables["__FILE__"]);
+                        }
+                        return $variables;
+                    });
 
-                $layout
-                    ->bindWidget($id, $wid
-                        ->setTemplate($name)
-                        ->setVariables($conf)
-                        ->setLoader($wloader)
-                        ->setRenderer($commonRenderer)
-                    );
+                    $layout
+                        ->bindWidget($id, $widget
+                            ->setTemplate($name)
+                            ->setVariables($conf)
+                            ->setLoader($wloader)
+                            ->setRenderer($commonRenderer)
+                        );
 
 
-                if (true === $autoloadCss) {
-                    $p = explode("/", $name);
-                    $css = "theme/$theme/widgets/" . $p[0] . "/" . $p[0] . '.' . $p[1] . ".css";
-                    if (file_exists(Z::appDir() . "/www/$css")) {
-                        HtmlPageHelper::css("/$css");
+                    if (true === $autoloadCss) {
+                        $p = explode("/", $name);
+                        $css = "theme/$theme/widgets/" . $p[0] . "/" . $p[0] . '.' . $p[1] . ".css";
+                        if (file_exists(Z::appDir() . "/www/$css")) {
+                            HtmlPageHelper::css("/$css");
+                        }
                     }
+                } else {
+                    /**
+                     * We want the widget to be instance of Kamille\Mvc\Widget\Widget, so that we can
+                     * provide the __FILE__ variable for all laws templates.
+                     */
+                    XLog::error('LawsUtil: widget with id must be an instance of the Kamille\Mvc\Widget\Widget class');
                 }
-
 
             } else {
                 $end = (null !== $viewId) ? " (viewId=$viewId)" : "";

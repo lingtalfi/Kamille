@@ -31,6 +31,8 @@ class Widget implements PublicWidgetInterface
      */
     private $renderer;
 
+    private $onPrepareVariablesCallback;
+
     public function __construct()
     {
         $this->variables = [];
@@ -118,6 +120,14 @@ class Widget implements PublicWidgetInterface
         $this->renderer = $renderer;
         return $this;
     }
+
+    public function setOnPrepareVariablesCallback(callable $onPrepareVariablesCallback)
+    {
+        $this->onPrepareVariablesCallback = $onPrepareVariablesCallback;
+        return $this;
+    }
+
+
     //--------------------------------------------
     //
     //--------------------------------------------
@@ -145,7 +155,9 @@ class Widget implements PublicWidgetInterface
 
     protected function prepareVariables(array &$variables)
     {
-
+        if (null !== $this->onPrepareVariablesCallback) {
+            $variables = call_user_func($this->onPrepareVariablesCallback, $variables);
+        }
     }
 
 

@@ -80,28 +80,8 @@ class LawsLayoutProxy extends LayoutProxy implements LawsLayoutProxyInterface, V
     }
 
 
-//    public function bindPosition($position, PositionInterface $p)
-//    {
-//        if (is_array($position)) {
-//            foreach ($position as $pos) {
-//                $this->positions[$pos] = $p;
-//            }
-//        } else {
-//            $this->positions[$position] = $p;
-//        }
-//        return $this;
-//    }
-
     public function position($positionName)
     {
-//        $position = null;
-//        if (array_key_exists($positionName, $this->positions)) {
-//            $position = $this->positions[$positionName];
-//        } elseif (array_key_exists('*', $this->positions)) {
-//            $position = $this->positions['*'];
-//        }
-
-
 
         // filter the widgets bound to that position only
         $allWidgets = $this->layout->getWidgets();
@@ -111,15 +91,6 @@ class LawsLayoutProxy extends LayoutProxy implements LawsLayoutProxyInterface, V
                 $widgets[$widgetId] = $widget;
             }
         }
-
-
-//        if ($position instanceof PositionInterface) {
-//            echo $position->render(["widgets" => $widgets]);
-//        } else {
-//            foreach ($widgets as $widget) {
-//                echo $widget->render();
-//            }
-//        }
 
         $config = $this->config;
 

@@ -18,6 +18,7 @@ class HtmlPageHelper
     private static $bodyClasses = [];
     private static $bodyAttributes = [];
     private static $htmlAttributes = [];
+    private static $bodyEndSnippets = [];
 
 
     public static function displayHead()
@@ -57,6 +58,12 @@ class HtmlPageHelper
         foreach ($keyWords as $word) {
             self::$keywords[] = $word;
         }
+    }
+
+    public static function addBodyEndSnippet($snippet)
+    {
+
+        self::$bodyEndSnippets[] = $snippet;
     }
 
     public static function addHtmlTagAttribute($k, $v)
@@ -180,8 +187,32 @@ class HtmlPageHelper
         }
     }
 
+    public static function displayBodyEndSection($displayBodyEnd = true)
+    {
 
-    public static function displayBodyEndAssets($displayBodyEnd = true)
+        self::displayBodyEndAssets();
+        self::displayBodyEndSnippets();
+
+        if (true === $displayBodyEnd) {
+            echo '</body>' . PHP_EOL;
+        }
+    }
+
+
+
+
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    private static function displayBodyEndSnippets()
+    {
+        foreach (self::$bodyEndSnippets as $snippet) {
+            echo $snippet . PHP_EOL;
+        }
+    }
+
+    private static function displayBodyEndAssets()
     {
         echo PHP_EOL;
         $after = [];
@@ -212,18 +243,9 @@ class HtmlPageHelper
             list($url, $s) = $item;
             echo "\t" . '<script src="' . htmlspecialchars($url) . '"' . $s . '></script>' . PHP_EOL;
         }
-
-        if (true === $displayBodyEnd) {
-            echo '</body>' . PHP_EOL;
-        }
     }
 
 
-
-
-    //--------------------------------------------
-    //
-    //--------------------------------------------
     private static function htmlAttributes(array $attributes)
     {
         $s = '';

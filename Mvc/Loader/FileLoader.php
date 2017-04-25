@@ -4,12 +4,13 @@
 namespace Kamille\Mvc\Loader;
 
 
-class FileLoader implements LoaderInterface
+class FileLoader implements PublicFileLoaderInterface
 {
 
 
     private $dirs;
     private $extension;
+    private $file;
 
 
     public function __construct()
@@ -25,7 +26,6 @@ class FileLoader implements LoaderInterface
     }
 
 
-
     public function load($templateName)
     {
 
@@ -35,11 +35,20 @@ class FileLoader implements LoaderInterface
         foreach ($this->dirs as $dir) {
             $f = $dir . "/" . $templateName . '.' . $this->extension;
             if (file_exists($f)) {
+                $this->file = $f;
                 return file_get_contents($f);
             }
         }
         return false;
     }
+
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+
+
 
     //--------------------------------------------
     //

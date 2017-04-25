@@ -323,6 +323,8 @@ class GridWidgetDecorator implements WidgetDecoratorInterface
     private $systemStarted;
     private $store;
     private $hasJustClosedRow;
+    //
+    protected $widgetConfig;
 
 
     public function __construct()
@@ -330,6 +332,7 @@ class GridWidgetDecorator implements WidgetDecoratorInterface
         $this->systemStarted = false;
         $this->store = 0;
         $this->hasJustClosedRow = false;
+
     }
 
 
@@ -344,6 +347,7 @@ class GridWidgetDecorator implements WidgetDecoratorInterface
 
             if (false !== $fragId = $this->getFragId($widgetId, $config)) {
 
+                $this->widgetConfig = $config['widgets'][$widgetId];
 
                 $closeRow = false;
 
