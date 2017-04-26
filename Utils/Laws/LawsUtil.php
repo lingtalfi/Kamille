@@ -4,8 +4,10 @@
 namespace Kamille\Utils\Laws;
 
 
+use Core\Services\X;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Ling\Z;
+use Kamille\Mvc\BodyEndSnippetsCollector\BodyEndSnippetsCollectorInterface;
 use Kamille\Mvc\HtmlPageHelper\HtmlPageHelper;
 use Kamille\Mvc\Layout\HtmlLayout;
 use Kamille\Mvc\LayoutProxy\ConfigAwareLayoutProxyInterface;
@@ -84,6 +86,7 @@ class LawsUtil implements LawsUtilInterface
         $options = array_merge([
             'autoloadCss' => true,
             'widgetClass' => 'Kamille\Mvc\Widget\Widget',
+            'bodyEndSnippetsCollector' => null, // a BodyEndSnippetsCollectorInterface instance
         ], $options);
         $autoloadCss = $options['autoloadCss'];
         $widgetClass = $options['widgetClass'];
@@ -156,12 +159,21 @@ class LawsUtil implements LawsUtilInterface
         //--------------------------------------------
         $layoutLoader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/layouts");
         $layout = HtmlLayout::create()
-            ->setOnPrepareVariablesCallback(function (array $variables) use ($layoutLoader) {
+            ->setOnPrepareVariablesCallback(function (array &$variables) use ($layoutLoader) {
                 if ($layoutLoader instanceof PublicFileLoaderInterface) {
                     $variables["__FILE__"] = $layoutLoader->getFile();
                     $variables["__DIR__"] = dirname($variables["__FILE__"]);
                 }
-                return $variables;
+            })
+            ->setOnRenderedTemplateReadyCallback(function (&$content) use ($options) {
+
+                $collector = $options['bodyEndSnippetsCollector'];
+                if ($collector instanceof BodyEndSnippetsCollectorInterface) {
+                    $snippets = $collector->getSnippets();
+                    foreach ($snippets as $snippet) {
+                        HtmlPageHelper::addBodyEndSnippet($snippet);
+                    }
+                }
             })
             ->setTemplate($layoutTemplate)
             ->setLoader($layoutLoader)
@@ -212,12 +224,11 @@ class LawsUtil implements LawsUtilInterface
 
                 $widget = new $widgetClass;
                 if ($widget instanceof Widget) {
-                    $widget->setOnPrepareVariablesCallback(function (array $variables) use ($wloader) {
+                    $widget->setOnPrepareVariablesCallback(function (array &$variables) use ($wloader) {
                         if ($wloader instanceof PublicFileLoaderInterface) {
                             $variables["__FILE__"] = $wloader->getFile();
                             $variables["__DIR__"] = dirname($variables["__FILE__"]);
                         }
-                        return $variables;
                     });
 
                     $layout

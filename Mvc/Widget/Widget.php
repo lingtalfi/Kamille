@@ -156,7 +156,7 @@ class Widget implements PublicWidgetInterface
     protected function prepareVariables(array &$variables)
     {
         if (null !== $this->onPrepareVariablesCallback) {
-            $variables = call_user_func($this->onPrepareVariablesCallback, $variables);
+            call_user_func_array($this->onPrepareVariablesCallback, [&$variables]);
         }
     }
 

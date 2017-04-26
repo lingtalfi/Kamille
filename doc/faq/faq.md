@@ -139,7 +139,7 @@ kamille install Authenticate
 
 
 
-How to call an asset (js or css)
+How to call an asset (js or css) from anywhere
 ---------------------------------
 
 ```php
@@ -147,3 +147,19 @@ HtmlPageHelper::js("/your/js/your.js");
 HtmlPageHelper::js("$prefixUri/build/js/custom.min.js", null, null, false);
 ```
 
+
+
+How to add some code at the end of the body, from your widget
+----------------------------------
+```php
+A::addBodyEndJsCode('jquery', file_get_contents($v['__DIR__'] . "/init.js"));
+```
+
+
+How to access the __FILE__ and __DIR__ variables from a widget?
+-------------------------------------
+
+```php
+$v['__FILE__'];
+$v['__DIR__'];
+```

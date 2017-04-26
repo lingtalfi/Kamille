@@ -4,6 +4,7 @@
 namespace Kamille\Utils\Laws;
 
 
+
 interface LawsUtilInterface
 {
 
@@ -15,12 +16,13 @@ interface LawsUtilInterface
      *          If it's a callable, the laws config array will be passed by reference as the argument of that callable.
      *
      * $options: array,
-     *          to alter the behaviour of the method on a per call basis
+     *          to alter the behaviour of the method on a per call basis.
+     *          Options are defined by the concrete instance.
+     *
      *
      */
     public function renderLawsViewById($viewId, $config = null, array $options = []);
 
 
     public function renderLawsView(array $config, array $options = []);
-
 }

@@ -6,6 +6,7 @@ namespace Kamille\Mvc\Layout;
 
 use Bat\StringTool;
 use Core\Services\X;
+use Kamille\Mvc\BodyEndSnippetsCollector\BodyEndSnippetsCollectorInterface;
 use Kamille\Mvc\HtmlPageHelper\HtmlPageHelper;
 
 
@@ -19,18 +20,6 @@ class HtmlLayout extends Layout
         ob_start();
 
         $out = parent::render($variables);
-
-
-
-        //--------------------------------------------
-        // INJECTING LAZY JS CODE AT THE END OF THE BODY
-        //--------------------------------------------
-        if (null !== ($coll = X::get("Core_lazyJsInit", null, false))) {
-            /**
-             * @var $coll \Module\Core\JsLazyCodeCollector\JsLazyCodeCollectorInterface
-             */
-            HtmlPageHelper::addBodyEndSnippet($coll->getCompiledJsCode());
-        }
 
         echo '<!DOCTYPE html>' . PHP_EOL;
         echo '<html' . StringTool::htmlAttributes(HtmlPageHelper::getHtmlTagAttributes()) . '>' . PHP_EOL;

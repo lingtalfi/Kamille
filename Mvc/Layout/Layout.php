@@ -34,6 +34,7 @@ class Layout implements LayoutInterface
     private $renderer;
 
     private $onPrepareVariablesCallback;
+    private $onRenderedTemplateReadyCallback;
 
     public function __construct()
     {
@@ -137,6 +138,12 @@ class Layout implements LayoutInterface
         return $this;
     }
 
+    public function setOnRenderedTemplateReadyCallback(callable $onRenderedTemplateReadyCallback)
+    {
+        $this->onRenderedTemplateReadyCallback = $onRenderedTemplateReadyCallback;
+        return $this;
+    }
+
 
 
     //--------------------------------------------
@@ -160,14 +167,17 @@ class Layout implements LayoutInterface
      */
     protected function onRenderedTemplateReady(&$renderedTemplate)
     {
-
+        if (null !== $this->onRenderedTemplateReadyCallback) {
+            call_user_func_array($this->onRenderedTemplateReadyCallback, [&$renderedTemplate]);
+        }
     }
 
 
     protected function prepareVariables(array &$variables)
     {
         if (null !== $this->onPrepareVariablesCallback) {
-            $variables = call_user_func($this->onPrepareVariablesCallback, $variables);
+            call_user_func_array($this->onPrepareVariablesCallback, [&$variables]);
+//            $variables = call_user_func($this->onPrepareVariablesCallback, $variables);
         }
     }
 
