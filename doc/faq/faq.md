@@ -163,3 +163,13 @@ How to access the __FILE__ and __DIR__ variables from a widget?
 $v['__FILE__'];
 $v['__DIR__'];
 ```
+
+
+The A shortcuts cheatsheet
+-------------------------------------
+
+
+- A::exceptionToString ( e ) , to convert an exception to a string
+- A::has ( badge ), check whether or not the connected SessionUser has the given badge
+- A::addBodyEndJsCode ( groupId, code ), add some js code just before the body end tag
+- A::quickPdoInit ( ), init quickPdo in a new project, even when the application is not started (but the application environment is booted)

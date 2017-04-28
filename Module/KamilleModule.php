@@ -9,6 +9,7 @@ use ApplicationItemManager\Aware\ApplicationItemManagerAwareInterface;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 
 use Kamille\Module\Exception\KamilleModuleException;
+use Kamille\Services\XConfig;
 use Kamille\Utils\ModuleUtils\ModuleInstallTool;
 use Output\ProgramOutputAwareInterface;
 use Output\ProgramOutputInterface;
@@ -50,7 +51,7 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     /**
      * @var ProgramOutputInterface $output
      */
-    private $output;
+    protected $output;
     /**
      * @var array of id => label
      */
@@ -332,6 +333,7 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 //            ModuleInstallTool::uninstallControllers($moduleName);
             $this->stopStep('controllers', "skipped, don't want to remove userland code");
         }
+
     }
 
 
@@ -378,6 +380,8 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     {
         return 'lnc1';
     }
+
+
 
     //--------------------------------------------
     //
@@ -431,7 +435,6 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         $f = $d . "/$n" . "Hooks.php";
         return (file_exists($f));
     }
-
 
     private function getModuleName()
     {
