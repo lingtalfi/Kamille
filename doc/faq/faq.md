@@ -173,3 +173,12 @@ The A shortcuts cheatsheet
 - A::has ( badge ), check whether or not the connected SessionUser has the given badge
 - A::addBodyEndJsCode ( groupId, code ), add some js code just before the body end tag
 - A::quickPdoInit ( ), init quickPdo in a new project, even when the application is not started (but the application environment is booted)
+
+
+
+Add a css class to the body tag
+------------------------------
+
+```php
+HtmlPageHelper::addBodyClass("nav-md");
+```
