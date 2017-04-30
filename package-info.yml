@@ -6,6 +6,7 @@ dependencies:
     - git::/lingtalfi/ClassCooker:1.4.0
     - git::/lingtalfi/ApplicationItemManager:1.13.0
     - git::/lingtalfi/ArrayExport:1.0.0
+    - git::/lingtalfi/Loader:1.0.0
 
     
     

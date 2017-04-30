@@ -6,7 +6,7 @@ namespace Kamille\Mvc\Layout;
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Mvc\Layout\Exception\LayoutException;
-use Kamille\Mvc\Loader\LoaderInterface;
+use Loader\LoaderInterface;
 use Kamille\Mvc\Renderer\Exception\RendererException;
 use Kamille\Mvc\Renderer\LayoutRendererInterface;
 use Kamille\Mvc\Renderer\RendererInterface;

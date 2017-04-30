@@ -3,7 +3,7 @@
 
 namespace Kamille\Mvc\Position;
 
-use Kamille\Mvc\Loader\LoaderInterface;
+use Loader\LoaderInterface;
 use Kamille\Mvc\Renderer\Exception\RendererException;
 use Kamille\Mvc\Renderer\RendererInterface;
 use Kamille\Mvc\Widget\Exception\WidgetException;
