@@ -4,7 +4,6 @@
 namespace Kamille\Utils\Laws;
 
 
-use Core\Services\X;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Ling\Z;
 use Kamille\Mvc\BodyEndSnippetsCollector\BodyEndSnippetsCollectorInterface;
@@ -15,8 +14,8 @@ use Kamille\Mvc\LayoutProxy\LawsLayoutProxy;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\RendererAwareLayoutProxyInterface;
-use Kamille\Mvc\Loader\FileLoader;
-use Kamille\Mvc\Loader\PublicFileLoaderInterface;
+use Loader\FileLoader;
+use Loader\PublicFileLoaderInterface;
 use Kamille\Mvc\Renderer\PhpLayoutRenderer;
 use Kamille\Mvc\Widget\Widget;
 use Kamille\Services\XLog;

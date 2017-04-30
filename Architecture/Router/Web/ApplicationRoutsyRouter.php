@@ -32,7 +32,11 @@ class ApplicationRoutsyRouter implements RouterInterface
         if (false !== ($res = $router->match($request))) {
             list($routeId, $controller, $urlParams) = $res;
             if (true === ApplicationParameters::get("debug")) {
-                XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched");
+                $sSuffix = "";
+                if(is_string($controller)){
+                    $sSuffix .= " and controller is $controller";
+                }
+                XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched" . $sSuffix);
             }
             return RouterHelper::routerControllerToCallable($controller, $urlParams);
         }

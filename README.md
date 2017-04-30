@@ -161,6 +161,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.42.0 -- 2017-04-30
+
+    - extracted Loader to an external planet 
+    
 - 1.41.0 -- 2017-04-25
 
     - add GridSystem for LawsUtil 

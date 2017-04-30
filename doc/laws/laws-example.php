@@ -6,7 +6,7 @@ use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Ling\Z;
 use Kamille\Mvc\Layout\HtmlLayout;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxy;
-use Kamille\Mvc\Loader\FileLoader;
+use Loader\FileLoader;
 use Kamille\Mvc\Position\Position;
 use Kamille\Mvc\Renderer\PhpLayoutRenderer;
 use Kamille\Mvc\Widget\Widget;

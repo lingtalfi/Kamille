@@ -4,7 +4,7 @@
 namespace Kamille\Mvc\Widget;
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
-use Kamille\Mvc\Loader\LoaderInterface;
+use Loader\LoaderInterface;
 use Kamille\Mvc\Renderer\Exception\RendererException;
 use Kamille\Mvc\Renderer\RendererInterface;
 use Kamille\Mvc\Widget\Exception\WidgetException;
@@ -24,7 +24,7 @@ class Widget implements PublicWidgetInterface
     /**
      * @var LoaderInterface
      */
-    private $loader;
+    protected $loader;
 
     /**
      * @var RendererInterface
