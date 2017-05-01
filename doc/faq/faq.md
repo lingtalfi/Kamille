@@ -182,3 +182,12 @@ Add a css class to the body tag
 ```php
 HtmlPageHelper::addBodyClass("nav-md");
 ```
+
+
+Check if it's debug mode
+----------------------
+```php
+if(Z::debug()){
+    // it's debug mode
+}
+```

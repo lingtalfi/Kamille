@@ -6,6 +6,7 @@ namespace Kamille\Ling;
 
 use Bat\UriTool;
 use Kamille\Architecture\Application\Web\WebApplication;
+use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
 use Kamille\Ling\Exception\LingException;
 
@@ -18,6 +19,11 @@ use Kamille\Ling\Exception\LingException;
  */
 class Z
 {
+
+    public static function debug()
+    {
+        return ApplicationParameters::get('debug');
+    }
 
     public static function appDir()
     {

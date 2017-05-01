@@ -4,6 +4,8 @@ Kamille
 
 
 
+DOC IN PROGRESS...
+
 My first implementation of the [kam framework](https://github.com/lingtalfi/kam).
 
 Kamille is part of the [universe framework](https://github.com/karayabin/universe-snapshot).
@@ -160,6 +162,10 @@ echo HtmlLayout::create()
 
 History Log
 ===============
+    
+- 1.43.0 -- 2017-05-01
+
+    - add Z::debug 
     
 - 1.42.0 -- 2017-04-30
 
