@@ -20,11 +20,6 @@ use Kamille\Ling\Exception\LingException;
 class Z
 {
 
-    public static function debug()
-    {
-        return ApplicationParameters::get('debug');
-    }
-
     public static function appDir()
     {
         return WebApplication::inst()->get('app_dir');

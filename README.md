@@ -163,6 +163,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.44.0 -- 2017-05-01
+
+    - add GscpResponse
+    - remove Z::debug, as it's inefficient 
+    
 - 1.43.0 -- 2017-05-01
 
     - add Z::debug 
