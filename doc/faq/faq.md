@@ -191,3 +191,13 @@ if(Z::debug()){
     // it's debug mode
 }
 ```
+
+
+How are assets organized in a kamille application?
+----------------------------------------------------
+We rely heavily on [laws](https://github.com/lingtalfi/laws) convention for naming assets.
+Since kamille is mvc, all (or at least most of) of the pages are displayed via layouts/widgets.
+So, in that context, the "laws" rules (pun intended).
+
+
+
