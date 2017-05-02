@@ -163,6 +163,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.45.0 -- 2017-05-02
+
+    - add kao initiative
+    
 - 1.44.0 -- 2017-05-01
 
     - add GscpResponse
