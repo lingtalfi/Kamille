@@ -163,6 +163,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.46.0 -- 2017-05-02
+
+    - removed Position system (replaced with the Decoration system)
+    
 - 1.45.0 -- 2017-05-02
 
     - add kao initiative
