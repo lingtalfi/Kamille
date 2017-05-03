@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.48.0 -- 2017-05-03
+
+    - Hooks now accepts string to be passed as references
+    
 - 1.47.0 -- 2017-05-02
 
     - removed kao initiative

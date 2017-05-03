@@ -95,6 +95,38 @@ That's it.
 
 
 
+
+Use hooks for configuration replacement
+-------------------------
+
+Another use of hooks is module configuration replacement.
+Imagine module A provides a configuration property X.
+
+As the app manager, after installing the module A, you can go to the config directory of your app
+and manually tweak the value of the X property.
+
+But what if now you have a module B, and the module B author knows that she wants to alter the value of 
+module A's X property?
+
+Well, hooks is the recommended workaround in that case.
+What should happen is that module A's author has anticipated that somebody after her would need to configure 
+the X property, and so the X property is passed to a hook.
+
+So, before the hook starts, the X property has its default value (given by the A module).
+
+But then AFTER the hook, it might have ANOTHER value, depending on which module wants to override it.
+
+This also means that module A's author can decide that the X property CAN'T BE overridden (by not providing a hook
+for it, which is the default).
+
+
+
+
+
+
+
+
+
 Services
 =========
 
