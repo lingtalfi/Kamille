@@ -5,6 +5,8 @@ namespace Kamille\Utils\ModuleUtils;
 
 
 use ApplicationItemManager\ApplicationItemManagerInterface;
+use ArrayToString\ArrayToStringTool;
+use Authenticate\Util\ProfileMergeTool;
 use Bat\FileSystemTool;
 use ClassCooker\ClassCooker;
 use CopyDir\SimpleCopyDirUtil;
@@ -35,6 +37,75 @@ class ModuleInstallTool
     }
 
 
+    public static function installProfiles(ModuleInterface $module)
+    {
+        $moduleName = self::getModuleName($module);
+        $appDir = ApplicationParameters::get('app_dir');
+        if (is_dir($appDir)) {
+            $profileFile = $appDir . "/class-modules/$moduleName/profiles.php";
+            if (file_exists($profileFile)) {
+
+                $store = [];
+                include $profileFile;
+                $storeProfile = $store;
+
+                $target = $appDir . "/store/Authenticate/profiles.php";
+                if (file_exists($target)) {
+                    $store = [];
+                    include $target;
+                    $storeProfile = ProfileMergeTool::merge($storeProfile, $store);
+                }
+
+
+                $c = ArrayToStringTool::toPhpArray($storeProfile);
+                FileSystemTool::mkfile($target, "<?php\n\n" . '$store = ' . $c . ";\n\n");
+            }
+        }
+    }
+
+
+    public static function uninstallProfiles(ModuleInterface $module)
+    {
+        $moduleName = self::getModuleName($module);
+        $appDir = ApplicationParameters::get('app_dir');
+        if (is_dir($appDir)) {
+            $profileFile = $appDir . "/class-modules/$moduleName/profiles.php";
+            if (file_exists($profileFile)) {
+
+                $store = [];
+                include $profileFile;
+                $storeProfile = $store;
+
+                $target = $appDir . "/store/Authenticate/profiles.php";
+                if (file_exists($target)) {
+                    $store = [];
+                    include $target;
+
+                    foreach ($store['profiles'] as $k => $profile) {
+                        foreach ($profile as $j => $v) {
+                            if ('groups' === $j) {
+                                foreach ($profile['groups'] as $l => $w) {
+                                    if (0 === strpos($w, $moduleName)) {
+                                        unset($store['profiles'][$k]['groups'][$l]);
+                                    }
+                                }
+                            } elseif (0 === strpos($v, $moduleName)) {
+                                unset($store['profiles'][$k][$j]);
+                            }
+                        }
+                    }
+
+                    foreach ($store['groups'] as $k => $v) {
+                        if (0 === strpos($k, $moduleName)) {
+                            unset($store['groups'][$k]);
+                        }
+                    }
+                }
+                $c = ArrayToStringTool::toPhpArray($store);
+                FileSystemTool::mkfile($target, "<?php\n\n" . '$store = ' . $c . ";\n\n");
+            }
+        }
+    }
 
 
     public static function installConfig(ModuleInterface $module, $replaceMode = true)
@@ -87,7 +158,6 @@ class ModuleInstallTool
             $gen->unregisterModule($moduleName);
         }
     }
-
 
 
     /**
@@ -318,7 +388,6 @@ class ModuleInstallTool
                 $newInnerContent .= implode(PHP_EOL, $innerContents);
                 $methodContent = "\t" . $signature . PHP_EOL . "\t{" . PHP_EOL . $newInnerContent . "\t}" . PHP_EOL;
                 $hookCooker->addMethod($method, $methodContent);
-
 
 
             } else {

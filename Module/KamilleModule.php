@@ -222,6 +222,14 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 //                $steps['widgets'] = "Uninstalling widgets";
             }
         }
+
+        if (true === $this->useProfiles()) {
+            if ('install' === $type) {
+                $steps['profiles'] = "Installing Authenticate profiles";
+            } else {
+                $steps['profiles'] = "Uninstalling Authenticate profiles";
+            }
+        }
     }
 
     protected function installAuto()
@@ -273,6 +281,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             $this->output->notice(""); // just br
             ModuleInstallTool::installWidgets($this->widgetApplicationItemManager, $this->getWidgets());
             $this->stopStep('widgets', "done");
+        }
+
+        if (true === $this->useProfiles()) {
+            $this->startStep('profiles');
+            $this->output->notice(""); // just br
+            ModuleInstallTool::installProfiles($this);
+            $this->stopStep('profiles', "done");
         }
     }
 
@@ -332,6 +347,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 //            $moduleName = $this->getModuleName();
 //            ModuleInstallTool::uninstallControllers($moduleName);
             $this->stopStep('controllers', "skipped, don't want to remove userland code");
+        }
+
+        if (true === $this->useProfiles()) {
+            $this->startStep('profiles');
+            $this->output->notice(""); // just br
+            ModuleInstallTool::uninstallProfiles($this);
+            $this->stopStep('profiles', "done");
         }
 
     }
@@ -433,6 +455,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         $d = $this->getModuleDir();
         $n = $this->getModuleName();
         $f = $d . "/$n" . "Hooks.php";
+        return (file_exists($f));
+    }
+
+    private function useProfiles()
+    {
+        $d = $this->getModuleDir();
+        $f = $d . "/profiles.php";
         return (file_exists($f));
     }
 

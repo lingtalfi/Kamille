@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.49.0 -- 2017-05-04
+
+    - add "profiles.php" automatic method facility upon installation
+    
 - 1.48.0 -- 2017-05-03
 
     - Hooks now accepts string to be passed as references
