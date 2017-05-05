@@ -9,6 +9,8 @@ use Kamille\Ling\Z;
 use Kamille\Mvc\BodyEndSnippetsCollector\BodyEndSnippetsCollectorInterface;
 use Kamille\Mvc\HtmlPageHelper\HtmlPageHelper;
 use Kamille\Mvc\Layout\HtmlLayout;
+use Kamille\Mvc\Layout\Layout;
+use Kamille\Mvc\Layout\LayoutInterface;
 use Kamille\Mvc\LayoutProxy\ConfigAwareLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxy;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxyInterface;
@@ -85,6 +87,7 @@ class LawsUtil implements LawsUtilInterface
         $options = array_merge([
             'autoloadCss' => true,
             'widgetClass' => 'Kamille\Mvc\Widget\Widget',
+            'layout' => 'Kamille\Mvc\Layout\HtmlLayout',
             'bodyEndSnippetsCollector' => null, // a BodyEndSnippetsCollectorInterface instance
         ], $options);
         $autoloadCss = $options['autoloadCss'];
@@ -157,26 +160,40 @@ class LawsUtil implements LawsUtilInterface
         // LAYOUT
         //--------------------------------------------
         $layoutLoader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/layouts");
-        $layout = HtmlLayout::create()
-            ->setOnPrepareVariablesCallback(function (array &$variables) use ($layoutLoader) {
-                if ($layoutLoader instanceof PublicFileLoaderInterface) {
-                    $variables["__FILE__"] = $layoutLoader->getFile();
-                    $variables["__DIR__"] = dirname($variables["__FILE__"]);
-                }
-            })
-            ->setOnRenderedTemplateReadyCallback(function (&$content) use ($options) {
 
-                $collector = $options['bodyEndSnippetsCollector'];
-                if ($collector instanceof BodyEndSnippetsCollectorInterface) {
-                    $snippets = $collector->getSnippets();
-                    foreach ($snippets as $snippet) {
-                        HtmlPageHelper::addBodyEndSnippet($snippet);
+
+        $layout = new $options['layout'];
+        if ($layout instanceof LayoutInterface) {
+
+            /**
+             * @var $layout LayoutInterface
+             */
+            if ($layout instanceof Layout) {
+
+                $layout->setOnPrepareVariablesCallback(function (array &$variables) use ($layoutLoader) {
+                    if ($layoutLoader instanceof PublicFileLoaderInterface) {
+                        $variables["__FILE__"] = $layoutLoader->getFile();
+                        $variables["__DIR__"] = dirname($variables["__FILE__"]);
                     }
-                }
-            })
-            ->setTemplate($layoutTemplate)
-            ->setLoader($layoutLoader)
-            ->setRenderer($commonRenderer);
+                })
+                    ->setOnRenderedTemplateReadyCallback(function (&$content) use ($options) {
+
+                        $collector = $options['bodyEndSnippetsCollector'];
+                        if ($collector instanceof BodyEndSnippetsCollectorInterface) {
+                            $snippets = $collector->getSnippets();
+                            foreach ($snippets as $snippet) {
+                                HtmlPageHelper::addBodyEndSnippet($snippet);
+                            }
+                        }
+                    });
+            }
+
+            $layout->setTemplate($layoutTemplate)
+                ->setLoader($layoutLoader)
+                ->setRenderer($commonRenderer);
+        } else {
+            XLog::error(sprintf("Given layout must implement LayoutInterface. %s given", get_class($layout)));
+        }
 
         if (true === $autoloadCss) {
             $p = explode("/", $layoutTemplate);
@@ -209,7 +226,6 @@ class LawsUtil implements LawsUtilInterface
 //            }
 //        }
         $commonRenderer->setLayoutProxy($proxy);
-
 
         //--------------------------------------------
         // WIDGETS

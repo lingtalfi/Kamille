@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.50.0 -- 2017-05-05
+
+    - we can now change the Layout class in LawsUtil 
+    
 - 1.49.0 -- 2017-05-04
 
     - add "profiles.php" automatic method facility upon installation
