@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.51.0 -- 2017-05-06
+
+    - replaced GscpErrorResponse and GscpSuccessResponse with a unique GscpResponse  
+    
 - 1.50.0 -- 2017-05-05
 
     - we can now change the Layout class in LawsUtil 
