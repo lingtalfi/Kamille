@@ -52,7 +52,7 @@ class ControllerExecuterRequestListener implements HttpRequestListenerInterface
         $controller = $request->get("controller", null);
 
         if (null === $controller && true === $this->_throwExOnControllerNotFound) {
-            throw new RequestListenerException("The controller parameter was not found in the request");
+            throw new RequestListenerException("The controller parameter was not found in the request " . $request->uri());
         }
 
 
