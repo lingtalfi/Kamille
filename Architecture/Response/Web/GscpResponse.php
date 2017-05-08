@@ -8,6 +8,8 @@ namespace Kamille\Architecture\Response\Web;
 /**
  * This gscp response comes with modal capabilities.
  *
+ * Gui Simple Communication Protocol.
+ *
  * For modals, by default it uses the ModalContent widget (https://github.com/KamilleWidgets/ModalContent)
  * if found.
  *
