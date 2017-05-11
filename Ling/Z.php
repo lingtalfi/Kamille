@@ -30,7 +30,8 @@ class Z
         $request = self::request(null, true);
         $u = $request->get('urlParams', []);
         if (array_key_exists($key, $u)) {
-            return $u[$key];
+
+            return urldecode($u[$key]);
         }
         if (true === $throwEx) {
             throw new LingException("urlParam not set: $key");

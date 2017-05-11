@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.52.0 -- 2017-05-11
+
+    - fix Z.getUrlParam urldecode  
+    
 - 1.51.0 -- 2017-05-06
 
     - replaced GscpErrorResponse and GscpSuccessResponse with a unique GscpResponse  
