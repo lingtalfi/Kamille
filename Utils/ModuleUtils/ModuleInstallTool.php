@@ -119,7 +119,8 @@ class ModuleInstallTool
             if (file_exists($configFile)) {
                 $target = $appDir . "/config/modules/$moduleName.conf.php";
                 if (true === $replaceMode || false === file_exists($target)) {
-                    copy($configFile, $target);
+                    FileSystemTool::copyFile($configFile, $target);
+//                    copy($configFile, $target);
                 }
             }
         }
