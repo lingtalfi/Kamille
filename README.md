@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.53.0 -- 2017-05-11
+
+    - add Z.themeDir method 
+    
 - 1.52.0 -- 2017-05-11
 
     - fix Z.getUrlParam urldecode  

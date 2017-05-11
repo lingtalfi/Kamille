@@ -97,6 +97,7 @@ class LawsUtil implements LawsUtilInterface
         $layoutTemplate = $config['layout']['tpl'];
 //        $positions = (array_key_exists('positions', $config)) ? $config['positions'] : [];
         $widgets = (array_key_exists('widgets', $config)) ? $config['widgets'] : [];
+
         $layoutConf = (array_key_exists('conf', $config['layout'])) ? $config['layout']['conf'] : [];
 
         $theme = ApplicationParameters::get("theme");

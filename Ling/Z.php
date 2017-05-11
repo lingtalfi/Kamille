@@ -25,6 +25,11 @@ class Z
         return WebApplication::inst()->get('app_dir');
     }
 
+    public static function themeDir()
+    {
+        return WebApplication::inst()->get('app_dir') . "/theme/" . ApplicationParameters::get('theme');
+    }
+
     public static function getUrlParam($key, $defaultValue = null, $throwEx = false)
     {
         $request = self::request(null, true);
