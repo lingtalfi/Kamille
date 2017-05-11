@@ -9,6 +9,7 @@ use Kamille\Architecture\Application\Web\WebApplication;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
 use Kamille\Ling\Exception\LingException;
+use Kamille\Utils\Routsy\LinkGenerator\ApplicationLinkGenerator;
 
 /**
  * Trying to reduce the developer typing.
@@ -24,6 +25,7 @@ class Z
     {
         return WebApplication::inst()->get('app_dir');
     }
+
 
     public static function themeDir()
     {
@@ -93,5 +95,10 @@ class Z
         }
         return $prefix . UriTool::appendQueryString($uri, $params);
 
+    }
+
+    public static function link($route, array $params = [])
+    {
+        return ApplicationLinkGenerator::getUri($route, $params);
     }
 }

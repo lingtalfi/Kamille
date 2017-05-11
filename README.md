@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.54.0 -- 2017-05-11
+
+    - add Z.link method 
+    
 - 1.53.0 -- 2017-05-11
 
     - add Z.themeDir method 

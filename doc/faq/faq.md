@@ -50,6 +50,16 @@ ApplicationLinkGenerator::getUri("Core_myRouteId5", [
 ]);
 ```
 
+
+Or use the shortcut:
+
+```php
+Z::link("Core_myRouteId5", [
+      'dynamic' => 46,
+]);
+```
+
+
 How to create uri?
 ------------------------
 
