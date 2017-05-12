@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.56.0 -- 2017-05-12
+
+    - add ThemeCollection
+    
 - 1.55.0 -- 2017-05-12
 
     - add LawsConfig
