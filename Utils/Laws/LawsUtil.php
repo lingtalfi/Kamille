@@ -81,12 +81,14 @@ class LawsUtil implements LawsUtilInterface
     {
         $file = $this->_file;
         $viewId = $this->_viewId;
+        $appDir = ApplicationParameters::get("app_dir");
 
         $options = array_merge([
             'autoloadCss' => true,
             'widgetClass' => 'Kamille\Mvc\Widget\Widget',
             'layout' => 'Kamille\Mvc\Layout\HtmlLayout',
             'bodyEndSnippetsCollector' => null, // a BodyEndSnippetsCollectorInterface instance
+            'laws3PageId' => null,
         ], $options);
         $autoloadCss = $options['autoloadCss'];
         $widgetClass = $options['widgetClass'];
@@ -99,7 +101,7 @@ class LawsUtil implements LawsUtilInterface
         $layoutConf = (array_key_exists('conf', $config['layout'])) ? $config['layout']['conf'] : [];
 
         $theme = ApplicationParameters::get("theme");
-        $wloader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/widgets");
+        $wloader = FileLoader::create()->addDir($appDir . "/theme/$theme/widgets");
 
 //        $ploader = FileLoader::create()->addDir(Z::appDir() . "/theme/$theme/positions");
 
@@ -127,7 +129,6 @@ class LawsUtil implements LawsUtilInterface
 
             $viewIdFile = $file;
             if (null !== $viewIdFile) {
-                $appDir = ApplicationParameters::get("app_dir");
                 $viewIdFile = str_replace($appDir, '', $viewIdFile);
                 $viewIdFile = ' (' . $viewIdFile . ')';
             }
@@ -144,8 +145,8 @@ class LawsUtil implements LawsUtilInterface
 
 
             $trace = [];
-            $theme = ApplicationParameters::get("theme", "no theme");
-            $trace[] = "LawsUtil trace with theme: $theme, viewId: $viewId" . $viewIdFile . ":";
+            $theTheme = ApplicationParameters::get("theme", "no theme");
+            $trace[] = "LawsUtil trace with theme: $theTheme, viewId: $viewId" . $viewIdFile . ":";
             $trace[] = "- layout: $layoutTemplate";
 //            $trace[] = "- positions: " . $sPos;
             $trace[] = "- widgets: " . $sWidgets;
@@ -234,6 +235,14 @@ class LawsUtil implements LawsUtilInterface
 
                 $name = $widgetInfo['tpl'];
                 $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
+
+
+                if (null !== ($pageId = $options['laws3PageId'])) {
+                    $f = "$appDir/config/laws/$theme/$pageId/$id.conf.php";
+                    if (file_exists($f)) {
+                        include $f;
+                    }
+                }
 
 
                 $widget = new $widgetClass;
