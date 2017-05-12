@@ -4,7 +4,6 @@
 namespace Kamille\Utils\Laws\ThemeCollection;
 
 
-use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Utils\Laws\Theme\LawsThemeInterface;
 
 class ThemeCollection
@@ -18,7 +17,7 @@ class ThemeCollection
     public static function getTheme($theme)
     {
         if (!array_key_exists($theme, self::$themes)) {
-            $theme = ucfirst(ApplicationParameters::get('theme'));
+            $theme = ucfirst($theme);
             $class = 'Theme\\' . $theme . "Theme";
             if (class_exists($class)) {
                 self::$themes[$theme] = new $class;
