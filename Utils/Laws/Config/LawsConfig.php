@@ -41,6 +41,14 @@ class LawsConfig
         return $this;
     }
 
+
+    public function addWidget($widgetId, array $widgetInfo)
+    {
+        $this->ops[] = ['addWidget', [$widgetId, $widgetInfo]];
+        return $this;
+    }
+
+
     public function assignPosition($widgetInternalName, $position)
     {
         $this->ops[] = ['assignPosition', [$widgetInternalName, $position]];
@@ -69,6 +77,12 @@ class LawsConfig
                     call_user_func_array($value, [&$config]);
                 } else {
                     throw new LawsConfigException("Unknown replace type " . gettype($value));
+                }
+                break;
+            case 'addWidget':
+                list($widgetId, $widgetInfo) = $value;
+                if (false === array_key_exists($widgetId, $config['widgets'])) {
+                    $config['widgets'][$widgetId] = $widgetInfo;
                 }
                 break;
             case 'assignPosition':
