@@ -40,6 +40,7 @@ class LawsUtil implements LawsUtilInterface
         return new static();
     }
 
+
     /**
      * $config: callable|array
      *          is used to alter the configuration found in the laws configuration file (pointed by the viewId)
@@ -54,8 +55,17 @@ class LawsUtil implements LawsUtilInterface
     public function renderLawsViewById($viewId, LawsConfig $config = null, array $options = [])
     {
 
-        $appDir = ApplicationParameters::get("app_dir");
-        $file = $appDir . "/config/laws/$viewId.conf.php";
+        $useLaws3 = (array_key_exists('useLaws3', $options)) ? (bool)$options['useLaws3'] : true;
+        if (true === $useLaws3) {
+            $theme = ApplicationParameters::get("theme");
+            $file = ApplicationParameters::get("app_dir") . "/config/laws/$theme/$viewId.conf.php";
+            if (!file_exists($file)) {
+                $file = ApplicationParameters::get("app_dir") . "/config/laws/$viewId.conf.php";
+            }
+        } else {
+            $file = ApplicationParameters::get("app_dir") . "/config/laws/$viewId.conf.php";
+        }
+
         if (file_exists($file)) {
             $conf = [];
             include $file;
@@ -88,7 +98,6 @@ class LawsUtil implements LawsUtilInterface
             'widgetClass' => 'Kamille\Mvc\Widget\Widget',
             'layout' => 'Kamille\Mvc\Layout\HtmlLayout',
             'bodyEndSnippetsCollector' => null, // a BodyEndSnippetsCollectorInterface instance
-            'laws3PageId' => null,
         ], $options);
         $autoloadCss = $options['autoloadCss'];
         $widgetClass = $options['widgetClass'];
