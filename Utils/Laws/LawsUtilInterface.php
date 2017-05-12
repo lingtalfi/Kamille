@@ -5,6 +5,8 @@ namespace Kamille\Utils\Laws;
 
 
 
+use Kamille\Utils\Laws\Config\LawsConfig;
+
 interface LawsUtilInterface
 {
 
@@ -21,7 +23,7 @@ interface LawsUtilInterface
      *
      *
      */
-    public function renderLawsViewById($viewId, $config = null, array $options = []);
+    public function renderLawsViewById($viewId, LawsConfig $config = null, array $options = []);
 
 
     public function renderLawsView(array $config, array $options = []);

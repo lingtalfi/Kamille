@@ -8,6 +8,7 @@ use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Ling\Z;
 use Kamille\Mvc\BodyEndSnippetsCollector\BodyEndSnippetsCollectorInterface;
 use Kamille\Mvc\HtmlPageHelper\HtmlPageHelper;
+use Kamille\Mvc\Layout\HtmlLayout;
 use Kamille\Mvc\Layout\Layout;
 use Kamille\Mvc\Layout\LayoutInterface;
 use Kamille\Mvc\LayoutProxy\ConfigAwareLayoutProxyInterface;
@@ -15,7 +16,6 @@ use Kamille\Mvc\LayoutProxy\LawsLayoutProxy;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\RendererAwareLayoutProxyInterface;
-use Kamille\Utils\Laws\Config\LawsConfig;
 use Loader\FileLoader;
 use Loader\PublicFileLoaderInterface;
 use Kamille\Mvc\Renderer\PhpLayoutRenderer;
@@ -24,7 +24,7 @@ use Kamille\Services\XLog;
 use Kamille\Utils\Laws\Exception\LawsUtilException;
 
 
-class LawsUtil implements LawsUtilInterface
+class LawsUtilCopy implements LawsUtilInterface
 {
 
     private $_file; // passed as a debug info
@@ -51,7 +51,7 @@ class LawsUtil implements LawsUtilInterface
      *          to alter the behaviour of the method on a per call basis
      *
      */
-    public function renderLawsViewById($viewId, LawsConfig $config = null, array $options = [])
+    public function renderLawsViewById($viewId, $config = null, array $options = [])
     {
 
         $appDir = ApplicationParameters::get("app_dir");
@@ -59,12 +59,14 @@ class LawsUtil implements LawsUtilInterface
         if (file_exists($file)) {
             $conf = [];
             include $file;
+
+            if (is_array($config)) {
+                $conf = array_replace_recursive($conf, $config);
+            } elseif (is_callable($config)) {
+                call_user_func_array($config, [&$conf]);
+            }
             $this->_file = $file;
             $this->_viewId = $viewId;
-
-            if (null !== $config) {
-                $config->apply($conf);
-            }
             return $this->renderLawsView($conf, $options);
         }
         throw new LawsUtilException("laws config file not found: $file");
