@@ -54,11 +54,10 @@ class LawsUtil implements LawsUtilInterface
      */
     public function renderLawsViewById($viewId, LawsConfig $config = null, array $options = [])
     {
-
         $useLaws3 = (array_key_exists('useLaws3', $options)) ? (bool)$options['useLaws3'] : true;
         if (true === $useLaws3) {
             $theme = ApplicationParameters::get("theme");
-            $file = ApplicationParameters::get("app_dir") . "/config/laws/$theme/$viewId.conf.php";
+            $file = ApplicationParameters::get("app_dir") . "/config/laws/themes/$theme/$viewId.conf.php";
             if (!file_exists($file)) {
                 $file = ApplicationParameters::get("app_dir") . "/config/laws/$viewId.conf.php";
             }
