@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.58.0 -- 2017-05-12
+
+    - add ApplicationRegistry
+    
 - 1.57.0 -- 2017-05-12
 
     - add LawsConfig.addWidget method
