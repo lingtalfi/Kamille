@@ -246,13 +246,6 @@ class LawsUtil implements LawsUtilInterface
                 $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
 
 
-                if (null !== ($pageId = $options['laws3PageId'])) {
-                    $f = "$appDir/config/laws/$theme/$pageId/$id.conf.php";
-                    if (file_exists($f)) {
-                        include $f;
-                    }
-                }
-
 
                 $widget = new $widgetClass;
                 if ($widget instanceof Widget) {
