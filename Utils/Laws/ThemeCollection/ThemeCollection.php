@@ -9,7 +9,7 @@ use Kamille\Utils\Laws\Theme\LawsThemeInterface;
 class ThemeCollection
 {
 
-    private static $themes;
+    private static $themes = [];
 
     /**
      * @return LawsThemeInterface|false
