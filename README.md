@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.58.1 -- 2017-05-13
+
+    - ApplicationRoutsyRouter adds route parameter to the Request when match
+    
 - 1.58.0 -- 2017-05-12
 
     - add ApplicationRegistry

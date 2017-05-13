@@ -38,6 +38,7 @@ class ApplicationRoutsyRouter implements RouterInterface
                 }
                 XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched" . $sSuffix);
             }
+            $request->set("route", $routeId);
             return RouterHelper::routerControllerToCallable($controller, $urlParams);
         }
     }
