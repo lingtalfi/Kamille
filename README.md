@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.60.0 -- 2017-05-13
+
+    - LinkGenerator fix greedy identifier
+    
 - 1.59.0 -- 2017-05-13
 
     - remove ApplicationRegistry (use Request instead)
