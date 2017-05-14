@@ -6,6 +6,7 @@ namespace Kamille\Utils\Routsy\Util\ConfigGenerator;
 
 use Bat\FileSystemTool;
 use Bat\FileTool;
+use DirScanner\YorgDirScannerTool;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
 use Kamille\Utils\Routsy\Util\ConfigGenerator\Exception\ConfigGeneratorException;
 use LinearFile\LineSet\LineSetInterface;
@@ -14,7 +15,7 @@ use LinearFile\LineSetFinder\BiggestWrapLineSetFinder;
 class ConfigGenerator
 {
 
-    private $confFile;
+    private $confDir;
     private $modulesTargetDir;
 
 
@@ -25,7 +26,6 @@ class ConfigGenerator
 
     public function refresh()
     {
-        $confFile = $this->confFile;
         $installedModules = ModuleInstallationRegister::getInstalled();
         $uninstalledModules = ModuleInstallationRegister::getUninstalled();
 
@@ -44,26 +44,66 @@ class ConfigGenerator
 
     public function registerModule($module)
     {
-        $confFile = $this->confFile;
+        $modConfDir = $this->modulesTargetDir . "/$module/routsy";
+        $appRoutsyDir = $this->confDir;
+        if (is_dir($modConfDir)) {
+            $files = YorgDirScannerTool::getFilesWithExtension($modConfDir, 'php', false, false, true);
+            foreach ($files as $fileName) {
+                $moduleFile = $modConfDir . "/$fileName";
+                $appFile = $appRoutsyDir . "/$fileName";
+                $this->processModule($moduleFile, $appFile);
+            }
+        }
+    }
+
+    public function unregisterModule($module)
+    {
+
+        $appRoutsyDir = $this->confDir;
+        if (is_dir($appRoutsyDir)) {
+            $files = YorgDirScannerTool::getFilesWithExtension($appRoutsyDir, 'php', false, false, false);
+            foreach ($files as $f) {
+                $this->unprocessModule($f, $module);
+            }
+        }
+    }
+
+    public function setConfDir($confDir)
+    {
+        $this->confDir = $confDir;
+        return $this;
+    }
+
+    public function setModulesTargetDir($modulesTargetDir)
+    {
+        $this->modulesTargetDir = $modulesTargetDir;
+        return $this;
+    }
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    private function processModule($moduleFile, $appFile)
+    {
+
         $routes = [];
-        if (file_exists($confFile)) {
-            include $confFile;
+        if (file_exists($appFile)) {
+            include $appFile;
         } else {
-            $this->createEmptyConfFile();
+            $this->createEmptyConfFile($appFile);
         }
         $_routes = $routes;
 
         $newRoutesDynamic = [];
         $newRoutesStatic = [];
 
-
-        $modConfFile = $this->modulesTargetDir . "/$module/routsy/conf.php";
-        if (file_exists($modConfFile)) {
+        if (file_exists($moduleFile)) {
             $routes = [];
-            include $modConfFile;
+            include $moduleFile;
 
-            $lines = file($modConfFile);
+            $lines = file($moduleFile);
             $lineSets = $this->getLineSets($lines);
+
 
 
             foreach ($routes as $id => $route) {
@@ -86,31 +126,35 @@ class ConfigGenerator
             }
         }
 
+
+
         // append in static Section
         if (count($newRoutesStatic) > 0) {
             foreach ($newRoutesStatic as $id => $routeContent) {
-                $dynamicSectionLineNumber = $this->getSectionLineNumber("dynamic", $confFile);
-                FileTool::insert($dynamicSectionLineNumber, PHP_EOL . $routeContent . PHP_EOL, $confFile);
+                $dynamicSectionLineNumber = $this->getSectionLineNumber("dynamic", $appFile);
+                FileTool::insert($dynamicSectionLineNumber, PHP_EOL . $routeContent . PHP_EOL, $appFile);
             }
         }
+
 
 
         // append in dynamic Section
         if (count($newRoutesDynamic) > 0) {
             foreach ($newRoutesDynamic as $id => $routeContent) {
-                $userAfterSectionLineNumber = $this->getSectionLineNumber("user - after", $confFile);
-                FileTool::insert($userAfterSectionLineNumber, PHP_EOL . $routeContent . PHP_EOL, $confFile);
+                $userAfterSectionLineNumber = $this->getSectionLineNumber("user - after", $appFile);
+                FileTool::insert($userAfterSectionLineNumber, PHP_EOL . $routeContent . PHP_EOL, $appFile);
             }
         }
 
-        FileTool::cleanVerticalSpaces($confFile, 2);
+        FileTool::cleanVerticalSpaces($appFile, 2);
     }
 
-    public function unregisterModule($module)
+
+    private function unprocessModule($appRoutsyFile, $module)
     {
-        $confFile = $this->confFile;
-        if (file_exists($confFile)) {
-            $lines = file($confFile);
+
+        if (file_exists($appRoutsyFile)) {
+            $lines = file($appRoutsyFile);
             $lineSets = $this->getLineSets($lines);
 
 
@@ -124,26 +168,11 @@ class ConfigGenerator
                 }
 
             }
-            FileTool::extract($confFile, $slices, true);
-            FileTool::cleanVerticalSpaces($confFile, 2);
+            FileTool::extract($appRoutsyFile, $slices, true);
+            FileTool::cleanVerticalSpaces($appRoutsyFile, 2);
         }
     }
 
-    public function setConfFile($confFile)
-    {
-        $this->confFile = $confFile;
-        return $this;
-    }
-
-    public function setModulesTargetDir($modulesTargetDir)
-    {
-        $this->modulesTargetDir = $modulesTargetDir;
-        return $this;
-    }
-
-    //--------------------------------------------
-    //
-    //--------------------------------------------
     private function unregisterModules(array $uninstalledModules)
     {
         foreach ($uninstalledModules as $mod) {
@@ -202,10 +231,9 @@ class ConfigGenerator
         throw new ConfigGeneratorException("section not found $section");
     }
 
-    private function createEmptyConfFile()
+    private function createEmptyConfFile($appFile)
     {
-        $confFile = $this->confFile;
         $data = file_get_contents(__DIR__ . "/assets/routsy.conf.tpl.php");
-        FileSystemTool::mkfile($confFile, $data);
+        FileSystemTool::mkfile($appFile, $data);
     }
 }

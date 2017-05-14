@@ -425,8 +425,8 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     private function useRoutsy()
     {
         $d = $this->getModuleDir();
-        $f = $d . "/routsy/conf.php";
-        return (file_exists($f));
+        $f = $d . "/routsy";
+        return (is_dir($f));
     }
 
     private function useWidgets()

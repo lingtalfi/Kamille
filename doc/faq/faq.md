@@ -211,3 +211,11 @@ So, in that context, the "laws" rules (pun intended).
 
 
 
+
+How are web services handled?
+----------------------------
+
+There is a **service/{serviceIdentifier+}** route (Core_service) that catches all uri starting with the **/service** prefix,
+and redirect them to the **Controller\Core\ServiceController** controller.
+
+By convention, all services are handled by this controller.

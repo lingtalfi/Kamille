@@ -15,6 +15,7 @@ use DirScanner\YorgDirScannerTool;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Module\ModuleInterface;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
+use Kamille\Utils\Routsy\RoutsyUtil;
 use Kamille\Utils\Routsy\Util\ConfigGenerator\ConfigGenerator;
 
 class ModuleInstallTool
@@ -142,7 +143,7 @@ class ModuleInstallTool
         $appDir = ApplicationParameters::get('app_dir');
         if (is_dir($appDir)) {
             $modulesDir = $appDir . "/class-modules";
-            $appConf = $appDir . "/config/routsy/routes.php";
+            $appConf = RoutsyUtil::getRoutsyDir();
             $gen = self::getRoutsyGen($appConf, $modulesDir);
             $gen->registerModule($moduleName);
         }
@@ -154,7 +155,7 @@ class ModuleInstallTool
         $appDir = ApplicationParameters::get('app_dir');
         if (is_dir($appDir)) {
             $modulesDir = $appDir . "/class-modules";
-            $appConf = $appDir . "/config/routsy/routes.php";
+            $appConf = RoutsyUtil::getRoutsyDir();
             $gen = self::getRoutsyGen($appConf, $modulesDir);
             $gen->unregisterModule($moduleName);
         }
@@ -581,11 +582,11 @@ class ModuleInstallTool
         return $appDir . "/class-core/Services/Hooks.php";
     }
 
-    private static function getRoutsyGen($confFile, $modulesDir)
+    private static function getRoutsyGen($confDir, $modulesDir)
     {
         if (null === self::$routsyGen) {
             self::$routsyGen = ConfigGenerator::create()
-                ->setConfFile($confFile)
+                ->setConfDir($confDir)
                 ->setModulesTargetDir($modulesDir);
         }
         return self::$routsyGen;
