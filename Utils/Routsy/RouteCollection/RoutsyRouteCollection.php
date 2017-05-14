@@ -54,6 +54,13 @@ class RoutsyRouteCollection extends RouteCollection
         return $this;
     }
 
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+
+
     public function setOnRouteMatch(callable $onRouteMatch)
     {
         $this->onRouteMatch = $onRouteMatch;

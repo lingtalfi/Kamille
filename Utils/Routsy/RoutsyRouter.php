@@ -10,6 +10,7 @@ use Kamille\Architecture\Router\Web\WebRouterInterface;
 use Kamille\Services\XLog;
 use Kamille\Utils\Routsy\Exception\RoutsyException;
 use Kamille\Utils\Routsy\RouteCollection\PrefixedRouteCollectionInterface;
+use Kamille\Utils\Routsy\RouteCollection\PrefixedRoutsyRouteCollection;
 use Kamille\Utils\Routsy\RouteCollection\RouteCollectionInterface;
 use Kamille\Utils\Routsy\RouteCollection\RoutsyRouteCollection;
 use Kamille\Utils\Routsy\Util\ConstraintsChecker\AppleConstraintsChecker;
@@ -238,7 +239,15 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
             $urlParams = [];
             if (false !== ($controller = $this->matchRoute($request, $route, $urlParams))) {
                 if (true === ApplicationParameters::get("debug")) {
-                    XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched");
+
+                    $sInfo = "";
+                    if($collection instanceof RoutsyRouteCollection){
+                        $sInfo .= "; fileName: " . $collection->getFileName();
+                    }
+                    if($collection instanceof PrefixedRoutsyRouteCollection){
+                        $sInfo .= "; prefix: " . $collection->getUrlPrefix();
+                    }
+                    XLog::debug("RoutsyRouter: routeId $routeId matched" . $sInfo);
                 }
 
                 if ($collection instanceof RoutsyRouteCollection) {

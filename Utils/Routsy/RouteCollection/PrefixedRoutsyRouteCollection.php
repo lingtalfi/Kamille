@@ -31,6 +31,13 @@ class PrefixedRoutsyRouteCollection extends RoutsyRouteCollection implements Pre
         return $this;
     }
 
+    public function getUrlPrefix()
+    {
+        return $this->urlPrefix;
+    }
+
+
+
     public function prefixMatch(HttpRequestInterface $request)
     {
         /**

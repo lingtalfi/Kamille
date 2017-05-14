@@ -38,14 +38,14 @@ class RoutsyUtil
 //    }
 //
 //
-//    public static function routeIdentifierToUri($routeIdentifier)
-//    {
-//        if (is_array($routeIdentifier)) {
-//            list($routeId, $params) = $routeIdentifier;
-//        } else {
-//            $routeId = $routeIdentifier;
-//            $params = [];
-//        }
-//        return ApplicationLinkGenerator::getUri($routeId, $params);
-//    }
+    public static function routeIdentifierToUri($routeIdentifier)
+    {
+        if (is_array($routeIdentifier)) {
+            list($routeId, $params) = $routeIdentifier;
+        } else {
+            $routeId = $routeIdentifier;
+            $params = [];
+        }
+        return ApplicationLinkGenerator::getUri($routeId, $params);
+    }
 }
