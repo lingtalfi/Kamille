@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.61.0 -- 2017-05-14
+
+    - moved RouterInterface to WebRouterInterface
+    
 - 1.60.0 -- 2017-05-13
 
     - LinkGenerator fix greedy identifier

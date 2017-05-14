@@ -6,14 +6,13 @@ namespace Kamille\Architecture\Router\Web;
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
-use Kamille\Architecture\Router\Helper\RouterHelper;
-use Kamille\Architecture\Router\RouterInterface;
+use Kamille\Architecture\Router\Web\WebRouterInterface;
 use Kamille\Services\XLog;
 use Kamille\Utils\Routsy\RoutsyRouter;
 use Kamille\Utils\Routsy\RoutsyUtil;
 
 
-class ApplicationRoutsyRouter implements RouterInterface
+class ApplicationRoutsyRouter implements WebRouterInterface
 {
 
     /**
@@ -33,13 +32,15 @@ class ApplicationRoutsyRouter implements RouterInterface
             list($routeId, $controller, $urlParams) = $res;
             if (true === ApplicationParameters::get("debug")) {
                 $sSuffix = "";
-                if(is_string($controller)){
+                if (is_string($controller)) {
                     $sSuffix .= " and controller is $controller";
                 }
                 XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched" . $sSuffix);
             }
             $request->set("route", $routeId);
-            return RouterHelper::routerControllerToCallable($controller, $urlParams);
+
+
+            return [$controller, $urlParams];
         }
     }
 
