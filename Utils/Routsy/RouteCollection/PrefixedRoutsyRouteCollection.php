@@ -18,6 +18,9 @@ class PrefixedRoutsyRouteCollection extends RoutsyRouteCollection implements Pre
         $prefix = (string)$this->urlPrefix;
 
         $routes = array_map(function ($v) use ($prefix) {
+            if ('/' === substr($v[0], -1)) {
+                $v[0] = substr($v[0], 0, -1);
+            }
             $v[0] = $prefix . $v[0];
             return $v;
         }, $routes);
@@ -37,14 +40,14 @@ class PrefixedRoutsyRouteCollection extends RoutsyRouteCollection implements Pre
     }
 
 
-
     public function prefixMatch(HttpRequestInterface $request)
     {
         /**
          * Note: we add a slash to the urlPrefix because imagine your urlPrefix is as simple as "/fr",
          * then it could match a lot of things (france, fridge, friday, ...) if we don't add the trailing slash
          */
-        return (0 === stripos($request->uri(false), $this->urlPrefix . '/'));
+        $uri = $request->uri(false);
+        return ($uri === $this->urlPrefix || 0 === stripos($request->uri(false), $this->urlPrefix . '/'));
     }
 
 
