@@ -17,11 +17,12 @@ use Kamille\Utils\Routsy\RoutsyUtil;
  *
  *
  */
-class RoutsyRouteCollection extends PrefixedRouteCollection
+class RoutsyRouteCollection extends RouteCollection
 {
 
     private $routsyDir;
     private $fileName;
+    private $onRouteMatch;
 
 
     public function __construct()
@@ -51,6 +52,19 @@ class RoutsyRouteCollection extends PrefixedRouteCollection
     {
         $this->fileName = $fileName;
         return $this;
+    }
+
+    public function setOnRouteMatch(callable $onRouteMatch)
+    {
+        $this->onRouteMatch = $onRouteMatch;
+        return $this;
+    }
+
+    public function routeMatched($routeId)
+    {
+        if (null !== $this->onRouteMatch) {
+            call_user_func($this->onRouteMatch, $routeId);
+        }
     }
 
 

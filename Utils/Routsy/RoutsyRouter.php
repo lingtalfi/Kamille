@@ -9,7 +9,9 @@ use Kamille\Architecture\Request\Web\HttpRequestInterface;
 use Kamille\Architecture\Router\Web\WebRouterInterface;
 use Kamille\Services\XLog;
 use Kamille\Utils\Routsy\Exception\RoutsyException;
+use Kamille\Utils\Routsy\RouteCollection\PrefixedRouteCollectionInterface;
 use Kamille\Utils\Routsy\RouteCollection\RouteCollectionInterface;
+use Kamille\Utils\Routsy\RouteCollection\RoutsyRouteCollection;
 use Kamille\Utils\Routsy\Util\ConstraintsChecker\AppleConstraintsChecker;
 use Kamille\Utils\Routsy\Util\DynamicUriMatcher\CherryDynamicUriMatcher;
 use Kamille\Utils\Routsy\Util\RequirementsChecker\KiwiRequirementsChecker;
@@ -50,21 +52,35 @@ use Kamille\Utils\Routsy\Util\RequirementsChecker\KiwiRequirementsChecker;
  *
  *
  *
+ * Implementation notes
+ * --------------------------
+ * We split between routeCollection and prefixedRouteCollection because
+ * routing is executed almost every time and I thought it would be worth (performance wise)
+ * to eliminate a bunch of routes if the prefix of the collection doesn't match.
+ *
  */
 class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
 {
 
-    private $routes;
 
     /**
      * @var RouteCollectionInterface[]
      */
     private $routeCollections;
 
+    /**
+     * @var PrefixedRouteCollectionInterface[]
+     */
+    private $prefixedRouteCollections;
+
+    // cache for link generator
+    private $routes;
+
     public function __construct()
     {
-        $this->routes = null; // non initialized
         $this->routeCollections = [];
+        $this->prefixedRouteCollections = [];
+        $this->routes = null;
     }
 
     public static function create()
@@ -74,27 +90,31 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
 
     public function addCollection(RouteCollectionInterface $collection)
     {
-        $this->routeCollections[] = $collection;
+        if ($collection instanceof PrefixedRouteCollectionInterface) {
+            $this->prefixedRouteCollections[] = $collection;
+        } else {
+            $this->routeCollections[] = $collection;
+        }
         return $this;
     }
 
 
     public function match(HttpRequestInterface $request)
     {
-        $routes = $this->getRoutes();
-        foreach ($routes as $routeId => $route) {
-            $urlParams = [];
-            if (false !== ($controller = $this->matchRoute($request, $route, $urlParams))) {
-                if (true === ApplicationParameters::get("debug")) {
-                    XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched");
+        foreach ($this->prefixedRouteCollections as $collection) {
+            if (true === $collection->prefixMatch($request)) {
+                if (null !== ($ret = $this->processCollection($collection, $request))) {
+                    return $ret;
                 }
-                return [
-                    $controller,
-                    $urlParams,
-                ];
+            }
+        }
+        foreach ($this->routeCollections as $collection) {
+            if (null !== ($ret = $this->processCollection($collection, $request))) {
+                return $ret;
             }
         }
     }
+
 
     public function setRoutes(array $routes)
     {
@@ -106,9 +126,11 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
     {
         if (null === $this->routes) {
             $routes = [];
+            foreach ($this->prefixedRouteCollections as $collection) {
+                $routes = array_merge($routes, $collection->getRoutes());
+            }
             foreach ($this->routeCollections as $collection) {
                 $routes = array_merge($routes, $collection->getRoutes());
-
             }
             $this->routes = $routes;
         }
@@ -208,4 +230,27 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
     {
         return AppleConstraintsChecker::checkConstraints($urlParams, $constraints);
     }
+
+    private function processCollection(RouteCollectionInterface $collection, HttpRequestInterface $request)
+    {
+        $routes = $collection->getRoutes();
+        foreach ($routes as $routeId => $route) {
+            $urlParams = [];
+            if (false !== ($controller = $this->matchRoute($request, $route, $urlParams))) {
+                if (true === ApplicationParameters::get("debug")) {
+                    XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched");
+                }
+
+                if ($collection instanceof RoutsyRouteCollection) {
+                    $collection->routeMatched($routeId);
+                }
+
+                return [
+                    $controller,
+                    $urlParams,
+                ];
+            }
+        }
+    }
+
 }
