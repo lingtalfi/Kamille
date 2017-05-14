@@ -1,70 +1,24 @@
 <?php
 
 
-namespace Kamille\Utils\Routsy;
+namespace Kamille\Utils\RoutsyCopy;
 
 
-use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Architecture\Request\Web\HttpRequestInterface;
-use Kamille\Architecture\Router\Web\WebRouterInterface;
-use Kamille\Services\XLog;
-use Kamille\Utils\Routsy\Exception\RoutsyException;
-use Kamille\Utils\Routsy\RouteCollection\RouteCollectionInterface;
-use Kamille\Utils\Routsy\Util\ConstraintsChecker\AppleConstraintsChecker;
-use Kamille\Utils\Routsy\Util\DynamicUriMatcher\CherryDynamicUriMatcher;
-use Kamille\Utils\Routsy\Util\RequirementsChecker\KiwiRequirementsChecker;
+use Kamille\Utils\RoutsyCopy\Exception\RoutsyException;
+use Kamille\Utils\RoutsyCopy\Util\ConstraintsChecker\AppleConstraintsChecker;
+use Kamille\Utils\RoutsyCopy\Util\DynamicUriMatcher\CherryDynamicUriMatcher;
+use Kamille\Utils\RoutsyCopy\Util\RequirementsChecker\KiwiRequirementsChecker;
 
-/**
- * A routsy route is an array containing the following keys:
- *
- * - 0: uri
- * - 1: constraints (uri parameters constraints)
- *              array of uriParam => constraint
- *              examples of constraints are:
- *                  - >6
- *                  - >=6
- *                  - <6
- *                  - <=6
- *                  - 6
- *                  - >7<10
- *                  - >=7<10
- *                  - >=7=<10
- *                  - >7=<10
- *                  - [78,45]   // alternatives
- *                  - kabo
- *                  - [kano, kabo]
- *
- *
- * - 2: requirements (http request requirements)
- *
- *                  examples of requirements are:
- *                      - https => true,
- *                      - inGet => ["disconnect", "pou"],
- *                      - inPost => ["disconnect", "pou"],
- *                      - getValues => ["ee" => "45", "pou" => "pl"],
- *                       -postValues => ["ee" => "45", "pou" => "pl"],
- *
- *
- * - controller (a controller match, see WebRouterInterface for more details)
- *
- *
- *
- *
- */
-class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
+
+class RoutsyRouter
 {
 
     private $routes;
 
-    /**
-     * @var RouteCollectionInterface[]
-     */
-    private $routeCollections;
-
     public function __construct()
     {
-        $this->routes = null; // non initialized
-        $this->routeCollections = [];
+        $this->routes = [];
     }
 
     public static function create()
@@ -72,47 +26,25 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
         return new static();
     }
 
-    public function addCollection(RouteCollectionInterface $collection)
-    {
-        $this->routeCollections[] = $collection;
-        return $this;
-    }
-
-
     public function match(HttpRequestInterface $request)
     {
-        $routes = $this->getRoutes();
-        foreach ($routes as $routeId => $route) {
+        foreach ($this->routes as $routeId => $route) {
             $urlParams = [];
             if (false !== ($controller = $this->matchRoute($request, $route, $urlParams))) {
-                if (true === ApplicationParameters::get("debug")) {
-                    XLog::debug("ApplicationRoutsyRouter: routeId $routeId matched");
-                }
                 return [
+                    $routeId,
                     $controller,
                     $urlParams,
                 ];
             }
         }
+        return false;
     }
 
     public function setRoutes(array $routes)
     {
         $this->routes = $routes;
         return $this;
-    }
-
-    public function getRoutes()
-    {
-        if (null === $this->routes) {
-            $routes = [];
-            foreach ($this->routeCollections as $collection) {
-                $routes = array_merge($routes, $collection->getRoutes());
-
-            }
-            $this->routes = $routes;
-        }
-        return $this->routes;
     }
 
     //--------------------------------------------

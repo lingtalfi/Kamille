@@ -83,6 +83,7 @@ The request is used as a registry, that is a readable values store.
 Amongst the most popular variables attached to the request we have the following:
 
 
+
 - controller, set by the RouterRequestListener, represents a controller matching a given http request
                 Note that in this form, the controller is either a controller (callable) or a controllerRepresentation.
 

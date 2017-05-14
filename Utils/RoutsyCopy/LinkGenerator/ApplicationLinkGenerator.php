@@ -1,11 +1,10 @@
 <?php
 
 
-namespace Kamille\Utils\Routsy\LinkGenerator;
+namespace Kamille\Utils\RoutsyCopy\LinkGenerator;
 
 
-use Core\Services\X;
-use Kamille\Utils\Routsy\RoutsyRouter;
+use Kamille\Utils\RoutsyCopy\RoutsyUtil;
 
 /**
  * This is a service to generate links, provided by the framework, for the kamille developers/users.
@@ -17,7 +16,7 @@ use Kamille\Utils\Routsy\RoutsyRouter;
  *      'dynamic' => 46,
  * ]);
  *
- * See Routsy system documentation for more information.
+ * See RoutsyCopy system documentation for more information.
  *
  */
 class ApplicationLinkGenerator
@@ -39,11 +38,7 @@ class ApplicationLinkGenerator
     private static function getLinkGenerator()
     {
         if (null === self::$linkGen) {
-            /**
-             * @var $router RoutsyRouter
-             */
-            $router = X::get("Core_RoutsyRouter");
-            $routes = $router->getRoutes();
+            $routes = RoutsyUtil::getRoutes();
             self::$linkGen = LinkGenerator::create()->setRoutes($routes);
         }
         return self::$linkGen;

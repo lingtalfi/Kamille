@@ -255,7 +255,7 @@ class ModuleInstallTool
                 $methodContent = $moduleCooker->getMethodContent($method);
 
                 // however, we change the visibility from protected to public
-                $methodContent = preg_replace('!protected!i', 'public', $methodContent, 1);
+//                $methodContent = preg_replace('!protected!i', 'public', $methodContent, 1);
 
                 $xCooker->addMethod($method, $methodContent);
             } else {

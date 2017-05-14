@@ -13,7 +13,7 @@ interface WebRouterInterface
 
     /**
      * @param HttpRequestInterface $request
-     * @return null|string|callable|array
+     * @return null|string|callable|array, the controller match, or null if no match
      *
      * - null: means no match
      *

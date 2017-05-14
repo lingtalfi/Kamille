@@ -44,8 +44,8 @@ class PhpLayoutRenderer extends LayoutRenderer
     public function render($uninterpretedContent, array $variables)
     {
 
-
         if (false !== ($path = $this->tmpFile($uninterpretedContent))) {
+
 
             /**
              * Prepare vars
