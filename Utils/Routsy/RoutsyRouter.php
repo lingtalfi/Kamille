@@ -141,6 +141,10 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
     //--------------------------------------------
     //
     //--------------------------------------------
+    /**
+     * @return false|mixed:controllerMatch (see WebRouterInterface for more details),
+     *
+     */
     private function matchRoute(HttpRequestInterface $request, array $route, array &$urlParams)
     {
         list($url, $constraints, $requirements, $controller) = $route;
@@ -193,25 +197,7 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
         // CONTROLLER/URL PARAMS
         //--------------------------------------------
         if (true === $urlMatched) {
-            if (is_string($controller)) {
-                if (null !== $_urlParams) {
-                    $urlParams = $_urlParams;
-                }
-                return $controller;
-            } else {
-                // assuming array
-                if (null !== $_urlParams) {
-                    $controller = array_merge($_urlParams, $controller);
-                }
-                if (array_key_exists("controller", $controller)) {
-                    $_contr = $controller['controller'];
-                    unset($controller['controller']);
-                    $urlParams = $controller;
-                    return $_contr;
-                } else {
-                    throw new RoutsyException("Controller not found");
-                }
-            }
+            return $controller;
         }
         return false;
     }
@@ -237,14 +223,14 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
         $routes = $collection->getRoutes();
         foreach ($routes as $routeId => $route) {
             $urlParams = [];
-            if (false !== ($controller = $this->matchRoute($request, $route, $urlParams))) {
+            if (false !== ($controllerMatch = $this->matchRoute($request, $route, $urlParams))) {
                 if (true === ApplicationParameters::get("debug")) {
 
                     $sInfo = "";
-                    if($collection instanceof RoutsyRouteCollection){
+                    if ($collection instanceof RoutsyRouteCollection) {
                         $sInfo .= "; fileName: " . $collection->getFileName();
                     }
-                    if($collection instanceof PrefixedRoutsyRouteCollection){
+                    if ($collection instanceof PrefixedRoutsyRouteCollection) {
                         $sInfo .= "; prefix: " . $collection->getUrlPrefix();
                     }
                     XLog::debug("RoutsyRouter: routeId $routeId matched" . $sInfo);
@@ -254,10 +240,7 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
                     $collection->routeMatched($routeId);
                 }
 
-                return [
-                    $controller,
-                    $urlParams,
-                ];
+                return $controllerMatch;
             }
         }
     }

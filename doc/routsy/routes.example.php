@@ -6,15 +6,13 @@ use Kamille\Architecture\Request\Web\HttpRequestInterface;
  *      uri,
  *      urlParams constraints,
  *      http requirements
- *      urlParamsDefaults and controller (with the reserved controller key),
+ *      controller match (see WebRouterInterface for more details)
  * ]
  */
 $routes["Core_myRouteId1"] = ["/mystatic/uri", null, null, "?Controller:method"];
-$routes["Core_myRouteId2"] = ["/mystatic/uri", null, null, [
-    "controller" => "?Controller:method",
-    "myotherparamsIfNeeded" => "is it really needed? why not? from  a module perspective? maybe?",
-]];
-$routes["Core_myRouteId3"] = ["/mystatic/uri", [
+
+$routes["Core_myRouteId2"] = ["/mystatic2/uri", null, null, ["?Controller:method", ["urlParam1" => "blabla"]]];
+$routes["Core_myRouteId3"] = ["/mystatic3/uri", [
     // ints
     'dynamic' => ">6",
     'dynamic2' => ">=6",
