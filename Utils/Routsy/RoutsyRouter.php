@@ -197,6 +197,9 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
         // CONTROLLER/URL PARAMS
         //--------------------------------------------
         if (true === $urlMatched) {
+            if (is_array($_urlParams)) {
+                return [$controller, $_urlParams];
+            }
             return $controller;
         }
         return false;
@@ -233,13 +236,13 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
                     if ($collection instanceof PrefixedRoutsyRouteCollection) {
                         $sInfo .= "; prefix: " . $collection->getUrlPrefix();
                     }
+                    $sInfo .= "; pattern: " . $route[0];
                     XLog::debug("[Kamille.RoutsyRouter] - routeId $routeId matched" . $sInfo);
                 }
 
                 if ($collection instanceof RoutsyRouteCollection) {
                     $collection->routeMatched($routeId);
                 }
-
                 return $controllerMatch;
             }
         }

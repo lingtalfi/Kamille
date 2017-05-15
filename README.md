@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.63.4 -- 2017-05-15
+
+    - fix RoutsyRouter urlParams not returned correctly
+    
 - 1.63.3 -- 2017-05-15
 
     - set homogeneous Xlog debug messages
