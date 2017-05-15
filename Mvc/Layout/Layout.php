@@ -100,7 +100,7 @@ class Layout implements LayoutInterface
 
 
             if (true === ApplicationParameters::get("debug")) {
-                XLog::debug("[Kamille\Mvc\Layout]: Rendering layout " . $this->templateName);
+                XLog::debug("[Kamille.Layout] - Rendering layout " . $this->templateName);
             }
             $renderedTemplate = $this->renderer->render($uninterpretedTemplate, $variables);
             $this->onRenderedTemplateReady($renderedTemplate);

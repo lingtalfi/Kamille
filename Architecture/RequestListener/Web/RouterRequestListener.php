@@ -97,7 +97,7 @@ class RouterRequestListener implements HttpRequestListenerInterface
                         $s = $cont;
                     }
                 }
-                XLog::debug("RouterRequestListener: Router matched: " . get_class($router) . ", controller: $s");
+                XLog::debug("[Kamille.RouterRequestListener] - Router matched: " . get_class($router) . ", controller: $s");
             }
 
             $urlParams = array_merge($request->get('urlParams', []), $urlParams);

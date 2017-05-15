@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.63.3 -- 2017-05-15
+
+    - set homogeneous Xlog debug messages
+    
 - 1.63.2 -- 2017-05-15
 
     - fix RoutsyRouter to allows controller match syntax (as defined in WebRouterInterface)

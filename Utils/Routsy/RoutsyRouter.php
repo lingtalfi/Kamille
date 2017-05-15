@@ -233,7 +233,7 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
                     if ($collection instanceof PrefixedRoutsyRouteCollection) {
                         $sInfo .= "; prefix: " . $collection->getUrlPrefix();
                     }
-                    XLog::debug("RoutsyRouter: routeId $routeId matched" . $sInfo);
+                    XLog::debug("[Kamille.RoutsyRouter] - routeId $routeId matched" . $sInfo);
                 }
 
                 if ($collection instanceof RoutsyRouteCollection) {

@@ -154,7 +154,7 @@ class LawsUtil implements LawsUtilInterface
 
             $trace = [];
             $theTheme = ApplicationParameters::get("theme", "no theme");
-            $trace[] = "LawsUtil trace with theme: $theTheme, viewId: $viewId" . $viewIdFile . ":";
+            $trace[] = "[Kamille.LawsUtil] - trace with theme: $theTheme, viewId: $viewId" . $viewIdFile . ":";
             $trace[] = "- layout: $layoutTemplate";
 //            $trace[] = "- positions: " . $sPos;
             $trace[] = "- widgets: " . $sWidgets;
