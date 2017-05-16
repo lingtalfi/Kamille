@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.64.1 -- 2017-05-16
+
+    - fix HttpRequest.hack
+    
 - 1.64.0 -- 2017-05-16
 
     - add HttpRequest.hack method
