@@ -48,4 +48,16 @@ class RoutsyUtil
         }
         return ApplicationLinkGenerator::getUri($routeId, $params);
     }
+
+    public static function removeTrailingSlash($uri)
+    {
+        // remove last slash if any
+        if ('/' === substr($uri, -1)) {
+            $uri = substr($uri, 0, -1);
+        }
+        if ('' === $uri) {
+            $uri = '/';
+        }
+        return $uri;
+    }
 }

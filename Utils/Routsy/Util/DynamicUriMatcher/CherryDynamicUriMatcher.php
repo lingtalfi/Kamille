@@ -5,6 +5,8 @@ namespace Kamille\Utils\Routsy\Util\DynamicUriMatcher;
 
 
 
+use Kamille\Utils\Routsy\RoutsyUtil;
+
 class CherryDynamicUriMatcher{
     /**
      *
@@ -62,12 +64,7 @@ class CherryDynamicUriMatcher{
         $slashTagVars = [];
         $greedyVars = [];
         // remove last slash if any
-        if ('/' === substr($uri, -1)) {
-            $uri = substr($uri, 0, -1);
-        }
-        if (empty($uri)) {
-            $uri = '/';
-        }
+        $uri = RoutsyUtil::removeTrailingSlash($uri);
         // extract vars from pattern
         if (preg_match_all('#(?<!\\\)\{\/?[a-zA-Z0-9_]+\+?(?<!\\\)\}#', $pattern, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $index => $match) {

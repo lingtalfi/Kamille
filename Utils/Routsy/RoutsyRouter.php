@@ -171,6 +171,7 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
             // is it dynamic or static?
             if (false === strpos($url, '{')) {
                 // static
+                $uri = RoutsyUtil::removeTrailingSlash($uri);
                 $urlMatched = ($uri === $url);
             } else {
                 // dynamic

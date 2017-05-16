@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.64.2 -- 2017-05-16
+
+    - fix RoutsyRouter.matchRoute remove trailing slash on static url
+    
 - 1.64.1 -- 2017-05-16
 
     - fix HttpRequest.hack
