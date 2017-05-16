@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.64.0 -- 2017-05-16
+
+    - add HttpRequest.hack method
+    
 - 1.63.4 -- 2017-05-15
 
     - fix RoutsyRouter urlParams not returned correctly
