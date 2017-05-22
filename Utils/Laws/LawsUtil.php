@@ -16,6 +16,7 @@ use Kamille\Mvc\LayoutProxy\LawsLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\RendererAwareLayoutProxyInterface;
 use Kamille\Utils\Laws\Config\LawsConfig;
+use Kamille\Utils\ShortCodeProvider\ShortCodeProviderInterface;
 use Loader\FileLoader;
 use Loader\PublicFileLoaderInterface;
 use Kamille\Mvc\Renderer\PhpLayoutRenderer;
@@ -34,10 +35,21 @@ class LawsUtil implements LawsUtilInterface
      */
     private $layoutProxy;
 
+    /**
+     * @var ShortCodeProviderInterface[]
+     */
+    private $shortCodeProviders;
+
 
     public static function create()
     {
         return new static();
+    }
+
+    public function addShortCodeProvider(ShortCodeProviderInterface $shortCodeProvider)
+    {
+        $this->shortCodeProviders[$shortCodeProvider->getName()] = $shortCodeProvider;
+        return $this;
     }
 
 
@@ -243,7 +255,9 @@ class LawsUtil implements LawsUtilInterface
 
                 $name = $widgetInfo['tpl'];
                 $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
-
+                if (null !== $this->shortCodeProviders) {
+                    $this->processConfWithShortCodes($conf);
+                }
 
 
                 $widget = new $widgetClass;
@@ -299,5 +313,23 @@ class LawsUtil implements LawsUtilInterface
             $this->layoutProxy = LawsLayoutProxy::create();
         }
         return $this->layoutProxy;
+    }
+
+    private function processConfWithShortCodes(array &$conf)
+    {
+        foreach ($conf as $k => $v) {
+            if (is_string($v) && false !== ($pos = strpos($v, ':'))) {
+                $providerName = substr($v, 0, $pos);
+                if (array_key_exists($providerName, $this->shortCodeProviders)) {
+                    $shortCode = substr($v, $pos + 1);
+                    $shortCodeProvider = $this->shortCodeProviders[$providerName];
+                    $wasProcessed = false;
+                    $ret = $shortCodeProvider->process($shortCode, $wasProcessed);
+                    if (true === $wasProcessed) {
+                        $conf[$k] = $ret;
+                    }
+                }
+            }
+        }
     }
 }

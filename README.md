@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.66.0 -- 2017-05-22
+
+    - add ShortCode system (search for ShortCodeProviderInterface)
+    
 - 1.65.0 -- 2017-05-22
 
     - add ApplicationRegistry
