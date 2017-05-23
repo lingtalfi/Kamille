@@ -256,7 +256,7 @@ class LawsUtil implements LawsUtilInterface
                 $name = $widgetInfo['tpl'];
                 $conf = (array_key_exists('conf', $widgetInfo)) ? $widgetInfo['conf'] : [];
                 if (null !== $this->shortCodeProviders) {
-                    $this->processConfWithShortCodes($conf);
+                    $conf = $this->processConfWithShortCodes($conf);
                 }
 
 
@@ -315,21 +315,46 @@ class LawsUtil implements LawsUtilInterface
         return $this->layoutProxy;
     }
 
-    private function processConfWithShortCodes(array &$conf)
+    private function processConfWithShortCodes($conf)
     {
-        foreach ($conf as $k => $v) {
-            if (is_string($v) && false !== ($pos = strpos($v, ':'))) {
-                $providerName = substr($v, 0, $pos);
-                if (array_key_exists($providerName, $this->shortCodeProviders)) {
-                    $shortCode = substr($v, $pos + 1);
-                    $shortCodeProvider = $this->shortCodeProviders[$providerName];
-                    $wasProcessed = false;
-                    $ret = $shortCodeProvider->process($shortCode, $wasProcessed);
-                    if (true === $wasProcessed) {
-                        $conf[$k] = $ret;
+        if (is_array($conf)) {
+            $ret = $conf;
+            foreach ($conf as $k => $v) {
+                if (is_string($v) && false !== ($pos = strpos($v, ':'))) {
+                    $providerName = substr($v, 0, $pos);
+                    if (array_key_exists($providerName, $this->shortCodeProviders)) {
+                        $shortCode = substr($v, $pos + 1);
+                        $shortCodeProvider = $this->shortCodeProviders[$providerName];
+                        $wasProcessed = false;
+                        $rett = $shortCodeProvider->process($shortCode, $wasProcessed);
+                        if (true === $wasProcessed) {
+                            $ret[$k] = $rett;
+                        }
                     }
                 }
             }
+            return $ret;
+        } else {
+            $ret = $this->processShortCode($conf, $wasProcessed);
+            if (true === $wasProcessed) {
+                return $ret;
+            }
         }
+    }
+
+    private function processShortCode($mixed, &$wasProcessed = false)
+    {
+        if ((is_string($mixed) && false !== ($pos = strpos($mixed, ':')))) {
+            $providerName = substr($mixed, 0, $pos);
+            if (array_key_exists($providerName, $this->shortCodeProviders)) {
+                $shortCode = substr($mixed, $pos + 1);
+                $shortCodeProvider = $this->shortCodeProviders[$providerName];
+                $ret = $shortCodeProvider->process($shortCode, $wasProcessed);
+                if (true === $wasProcessed) {
+                    return $ret;
+                }
+            }
+        }
+        return false;
     }
 }

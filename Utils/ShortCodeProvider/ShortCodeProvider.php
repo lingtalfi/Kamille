@@ -35,7 +35,7 @@ abstract class ShortCodeProvider implements ShortCodeProviderInterface
             $wasProcessed = true;
             return $ret;
         } else {
-            XLog::error("Method not found: $function");
+            XLog::error("[Kamille.ShortCodeProvider] - ShortCodeProvider: Method not found: $function");
         }
         return "";
     }
