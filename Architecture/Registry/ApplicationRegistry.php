@@ -29,6 +29,10 @@ class ApplicationRegistry
         self::$vars[$key] = $value;
     }
 
+    public static function all()
+    {
+        return self::$vars;
+    }
 
 }
 

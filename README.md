@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.68.0 -- 2017-05-25
+
+    - add ApplicationRegistry.all method
+    
 - 1.67.0 -- 2017-05-23
 
     - improve ShortCode system, it can now transform the whole conf array
