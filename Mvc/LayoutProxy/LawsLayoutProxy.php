@@ -4,7 +4,6 @@
 namespace Kamille\Mvc\LayoutProxy;
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
-use Kamille\Mvc\Position\PositionInterface;
 use Kamille\Mvc\Renderer\RendererInterface;
 use Kamille\Mvc\WidgetDecorator\WidgetDecoratorInterface;
 use Kamille\Services\XLog;

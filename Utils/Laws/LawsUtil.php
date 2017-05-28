@@ -53,42 +53,56 @@ class LawsUtil implements LawsUtilInterface
     }
 
 
-    /**
-     * $config: callable|array
-     *          is used to alter the configuration found in the laws configuration file (pointed by the viewId)
-     *
-     *          If it's an array, it will be merged with the laws config array.
-     *          If it's a callable, the laws config array will be passed by reference as the argument of that callable.
-     *
-     * $options: array,
-     *          to alter the behaviour of the method on a per call basis
-     *
-     */
     public function renderLawsViewById($viewId, LawsConfig $config = null, array $options = [])
     {
-        $useLaws3 = (array_key_exists('useLaws3', $options)) ? (bool)$options['useLaws3'] : true;
-        if (true === $useLaws3) {
-            $theme = ApplicationParameters::get("theme");
-            $file = ApplicationParameters::get("app_dir") . "/config/laws/themes/$theme/$viewId.conf.php";
-            if (!file_exists($file)) {
-                $file = ApplicationParameters::get("app_dir") . "/config/laws/$viewId.conf.php";
-            }
-        } else {
-            $file = ApplicationParameters::get("app_dir") . "/config/laws/$viewId.conf.php";
+
+        //--------------------------------------------
+        // compute config files
+        //--------------------------------------------
+        $theme = ApplicationParameters::get("theme");
+        $appDir = ApplicationParameters::get("app_dir");
+        $file = $appDir . "/config/laws/themes/$theme/$viewId.conf.php";
+        if (!file_exists($file)) {
+            $file = $appDir . "/config/laws/$viewId.conf.php";
         }
 
         if (file_exists($file)) {
-            $conf = [];
-            include $file;
             $this->_file = $file;
             $this->_viewId = $viewId;
 
+
+            $conf = [];
+            include $file;
+            $zeConf = $conf;
+
+            // allow user override
+            $f = $appDir . "/config/laws/themes/$theme/$viewId.conf.user.php";
+            if (file_exists($f)) {
+                include $f;
+                $zeConf = array_replace_recursive($zeConf, $conf);
+            } else {
+                $f = $appDir . "/config/laws/$viewId.conf.user.php";
+                if (file_exists($f)) {
+                    include $f;
+                    $zeConf = array_replace_recursive($zeConf, $conf);
+                }
+            }
+            $conf = $zeConf;
+
+
+            //--------------------------------------------
+            // let the controller override
+            //--------------------------------------------
             if (null !== $config) {
                 $config->apply($conf);
             }
+
+            //--------------------------------------------
+            // render
+            //--------------------------------------------
             return $this->renderLawsView($conf, $options);
         }
-        throw new LawsUtilException("laws config file not found: $file");
+        throw new LawsUtilException("laws config file not found with viewId $viewId ($file)");
     }
 
     public function setLawsLayoutProxy(LawsLayoutProxyInterface $layoutProxy)
@@ -112,6 +126,12 @@ class LawsUtil implements LawsUtilInterface
         ], $options);
         $autoloadCss = $options['autoloadCss'];
         $widgetClass = $options['widgetClass'];
+
+
+
+        // todo: remove autoloadCss, it's deprecated, isn't it?
+//        $autoloadCss = false;
+
 
 
         $layoutTemplate = $config['layout']['tpl'];
