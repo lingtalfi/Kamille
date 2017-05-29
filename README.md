@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.70.1 -- 2017-05-29
+
+    - fix XConfig.get parameters parsing method
+    
 - 1.70.0 -- 2017-05-29
 
     - add Umail utility
