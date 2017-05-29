@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.70.0 -- 2017-05-29
+
+    - add Umail utility
+    
 - 1.69.0 -- 2017-05-28
 
     - update LawsUtil to newest laws version
