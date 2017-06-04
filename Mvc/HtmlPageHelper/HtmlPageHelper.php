@@ -130,6 +130,21 @@ class HtmlPageHelper
      * - if after, is displayed after the bodyEndSection, and before the html body tag end
      *              This allows you to call the js method from your templates,
      *              and yet you still can have a general init.js file after them.
+     *
+     * libName: to avoid loading multiple variations of the same library.
+     *              For instance, if two different widgets use jquery,
+     *              - widget A use version jquery-1.13.min.js
+     *              - widget B use version jquery-2.1.14.min.js
+     *
+     *              Then if both widgets specify libName=jquery,
+     *              jquery lib will only be loaded the first time, and subsequent calls are ignored,
+     *              thus preventing potential conflicts between two different versions of the same library.
+     *
+     *              Whichever widget declares its dependency first wins,
+     *              the rest is on you!
+     *
+     *
+     *
      */
     public static function js($url, $libName = null, array $htmlAttributes = null, $inHead = true)
     {

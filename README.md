@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.71.0 -- 2017-06-04
+
+    - add KamilleThemeHelper class
+    
 - 1.70.1 -- 2017-05-29
 
     - fix XConfig.get parameters parsing method
