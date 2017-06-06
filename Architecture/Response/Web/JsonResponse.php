@@ -4,7 +4,6 @@
 namespace Kamille\Architecture\Response\Web;
 
 
-
 class JsonResponse extends HttpResponse
 {
 

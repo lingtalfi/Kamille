@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.72.0 -- 2017-06-06
+
+    - add WidgetInstanceDecorator system
+    
 - 1.71.0 -- 2017-06-04
 
     - add KamilleThemeHelper class

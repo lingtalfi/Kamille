@@ -15,6 +15,7 @@ use Kamille\Mvc\LayoutProxy\LawsLayoutProxy;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\RendererAwareLayoutProxyInterface;
+use Kamille\Mvc\WidgetDecorator\WidgetDecoratorInterface;
 use Kamille\Utils\Laws\Config\LawsConfig;
 use Kamille\Utils\ShortCodeProvider\ShortCodeProviderInterface;
 use Loader\FileLoader;
@@ -123,7 +124,9 @@ class LawsUtil implements LawsUtilInterface
             'widgetClass' => 'Kamille\Mvc\Widget\Widget',
             'layout' => 'Kamille\Mvc\Layout\HtmlLayout',
             'bodyEndSnippetsCollector' => null, // a BodyEndSnippetsCollectorInterface instance
+            'widgetInstanceDecorator' => null, // a WidgetDecorator instance
         ], $options);
+        $widgetInstanceDecorator = $options['widgetInstanceDecorator'];
         $autoloadCss = $options['autoloadCss'];
         $widgetClass = $options['widgetClass'];
 
@@ -289,13 +292,18 @@ class LawsUtil implements LawsUtilInterface
                         }
                     });
 
-                    $layout
-                        ->bindWidget($id, $widget
-                            ->setTemplate($name)
-                            ->setVariables($conf)
-                            ->setLoader($wloader)
-                            ->setRenderer($commonRenderer)
-                        );
+                    $widget->setTemplate($name)
+                        ->setVariables($conf)
+                        ->setLoader($wloader)
+                        ->setRenderer($commonRenderer);
+
+
+                    if($widgetInstanceDecorator instanceof WidgetInstanceDecoratorInterface){
+                        $widgetInstanceDecorator->decorate($widget);
+                    }
+
+
+                    $layout->bindWidget($id, $widget);
 
 
                     if (true === $autoloadCss) {
