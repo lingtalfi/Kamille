@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.72.1 -- 2017-06-06
+
+    - fix WidgetInstanceDecorator.decorate arguments
+    
 - 1.72.0 -- 2017-06-06
 
     - add WidgetInstanceDecorator system

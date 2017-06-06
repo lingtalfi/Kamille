@@ -9,6 +9,6 @@ use Kamille\Mvc\Widget\WidgetInterface;
 interface WidgetInstanceDecoratorInterface
 {
 
-    public function decorate(WidgetInterface $widget);
+    public function decorate(WidgetInterface $widget, array $conf);
 
 }

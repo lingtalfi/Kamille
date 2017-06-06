@@ -16,6 +16,7 @@ use Kamille\Mvc\LayoutProxy\LawsLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\RendererAwareLayoutProxyInterface;
 use Kamille\Mvc\WidgetDecorator\WidgetDecoratorInterface;
+use Kamille\Mvc\WidgetInstanceDecorator\WidgetInstanceDecoratorInterface;
 use Kamille\Utils\Laws\Config\LawsConfig;
 use Kamille\Utils\ShortCodeProvider\ShortCodeProviderInterface;
 use Loader\FileLoader;
@@ -299,7 +300,12 @@ class LawsUtil implements LawsUtilInterface
 
 
                     if($widgetInstanceDecorator instanceof WidgetInstanceDecoratorInterface){
-                        $widgetInstanceDecorator->decorate($widget);
+                        /**
+                         * Todo: check if it's not too late to decorate the widget;
+                         * maybe because the template name is already set it already impacts the widget structure?
+                         * (it shouldn't anyway because that would be a bad design...)
+                         */
+                        $widgetInstanceDecorator->decorate($widget, $conf);
                     }
 
 
