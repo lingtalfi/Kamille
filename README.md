@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.73.0 -- 2017-06-07
+
+    - add arguments to ApplicationLinkGenerator.getUri method: absolute and https
+    
 - 1.72.1 -- 2017-06-06
 
     - fix WidgetInstanceDecorator.decorate arguments

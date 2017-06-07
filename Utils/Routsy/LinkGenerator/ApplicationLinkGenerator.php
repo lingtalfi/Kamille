@@ -4,8 +4,7 @@
 namespace Kamille\Utils\Routsy\LinkGenerator;
 
 
-use Core\Services\X;
-use Kamille\Utils\Routsy\RoutsyRouter;
+use Bat\UriTool;
 
 /**
  * This is a service to generate links, provided by the framework, for the kamille developers/users.
@@ -26,26 +25,28 @@ class ApplicationLinkGenerator
      * @var $linkGen LinkGeneratorInterface
      */
     private static $linkGen;
+    public static $defaultHttps = false;
 
 
-    public static function getUri($routeId, array $params = [])
+    public static function getUri($routeId, array $params = [], $absolute = false, $https = null)
     {
-        return self::getLinkGenerator()->getUri($routeId, $params);
+        // note: we don't do a condition here to save an if
+        // if you thinks that's ridiculous, by all means change this implementation
+        $ret = self::$linkGen->getUri($routeId, $params);
+        if (true === $absolute) {
+            if (null === $https) {
+                $https = self::$defaultHttps;
+            }
+            $protocol = (true === $https) ? 'https' : 'http';
+            $host = UriTool::getHost();
+            $ret = $protocol . "://" . $host . $ret;
+        }
+        return $ret;
     }
 
-    //--------------------------------------------
-    //
-    //--------------------------------------------
-    private static function getLinkGenerator()
+
+    public static function setLinkGenerator(LinkGeneratorInterface $linkGenerator)
     {
-        if (null === self::$linkGen) {
-            /**
-             * @var $router RoutsyRouter
-             */
-            $router = X::get("Core_RoutsyRouter");
-            $routes = $router->getRoutes();
-            self::$linkGen = LinkGenerator::create()->setRoutes($routes);
-        }
-        return self::$linkGen;
+        self::$linkGen = $linkGenerator;
     }
 }
