@@ -96,9 +96,4 @@ class Z
         return $prefix . UriTool::appendQueryString($uri, $params);
 
     }
-
-    public static function link($route, array $params = [])
-    {
-        return ApplicationLinkGenerator::getUri($route, $params);
-    }
 }

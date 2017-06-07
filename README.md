@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.74.0 -- 2017-06-07
+
+    - remoe ApplicationLinkGenerator
+    
 - 1.73.0 -- 2017-06-07
 
     - add arguments to ApplicationLinkGenerator.getUri method: absolute and https

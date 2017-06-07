@@ -46,6 +46,7 @@ class RoutsyUtil
             $routeId = $routeIdentifier;
             $params = [];
         }
+        throw new \Exception("l");
         return ApplicationLinkGenerator::getUri($routeId, $params);
     }
 
