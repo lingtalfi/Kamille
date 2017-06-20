@@ -166,9 +166,13 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.75.0 -- 2017-06-20
+
+    - add Laws DynamicWidgetBinder
+    
 - 1.74.0 -- 2017-06-07
 
-    - remoe ApplicationLinkGenerator
+    - remove ApplicationLinkGenerator
     
 - 1.73.0 -- 2017-06-07
 

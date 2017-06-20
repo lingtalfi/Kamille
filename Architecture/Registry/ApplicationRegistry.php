@@ -34,6 +34,11 @@ class ApplicationRegistry
         return self::$vars;
     }
 
+    public static function keys()
+    {
+        return array_keys(self::$vars);
+    }
+
 }
 
 

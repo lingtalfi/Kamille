@@ -38,17 +38,17 @@ class RoutsyUtil
 //    }
 //
 //
-    public static function routeIdentifierToUri($routeIdentifier)
-    {
-        if (is_array($routeIdentifier)) {
-            list($routeId, $params) = $routeIdentifier;
-        } else {
-            $routeId = $routeIdentifier;
-            $params = [];
-        }
-        throw new \Exception("l");
-        return ApplicationLinkGenerator::getUri($routeId, $params);
-    }
+//    public static function routeIdentifierToUri($routeIdentifier)
+//    {
+//        if (is_array($routeIdentifier)) {
+//            list($routeId, $params) = $routeIdentifier;
+//        } else {
+//            $routeId = $routeIdentifier;
+//            $params = [];
+//        }
+//        throw new \Exception("l");
+//        return ApplicationLinkGenerator::getUri($routeId, $params);
+//    }
 
     public static function removeTrailingSlash($uri)
     {
