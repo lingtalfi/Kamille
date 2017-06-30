@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.76.0 -- 2017-06-30
+
+    - environment can now be detect in cli
+    
 - 1.75.0 -- 2017-06-20
 
     - add Laws DynamicWidgetBinder
