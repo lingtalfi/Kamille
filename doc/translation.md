@@ -91,4 +91,30 @@ and the string won't be translated, but it will never stop your application.
 
 
 
+Extra thoughts
+=================
+2017-07-01
+
+The more I'm doing web development, the more I feel that templates should be responsible for the
+language.
+
+This statement has a lot of implications in the implementation of an app, and I don't want to force
+people to pay the consequences of this thought, which might be wrong.
+
+What I can do however, is provide some tools for templates to use to help with the implementation of this
+statement.
+
+We need the following tools:
+
+- a translation mechanism (the __ and ___ functions might do)
+- a date formatter mechanism, where the template can override the lang at will.
+        For instance something like this:
+                    localDate($mysqlDatetimeOrAnyRoboticFormat)  // will automatically select the right format
+                    localDate($mysqlDatetimeOrAnyRoboticFormat, "fr") // the template overrides the default format and use french format
+            
+
+
+
+
+
 
