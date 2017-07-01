@@ -4,6 +4,8 @@ Application Registry
 
 
 
+
+
 Modules can use the application registry to pass themselves (or to other modules) variables.
 
 
@@ -14,6 +16,8 @@ widgets on this item page.
 
 Now, the module could create its own sharing system, or it could use the kamille ApplicationRegistry, 
 as to re-use the simple but efficient registry functionality.
+
+
 
 
 
