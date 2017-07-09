@@ -1,6 +1,6 @@
 Kamille
 ===========
-2017-03-12 --> 2017-04-02
+2017-03-12 --> 2017-07-09
 
 
 
@@ -165,6 +165,10 @@ echo HtmlLayout::create()
 
 History Log
 ===============
+    
+- 1.77.0 -- 2017-07-09
+
+    - add LawsConfig.replaceWidgetTemplate method
     
 - 1.76.0 -- 2017-06-30
 
