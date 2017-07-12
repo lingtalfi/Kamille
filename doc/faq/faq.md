@@ -197,8 +197,8 @@ HtmlPageHelper::addBodyClass("nav-md");
 Check if it's debug mode
 ----------------------
 ```php
-if(Z::debug()){
-    // it's debug mode
+if (true === ApplicationParameters::get("debug")) {
+    // debug here...            
 }
 ```
 
