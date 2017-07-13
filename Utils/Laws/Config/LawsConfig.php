@@ -42,6 +42,15 @@ class LawsConfig
     }
 
     /**
+     * @return $this
+     */
+    public function removeWidget($widgetName)
+    {
+        $this->ops[] = ['removeWidget', $widgetName];
+        return $this;
+    }
+
+    /**
      * @param $replace , string or callback
      * @return $this
      */
@@ -87,6 +96,14 @@ class LawsConfig
                     call_user_func_array($value, [&$config]);
                 } else {
                     throw new LawsConfigException("Unknown replace type " . gettype($value));
+                }
+                break;
+            case 'removeWidget':
+                if (
+                    array_key_exists('widgets', $config) &&
+                    array_key_exists($value, $config['widgets'])
+                ) {
+                    unset($config['widgets'][$value]);
                 }
                 break;
             case 'replaceWidgetTemplate':

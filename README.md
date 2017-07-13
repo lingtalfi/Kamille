@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.78.0 -- 2017-07-13
+
+    - add LawsConfig.removeWidget method
+    
 - 1.77.0 -- 2017-07-09
 
     - add LawsConfig.replaceWidgetTemplate method
