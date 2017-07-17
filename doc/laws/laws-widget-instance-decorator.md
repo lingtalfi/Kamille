@@ -80,11 +80,7 @@ convention about what an erroneous model is.
 This flexibility might come handy in some situations, but for the most part it would be arguably 
 more efficient to just have one standard error model.
 
-Let me propose my model, since that's my job:
-
-- errorCode: a string representing the error
-- ?errorTitle: a string representing the error title if any
-- errorMessage: a string representing the error text
+Let me propose the error model (see in models directory).
 
 So, that's it!
 You can use this model as the base error model in your applications.
