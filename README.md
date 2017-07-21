@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.79.0 -- 2017-07-21
+
+    - add kamille's Ball
+    
 - 1.78.0 -- 2017-07-13
 
     - add LawsConfig.removeWidget method
