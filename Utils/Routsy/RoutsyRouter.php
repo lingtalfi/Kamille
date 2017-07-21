@@ -148,7 +148,6 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
     private function matchRoute(HttpRequestInterface $request, array $route, array &$urlParams)
     {
         list($url, $constraints, $requirements, $controller) = $route;
-
         //--------------------------------------------
         // CHECK REQUIREMENTS
         //--------------------------------------------

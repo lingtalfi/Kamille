@@ -219,3 +219,25 @@ There is a **service/{serviceIdentifier+}** route (Core_service) that catches al
 and redirect them to the **Controller\Core\ServiceController** controller.
 
 By convention, all services are handled by this controller.
+
+
+How can I access the chosen route?
+-----------------------------------------
+If the routsy router has been used, you can use the following code:
+
+```php
+ApplicationRegistry::get("routsyRouteId");
+```
+
+
+
+
+
+
+
+
+
+
+
+
+ 
