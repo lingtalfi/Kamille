@@ -95,7 +95,12 @@ class ControllerExecuterRequestListener implements HttpRequestListenerInterface
             if (is_callable($controller)) {
                 return call_user_func($controller);
             }
-            throw new RequestListenerException("Could not interpret the controllerRepresentation $controller");
+
+            if (is_array($controller) && 2 === count($controller)) {
+                $p = $controller;
+                $controller = '[' . get_class($p[0]) . ':' . $p[1] . ']';
+            }
+            throw new RequestListenerException("Could not interpret the controllerRepresentation for $controller");
         } else {
             $type = gettype($controller);
             throw new RequestListenerException("Controller should be a callable or a string (controller representation), $type given");

@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.80.0 -- 2017-07-21
+
+    - enhance ControllerExecuterRequestListener error message when controller is incorrect
+    
 - 1.79.0 -- 2017-07-21
 
     - add kamille's Ball
