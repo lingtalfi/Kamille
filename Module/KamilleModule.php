@@ -56,11 +56,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
      * @var array of id => label
      */
     private $steps;
+    private $hooksActive;
 
 
     public function __construct()
     {
         $this->steps = [];
+        $this->hooksActive = true;
     }
 
 
@@ -403,6 +405,11 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         return 'lnc1';
     }
 
+    protected function disableHooks()
+    {
+        $this->hooksActive = false;
+        return $this;
+    }
 
 
     //--------------------------------------------
@@ -452,10 +459,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 
     private function useHooks()
     {
-        $d = $this->getModuleDir();
-        $n = $this->getModuleName();
-        $f = $d . "/$n" . "Hooks.php";
-        return (file_exists($f));
+        if (true === $this->hooksActive) {
+            $d = $this->getModuleDir();
+            $n = $this->getModuleName();
+            $f = $d . "/$n" . "Hooks.php";
+            return (file_exists($f));
+        }
+        return false;
     }
 
     private function useProfiles()
