@@ -232,6 +232,14 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
                 $steps['profiles'] = "Uninstalling Authenticate profiles";
             }
         }
+
+        if (true === $this->useDatabase()) {
+            if ('install' === $type) {
+                $steps['database'] = "Installing database";
+            } else {
+                $steps['database'] = "Uninstalling database";
+            }
+        }
     }
 
     protected function installAuto()
@@ -291,7 +299,15 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             ModuleInstallTool::installProfiles($this);
             $this->stopStep('profiles', "done");
         }
+
+        if (true === $this->useDatabase()) {
+            $this->startStep('database');
+            $this->output->notice(""); // just br
+            $this->installDatabase();
+            $this->stopStep('database', "done");
+        }
     }
+
 
     protected function uninstallAuto()
     {
@@ -358,6 +374,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             $this->stopStep('profiles', "done");
         }
 
+        if (true === $this->useDatabase()) {
+            $this->startStep('database');
+            $this->output->notice(""); // just br
+            $this->uninstallDatabase();
+            $this->stopStep('database', "done");
+        }
+
     }
 
 
@@ -410,6 +433,8 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         $this->hooksActive = false;
         return $this;
     }
+
+
 
 
     //--------------------------------------------
@@ -473,6 +498,14 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         $d = $this->getModuleDir();
         $f = $d . "/profiles.php";
         return (file_exists($f));
+    }
+
+    private function useDatabase()
+    {
+        return (
+            method_exists($this, "installDatabase") &&
+            method_exists($this, "uninstallDatabase")
+        );
     }
 
     private function getModuleName()
