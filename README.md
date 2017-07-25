@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.83.0 -- 2017-07-25
+
+    - add LawsConfig.replaceWidget method 
+    
 - 1.82.0 -- 2017-07-24
 
     - PhpLayoutRenderer.render now understand namespaces (for instance m:newAddressModel) 

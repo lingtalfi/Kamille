@@ -60,6 +60,16 @@ class LawsConfig
         return $this;
     }
 
+    /**
+     * @param $replace , string or callback
+     * @return $this
+     */
+    public function replaceWidget($widgetId, $replace)
+    {
+        $this->ops[] = ['replaceWidget', [$widgetId, $replace]];
+        return $this;
+    }
+
 
     public function addWidget($widgetId, array $widgetInfo)
     {
@@ -115,6 +125,14 @@ class LawsConfig
                     $config['widgets'][$widgetId]['tpl'] = call_user_func($replace, $config['widgets'][$widgetId]['tpl']);
                 } else {
                     throw new LawsConfigException("replaceWidgetTemplate: Unknown replace type " . gettype($value));
+                }
+                break;
+            case 'replaceWidget':
+                list($widgetId, $replace) = $value;
+                if (is_callable($replace)) {
+                    $config['widgets'][$widgetId]['conf'] = call_user_func($replace, $config['widgets'][$widgetId]['conf']);
+                } else {
+                    $config['widgets'][$widgetId]['conf'] = $replace;
                 }
                 break;
             case 'addWidget':
