@@ -132,10 +132,8 @@ class LawsUtil implements LawsUtilInterface
         $widgetClass = $options['widgetClass'];
 
 
-
         // todo: remove autoloadCss, it's deprecated, isn't it?
 //        $autoloadCss = false;
-
 
 
         $layoutTemplate = $config['layout']['tpl'];
@@ -299,7 +297,7 @@ class LawsUtil implements LawsUtilInterface
                         ->setRenderer($commonRenderer);
 
 
-                    if($widgetInstanceDecorator instanceof WidgetInstanceDecoratorInterface){
+                    if ($widgetInstanceDecorator instanceof WidgetInstanceDecoratorInterface) {
                         /**
                          * Todo: check if it's not too late to decorate the widget;
                          * maybe because the template name is already set it already impacts the widget structure?
@@ -329,7 +327,7 @@ class LawsUtil implements LawsUtilInterface
 
             } else {
                 $end = (null !== $viewId) ? " (viewId=$viewId)" : "";
-                XLog::error("LawsUtil: name is not a valid key for widgetId $id" . $end);
+                XLog::error("LawsUtil: tpl property not found in widget configuration: widgetId=$id" . $end);
             }
         }
 

@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.83.1 -- 2017-07-31
+
+    - enhance error message in LawsUtil.renderLawsView
+    
 - 1.83.0 -- 2017-07-25
 
     - add LawsConfig.replaceWidget method 
