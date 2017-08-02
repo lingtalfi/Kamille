@@ -18,6 +18,12 @@ class ClawsWidget
         $this->class = "Kamille\Mvc\Widget\Widget";
     }
 
+
+    public static function create()
+    {
+        return new static();
+    }
+
     /**
      * @return mixed
      */

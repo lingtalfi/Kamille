@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.86.0 -- 2017-08-02
+
+    - add ClawsInterface 
+    
 - 1.85.0 -- 2017-08-02
 
     - add ClawsRenderer

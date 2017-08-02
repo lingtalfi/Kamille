@@ -4,7 +4,7 @@
 namespace Kamille\Utils\Claws;
 
 
-class Claws
+class Claws implements ClawsInterface
 {
     /**
      * @var ClawsLayout|string, the layout template

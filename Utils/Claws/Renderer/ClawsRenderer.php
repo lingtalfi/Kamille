@@ -11,11 +11,13 @@ use Kamille\Mvc\Layout\Layout;
 use Kamille\Mvc\Layout\LayoutInterface;
 use Kamille\Mvc\LayoutProxy\ConfigAwareLayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\LawsLayoutProxy;
+use Kamille\Mvc\LayoutProxy\LayoutProxyInterface;
 use Kamille\Mvc\LayoutProxy\RendererAwareLayoutProxyInterface;
 use Kamille\Mvc\Renderer\PhpLayoutRenderer;
 use Kamille\Mvc\Widget\Widget;
 use Kamille\Services\XLog;
 use Kamille\Utils\Claws\Claws;
+use Kamille\Utils\Claws\ClawsInterface;
 use Loader\FileLoader;
 use Loader\LoaderInterface;
 use Loader\PublicFileLoaderInterface;
@@ -32,9 +34,34 @@ class ClawsRenderer
     private $layoutProxy;
     private $layout;
 
+    public function setClaws(ClawsInterface $claws)
+    {
+        $this->claws = $claws;
+        return $this;
+    }
+
+    public function setLayoutDefaultLoader(LoaderInterface $layoutDefaultLoader)
+    {
+        $this->layoutDefaultLoader = $layoutDefaultLoader;
+        return $this;
+    }
+
+    public function setLayoutProxy(LayoutProxyInterface $layoutProxy)
+    {
+        $this->layoutProxy = $layoutProxy;
+        return $this;
+    }
+
+    public function setLayout(LayoutInterface $layout)
+    {
+        $this->layout = $layout;
+        return $this;
+    }
+
 
     public function render()
     {
+        $errMessage = null;
         if (null !== $this->claws) {
 
             $appDir = ApplicationParameters::get("app_dir");
@@ -99,53 +126,56 @@ class ClawsRenderer
                 //--------------------------------------------
                 // LAYOUT
                 //--------------------------------------------
-                $layoutTemplate = $this->claws->getLayout()->getTemplate();
-                $layout->setTemplate($layoutTemplate)
-                    ->setLoader($layoutLoader)
-                    ->setRenderer($commonRenderer);
+                $clawsLayout = $this->claws->getLayout();
+                if (null !== $clawsLayout) {
+
+                    $layoutTemplate = $clawsLayout->getTemplate();
+                    $layout->setTemplate($layoutTemplate)
+                        ->setLoader($layoutLoader)
+                        ->setRenderer($commonRenderer);
 
 
-                //--------------------------------------------
-                // WIDGETS
-                //--------------------------------------------
-                $widgets = $this->claws->getWidgets();
-                foreach ($widgets as $id => $clawsWidget) {
+                    //--------------------------------------------
+                    // WIDGETS
+                    //--------------------------------------------
+                    $widgets = $this->claws->getWidgets();
+                    foreach ($widgets as $id => $clawsWidget) {
 
 
-                    $templateName = $clawsWidget->getTemplate();
-                    $conf = $clawsWidget->getConf();
-                    $widgetClass = $clawsWidget->getClass();
+                        $templateName = $clawsWidget->getTemplate();
+                        $conf = $clawsWidget->getConf();
+                        $widgetClass = $clawsWidget->getClass();
 
 
-                    /**
-                     * old code from LawsUtil, I keep it just in case
-                     */
+                        /**
+                         * old code from LawsUtil, I keep it just in case
+                         */
 //                    if (null !== $this->shortCodeProviders) {
 //                        $conf = $this->processConfWithShortCodes($conf);
 //                    }
 
 
-                    $widget = new $widgetClass;
-                    if ($widget instanceof Widget) {
-                        $widget->setOnPrepareVariablesCallback(function (array &$variables) use ($wloader) {
-                            if ($wloader instanceof PublicFileLoaderInterface) {
-                                $variables["__FILE__"] = $wloader->getFile();
-                                $variables["__DIR__"] = dirname($variables["__FILE__"]);
-                            }
-                        });
+                        $widget = new $widgetClass;
+                        if ($widget instanceof Widget) {
+                            $widget->setOnPrepareVariablesCallback(function (array &$variables) use ($wloader) {
+                                if ($wloader instanceof PublicFileLoaderInterface) {
+                                    $variables["__FILE__"] = $wloader->getFile();
+                                    $variables["__DIR__"] = dirname($variables["__FILE__"]);
+                                }
+                            });
 
-                        $widget->setTemplate($templateName)
-                            ->setVariables($conf)
-                            ->setLoader($wloader)
-                            ->setRenderer($commonRenderer);
+                            $widget->setTemplate($templateName)
+                                ->setVariables($conf)
+                                ->setLoader($wloader)
+                                ->setRenderer($commonRenderer);
 
 
-                        /**
-                         * Old code from LawsUtil,
-                         * I believe it's not useful anymore,
-                         * experience may prove me wrong, I don't know...
-                         * Keep the code until you are 100% sure you don't need it.
-                         */
+                            /**
+                             * Old code from LawsUtil,
+                             * I believe it's not useful anymore,
+                             * experience may prove me wrong, I don't know...
+                             * Keep the code until you are 100% sure you don't need it.
+                             */
 //                        if ($widgetInstanceDecorator instanceof WidgetInstanceDecoratorInterface) {
 //                            /**
 //                             * Todo: check if it's not too late to decorate the widget;
@@ -156,28 +186,42 @@ class ClawsRenderer
 //                        }
 
 
-                        $layout->bindWidget($id, $widget);
+                            $layout->bindWidget($id, $widget);
 
-                    } else {
-                        /**
-                         * We want the widget to be instance of Kamille\Mvc\Widget\Widget, so that we can
-                         * provide the __FILE__ variable for all laws templates.
-                         */
-                        XLog::error('LawsUtil: widget with id must be an instance of the Kamille\Mvc\Widget\Widget class');
+                        } else {
+                            /**
+                             * We want the widget to be instance of Kamille\Mvc\Widget\Widget, so that we can
+                             * provide the __FILE__ variable for all laws templates.
+                             */
+                            XLog::error('LawsUtil: widget with id must be an instance of the Kamille\Mvc\Widget\Widget class');
+                        }
+
+
                     }
 
-
+                    $layoutConf = $this->claws->toArray();
+                    return $layout->render($layoutConf);
+                } else {
+                    $debugInfo = "";
+                    if (array_key_exists("REQUEST_URI", $_SERVER)) {
+                        $uri = $_SERVER['REQUEST_URI'];
+                        $debugInfo .= "uri was $uri";
+                    }
+                    $errMessage = "layout template not set. $debugInfo";
                 }
 
-                $layoutConf = $this->claws->toArray();
-                return $layout->render($layoutConf);
-
             } else {
-                XLog::error(sprintf("[Kamille] - ClawsRenderer: Given layout must implement LayoutInterface. %s given", get_class($layout)));
+                $errMessage = sprintf("Given layout must implement LayoutInterface. %s given", get_class($layout));
+
             }
 
         } else {
-            XLog::error("[Kamille] - ClawsRenderer: claws instance not set");
+            $errMessage = "claws instance not set";
+        }
+
+        if (null !== $errMessage) {
+            XLog::error("[Kamille] - ClawsRenderer: $errMessage");
+//            throw new \Exception($errMessage);
         }
         return "";
     }
@@ -204,23 +248,27 @@ class ClawsRenderer
 
             $widgets = $this->claws->getWidgets();
             $layout = $this->claws->getLayout();
+            if (null !== $layout) {
 
 
-            $sWidgets = "";
-            foreach ($widgets as $id => $widget) {
-                $name = $widget->getTemplate();
-                if (null === $name) {
-                    $name = 'not set';
+                $sWidgets = "";
+                foreach ($widgets as $id => $widget) {
+                    $name = $widget->getTemplate();
+                    if (null === $name) {
+                        $name = 'not set';
+                    }
+                    $sWidgets .= PHP_EOL . "----- id: $id; tplName: $name";
                 }
-                $sWidgets .= PHP_EOL . "----- id: $id; tplName: $name";
-            }
 
-            $trace = [];
-            $theTheme = ApplicationParameters::get("theme", "not set");
-            $trace[] = "[Kamille] - ClawsRenderer: trace with theme: $theTheme";
-            $trace[] = "- layout: " . $layout->getTemplate();
-            $trace[] = "- widgets: " . $sWidgets;
-            XLog::trace(implode(PHP_EOL, $trace));
+                $trace = [];
+                $theTheme = ApplicationParameters::get("theme", "not set");
+                $trace[] = "[Kamille] - ClawsRenderer: trace with theme: $theTheme";
+                $trace[] = "- layout: " . $layout->getTemplate();
+                $trace[] = "- widgets: " . $sWidgets;
+                XLog::trace(implode(PHP_EOL, $trace));
+            } else {
+                XLog::error("[Kamille] - ClawsRenderer: Layout not set");
+            }
         }
     }
 
