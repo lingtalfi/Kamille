@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.84.0 -- 2017-08-02
+
+    - add Utils/Claws
+    
 - 1.83.1 -- 2017-07-31
 
     - enhance error message in LawsUtil.renderLawsView
