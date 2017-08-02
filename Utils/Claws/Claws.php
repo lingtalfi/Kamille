@@ -23,7 +23,7 @@ class Claws
     }
 
     /**
-     * @return string
+     * @return ClawsLayout
      */
     public function getLayout()
     {
@@ -38,6 +38,9 @@ class Claws
      */
     public function setLayout($layout)
     {
+        if (is_string($layout)) {
+            $layout = ClawsLayout::create()->setTemplate($layout);
+        }
         $this->layout = $layout;
         return $this;
     }
@@ -71,5 +74,34 @@ class Claws
         return $this;
     }
 
+
+    public function toArray()
+    {
+        $layout = $this->getLayout();
+        $widgets = $this->getWidgets();
+        $widgetsConf = [];
+        foreach ($widgets as $id => $widget) {
+            $widgetsConf[$id] = [
+                "tpl" => $widget->getTemplate(),
+                "conf" => $widget->getConf(),
+            ];
+        }
+        $arr = [
+            "layout" => [
+                'tpl' => $layout->getTemplate(),
+            ],
+            "widgets" => $widgetsConf,
+
+
+            /**
+             * The grid below comes from the LawsUtil code,
+             * I couldn't emulate it for now, see if it's really necessary...
+             *
+             */
+//            "grid" => ["maincontent"],
+        ];
+
+        return $arr;
+    }
 
 }
