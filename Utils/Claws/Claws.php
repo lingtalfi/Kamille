@@ -7,7 +7,7 @@ namespace Kamille\Utils\Claws;
 class Claws
 {
     /**
-     * @var string, the layout template
+     * @var ClawsLayout|string, the layout template
      */
     private $layout;
 
@@ -30,6 +30,12 @@ class Claws
         return $this->layout;
     }
 
+    /**
+     * @param ClawsLayout|string $layout ,
+     *                      if it's a string, it's the template and
+     *                      the default ClawsLayout instance will be used to hold it.
+     * @return $this
+     */
     public function setLayout($layout)
     {
         $this->layout = $layout;

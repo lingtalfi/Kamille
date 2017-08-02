@@ -10,10 +10,12 @@ class ClawsWidget
 
     private $template;
     private $conf;
+    private $class;
 
     public function __construct()
     {
         $this->conf = [];
+        $this->class = "Kamille\Mvc\Widget\Widget";
     }
 
     /**
@@ -65,6 +67,20 @@ class ClawsWidget
             throw new ClawsException("Undefined conf variable: $key");
         }
         return $default;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClass()
+    {
+        return $this->class;
+    }
+
+    public function setClass($class)
+    {
+        $this->class = $class;
+        return $this;
     }
 
 
