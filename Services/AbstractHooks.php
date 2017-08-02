@@ -4,6 +4,7 @@
 namespace Kamille\Services;
 
 
+use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Services\Exception\XException;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
 
@@ -28,6 +29,9 @@ class AbstractHooks
      */
     public static function call($hook, &$param = null, $default = null, $throwEx = true)
     {
+        if (true === ApplicationParameters::get("debug")) {
+            XLog::log("[Kamille.Hook] - $hook was called", "hooks");
+        }
         $p = explode('_', $hook, 2);
         $error = null;
         if (2 === count($p)) {
