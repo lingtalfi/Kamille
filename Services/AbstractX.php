@@ -21,7 +21,7 @@ class AbstractX
      * This method is originally created to get a module's service.
      * It is meant to be used like this:
      *
-     *          a(X::get("Connexion.getSomeService"));
+     *          a(X::get("Connexion_getSomeService"));
      *
      * And then, create an X container which extends this AbstractX class,
      * and has a protected static Connexion_getSomeService method.
@@ -61,7 +61,7 @@ class AbstractX
                 $error = "Module $module is not installed";
             }
         } else {
-            $error = "invalid service format";
+            $error = "invalid service format: $service";
         }
         if (true === $throwEx) {
             throw new XException($error);

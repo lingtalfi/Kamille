@@ -284,5 +284,33 @@ Then, at the js code level, you can use the following example, which comes from 
 
 
 
+How do we handle different types of products (different invoices required)?
+---------------------------------------
+
+In our company, we sell two different types of items, which are bound to different legal rules.
+In short, we need to make two separate invoices for a given order if the order contains the two product types.
+
+I don't see anything in Ekom that allows me to differentiate the two types of products.
+So my question is: how do I differentiate the two product types in Ekom (the goal being to be able to create two
+different invoices)?
+
+
+->
+Actually, there is the seller table created for this purpose.
+You can differentiate products on a per-shop basis using the seller,
+which you can find as the **seller_id** field in the **shop_has_product** table.
+
+Then when the user place an order, you will be able to access the seller information from the **ek_order** table,
+since this table contains a serialized trace of the product info (amongst other things).
+
+
+
+
+
+
+
+
+
+
 
  

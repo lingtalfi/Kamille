@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.87.0 -- 2017-08-17
+
+    - Mvc/Widget/Widget.onRenderFailed provided better debug messages 
+    
 - 1.86.0 -- 2017-08-02
 
     - add ClawsInterface 
