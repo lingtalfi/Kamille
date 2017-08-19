@@ -167,7 +167,7 @@ class Widget implements PublicWidgetInterface
     protected function onRenderFailed(\Exception $e, $templateName, WidgetInterface $widget)
     {
         $msg = "Error with rendering of widget " . get_class($widget) . " and template $templateName";
-        XLog::error($msg);
+        XLog::error("$e");
         if (true === ApplicationParameters::get("debug")) {
             return "debug: " . $msg;
         }
