@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.87.0 -- 2017-08-26
+
+    - update ClawsWidget.setConf now accepts a callback to return a deferred conf 
+    
 - 1.86.0 -- 2017-08-02
 
     - add ClawsInterface 
