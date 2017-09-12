@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.88.0 -- 2017-09-12
+
+    - update AbstractHooks now accepts up to three arguments 
+    
 - 1.87.0 -- 2017-08-26
 
     - update ClawsWidget.setConf now accepts a callback to return a deferred conf 
