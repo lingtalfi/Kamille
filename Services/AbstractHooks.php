@@ -68,7 +68,7 @@ class AbstractHooks
                      * the static::class technique does not work in 5.4:  syntax error, unexpected 'class'  (tested in mamp 5.4.45)
                      * It worked on 5.5.38 (mamp).
                      */
-                    if (is_array($param) || is_string($param)) {
+                    if (!is_object($param)) {
                         array_shift($allParams); // dropping the $param
                         $n = count($allParams);
                         switch ($n) {
