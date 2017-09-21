@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.89.0 -- 2017-09-21
+
+    - add KamilleThemeHelper.loadJsInitFile 
+    
 - 1.88.1 -- 2017-09-14
 
     - fix AbstractHooks first argument of a hook call is passed via reference except for objects 
