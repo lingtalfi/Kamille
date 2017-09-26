@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.90.0 -- 2017-09-26
+
+    - add FakeHttpRequest.setHost method 
+    
 - 1.89.0 -- 2017-09-21
 
     - add KamilleThemeHelper.loadJsInitFile 
