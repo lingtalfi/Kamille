@@ -151,7 +151,7 @@ class HtmlPageHelper
         self::$listJs[$url] = [$htmlAttributes, $libName, $inHead];
     }
 
-    private static function displayHeadAssets()
+    public static function displayHeadAssets()
     {
 
         //--------------------------------------------

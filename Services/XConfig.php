@@ -35,6 +35,7 @@ class XConfig
         if (count($p) > 1) {
             $module = array_shift($p);
 
+
             if (ModuleInstallationRegister::isInstalled($module)) {
 
 

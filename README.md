@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.91.0 -- 2017-09-28
+
+    - add AjaxLayout object 
+    
 - 1.90.0 -- 2017-09-26
 
     - add FakeHttpRequest.setHost method 

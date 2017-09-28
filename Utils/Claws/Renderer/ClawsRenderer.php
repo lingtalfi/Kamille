@@ -64,6 +64,7 @@ class ClawsRenderer
         $errMessage = null;
         if (null !== $this->claws) {
 
+
             $appDir = ApplicationParameters::get("app_dir");
             $theme = ApplicationParameters::get("theme");
             $wloader = $this->getWidgetDefaultLoader($appDir, $theme);
@@ -97,7 +98,6 @@ class ClawsRenderer
             //--------------------------------------------
             if ($layout instanceof LayoutInterface) {
                 if ($layout instanceof Layout) {
-
                     $layout->setOnPrepareVariablesCallback(function (array &$variables) use ($layoutLoader) {
                         if ($layoutLoader instanceof PublicFileLoaderInterface) {
                             $variables["__FILE__"] = $layoutLoader->getFile();
