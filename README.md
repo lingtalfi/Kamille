@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.92.0 -- 2017-10-16
+
+    - add Claws widget position system
+    
 - 1.91.0 -- 2017-09-28
 
     - add AjaxLayout object 
