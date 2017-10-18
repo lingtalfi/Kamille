@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.93.0 -- 2017-10-18
+
+    - add HtmlPageHelper::hasBodyClass method
+    
 - 1.92.0 -- 2017-10-16
 
     - add Claws widget position system
