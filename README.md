@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.94.0 -- 2017-10-24
+
+    - update ClawsWidget, improve error message
+    
 - 1.93.0 -- 2017-10-18
 
     - add HtmlPageHelper::hasBodyClass method
