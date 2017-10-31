@@ -23,8 +23,29 @@ The three main components are:
         
         
         
-Using the clawsMvc model promotes thin readable controllers, which makes it easier to create new pages or re-use pages.                 
-                
+Using the clawsMvc model promotes thin readable controllers, which makes it easier to create new pages or re-use pages.
+                 
+From now on, it is recommended that users of the kamille framework adopt the clawsMvc system in their applications.                
         
         
 
+Suggested organization for your apps
+----------------------------------------
+
+- class-modules
+    - $moduleName
+        - Model
+            - Front
+                - $yourFrontModelName.php
+                
+- class-controllers
+    - $moduleName
+            - Front
+                - $yourFrontControllerName.php
+                
+- theme
+    - $someRelativePath
+        - $moduleName                
+            - Front                
+                - $whatever.tpl.php                
+                
