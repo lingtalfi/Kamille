@@ -21,6 +21,12 @@ The three main components are:
 - C: the controller, it just branches the model's array to a template path.
         Therefore, its code should be very slim.
         
+        Another thing the controller can do is pass application environment/context variables to the model.
+        Note: if the model uses super php arrays directly (like $_GET, $_POST, etc), then there is no need
+        for the controller to pass them to the model.
+         
+        
+        
         
         
 Using the clawsMvc model promotes thin readable controllers, which makes it easier to create new pages or re-use pages.
