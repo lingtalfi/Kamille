@@ -6,6 +6,8 @@ Claws mvc
 
 Claw mvc is a redefined form of MVC.
 
+[![claws-mvc-displaying-page.png](https://s19.postimg.org/d2wzewzwz/claws-mvc-displaying-page.png)](https://postimg.org/image/a8tu1gxqn/)
+
 
 The three main components are:
 
