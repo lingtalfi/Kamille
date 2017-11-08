@@ -26,6 +26,9 @@ The three main components are:
         Another thing the controller can do is pass application environment/context variables to the model.
         Note: if the model uses super php arrays directly (like $_GET, $_POST, etc), then there is no need
         for the controller to pass them to the model.
+        
+        In short, the controller can verify that the branching variables are ok, and potentially
+        change the View depending if something unexpected occur.
          
         
         
