@@ -226,7 +226,7 @@ How can I access the chosen route?
 If the routsy router has been used, you can use the following code:
 
 ```php
-ApplicationRegistry::get("routsyRouteId");
+ApplicationRegistry::get("core.routsyRouteId");
 ```
 
 
