@@ -32,6 +32,13 @@ class ClawsWidgetError
         ];
     }
 
+
+    public static function modelIsErroneous(array $model)
+    {
+        return array_key_exists('errorCode', $model);
+    }
+
+
     //--------------------------------------------
     //
     //--------------------------------------------

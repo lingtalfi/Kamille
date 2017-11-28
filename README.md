@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.96.0 -- 2017-11-28
+
+    - add ClawsWidgetError::modelIsErroneous method
+    
 - 1.95.0 -- 2017-11-27
 
     - add ClawsWidgetError
