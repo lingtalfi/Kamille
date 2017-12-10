@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kamille\Utils\SessionIdTransmitter;
+namespace Kamille\Utils\SessionTransmitter;
 
 use Bat\FileSystemTool;
 
