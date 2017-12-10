@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.97.0 -- 2017-12-10
+
+    - add SessionTransmitter
+    
 - 1.96.0 -- 2017-11-28
 
     - add ClawsWidgetError::modelIsErroneous method
