@@ -50,7 +50,7 @@ class SessionTransmitter
      * dir (/tmp, /myapp/secret, ...).
      *
      */
-    public static function encapsulateSessionId($baseDir = null, $fileName = null)
+    public static function encapsulateSession($baseDir = null, $fileName = null)
     {
         if (null === $baseDir) {
             $baseDir = "/tmp";
