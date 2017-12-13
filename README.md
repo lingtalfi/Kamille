@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.98.0 -- 2017-12-13
+
+    - add HtmlPageHelper::renderPageFromContent method
+    
 - 1.97.1 -- 2017-12-10
 
     - fix SessionTransmitter typo
