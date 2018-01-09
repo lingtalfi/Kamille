@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.99.0 -- 2018-01-09
+
+    - add KamilleClawsController
+    
 - 1.98.0 -- 2017-12-13
 
     - add HtmlPageHelper::renderPageFromContent method

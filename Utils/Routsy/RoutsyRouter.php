@@ -240,6 +240,8 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
                     XLog::debug("[Kamille.RoutsyRouter] - routeId $routeId matched" . $sInfo);
                 }
 
+
+
                 if ($collection instanceof RoutsyRouteCollection) {
                     $collection->routeMatched($routeId);
                 }
