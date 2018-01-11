@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.100.0 -- 2018-01-11
+
+    - add KamilleSession
+    
 - 1.99.0 -- 2018-01-09
 
     - add KamilleClawsController
