@@ -13,18 +13,18 @@ class KamilleSession
     public static function set($k, $v)
     {
         SessionTool::start();
-        if (false === array_key_exists(self::getSessionName(), $_SESSION)) {
-            $_SESSION[self::getSessionName()] = [];
+        if (false === array_key_exists(static::getSessionName(), $_SESSION)) {
+            $_SESSION[static::getSessionName()] = [];
         }
-        $_SESSION[self::getSessionName()][$k] = $v;
+        $_SESSION[static::getSessionName()][$k] = $v;
     }
 
     public static function get($k, $default = null)
     {
         SessionTool::start();
-        if (array_key_exists(self::getSessionName(), $_SESSION)) {
-            if (array_key_exists($k, $_SESSION[self::getSessionName()])) {
-                return $_SESSION[self::getSessionName()][$k];
+        if (array_key_exists(static::getSessionName(), $_SESSION)) {
+            if (array_key_exists($k, $_SESSION[static::getSessionName()])) {
+                return $_SESSION[static::getSessionName()][$k];
             }
         }
         return $default;
@@ -33,8 +33,8 @@ class KamilleSession
     public static function all()
     {
         SessionTool::start();
-        if (array_key_exists(self::getSessionName(), $_SESSION)) {
-            return $_SESSION[self::getSessionName()];
+        if (array_key_exists(static::getSessionName(), $_SESSION)) {
+            return $_SESSION[static::getSessionName()];
         }
         return [];
     }
@@ -43,8 +43,8 @@ class KamilleSession
     public static function has($k)
     {
         SessionTool::start();
-        if (array_key_exists(self::getSessionName(), $_SESSION)) {
-            return array_key_exists($k, $_SESSION[self::getSessionName()]);
+        if (array_key_exists(static::getSessionName(), $_SESSION)) {
+            return array_key_exists($k, $_SESSION[static::getSessionName()]);
         }
         return false;
     }
@@ -52,8 +52,8 @@ class KamilleSession
     public static function remove($k)
     {
         SessionTool::start();
-        if (array_key_exists(self::getSessionName(), $_SESSION)) {
-            unset($_SESSION[self::getSessionName()][$k]);
+        if (array_key_exists(static::getSessionName(), $_SESSION)) {
+            unset($_SESSION[static::getSessionName()][$k]);
         }
         return false;
     }
@@ -62,10 +62,10 @@ class KamilleSession
     public static function pick($k, $default = null)
     {
         SessionTool::start();
-        if (array_key_exists(self::getSessionName(), $_SESSION)) {
-            if (array_key_exists($k, $_SESSION[self::getSessionName()])) {
-                $value = $_SESSION[self::getSessionName()];
-                unset($_SESSION[self::getSessionName()][$k]);
+        if (array_key_exists(static::getSessionName(), $_SESSION)) {
+            if (array_key_exists($k, $_SESSION[static::getSessionName()])) {
+                $value = $_SESSION[static::getSessionName()];
+                unset($_SESSION[static::getSessionName()][$k]);
                 return $value;
             }
         }

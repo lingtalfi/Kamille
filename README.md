@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.100.1 -- 2018-01-11
+
+    - fix KamilleSession (static instead of self lazy binding error)
+    
 - 1.100.0 -- 2018-01-11
 
     - add KamilleSession
