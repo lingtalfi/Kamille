@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kamille\Mvc\ThemeWidget\Renderer;
+namespace Kamille\Mvc\Theme\ThemeWidget\Renderer;
 
 
 interface ThemeWidgetRendererInterface

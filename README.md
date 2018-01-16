@@ -166,6 +166,11 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.102.0 -- 2018-01-16
+
+    - fix ThemeWidget
+    - add Theme (in mvc)
+    
 - 1.101.0 -- 2018-01-16
 
     - add ThemeWidget
