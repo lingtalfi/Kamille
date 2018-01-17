@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.103.0 -- 2018-01-17
+
+    - add Morphic
+    
 - 1.102.0 -- 2018-01-16
 
     - fix ThemeWidget
