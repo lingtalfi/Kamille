@@ -31,8 +31,9 @@ class MorphicAdminListRenderer
     }
 
 
-    public function renderByConfig(array $config)
+    public function renderByConfig(array $config, array $params)
     {
+
 
         //--------------------------------------------
         //
@@ -48,12 +49,7 @@ class MorphicAdminListRenderer
         }
 
 
-        $info = $util->execute([
-            'sort' => $config['sort'],
-            'filters' => $config['filters'],
-            'nipp' => $config['nipp'],
-            'page' => $config['page'],
-        ]);
+        $info = $util->execute($params);
 
 
         $rows = $info['rows'];
@@ -66,6 +62,11 @@ class MorphicAdminListRenderer
             'nipp' => $info['nipp'],
             'nbItems' => $info['nbItems'],
             'nippChoices' => $config['nippChoices'],
+            //
+            'sort' => $info['sort'],
+            'filters' => $info['filters'],
+            'listActions' => $config['listActions'],
+            'rowActions' => (array_key_exists("rowActions", $config)) ? $config['rowActions'] : [],
         ]);
         return $renderer->render();
     }

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kamille\Utils\Morphic\ListConfigurationProvider;
+namespace Kamille\Utils\Morphic\FormConfigurationProvider;
 
 use Kamille\Utils\Morphic\Exception\MorphicException;
 
@@ -10,7 +10,7 @@ use Kamille\Utils\Morphic\Exception\MorphicException;
  * This configurationProvider uses files
  * to store the configuration of the lists.
  */
-class ListConfigurationProvider implements ListConfigurationProviderInterface
+class FormConfigurationProvider implements FormConfigurationProviderInterface
 {
 
 
@@ -38,7 +38,7 @@ class ListConfigurationProvider implements ListConfigurationProviderInterface
     //--------------------------------------------
     public function getConfig($module, $identifier)
     {
-        $file = $this->confDir . "/$module/$identifier.list.conf.php";
+        $file = $this->confDir . "/$module/$identifier.form.conf.php";
         $conf = [];
         if (file_exists($file)) {
             include $file;
