@@ -14,7 +14,7 @@ class ListConfigurationProvider implements ListConfigurationProviderInterface
 {
 
 
-    private $confDir;
+    protected $confDir;
 
 
     public function __construct()

@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.105.0 -- 2018-01-19
+
+    - add KamilleController constructor
+    
 - 1.104.0 -- 2018-01-18
 
     - changed Morphic List default file location
