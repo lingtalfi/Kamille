@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.106.0 -- 2018-01-23
+
+    - enhance MorphicAdminListRenderer, now makes distinction between symbolic and real column names
+    
 - 1.105.0 -- 2018-01-19
 
     - add KamilleController constructor

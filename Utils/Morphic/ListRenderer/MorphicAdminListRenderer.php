@@ -33,8 +33,6 @@ class MorphicAdminListRenderer
 
     public function renderByConfig(array $config, array $params)
     {
-
-
         //--------------------------------------------
         //
         //--------------------------------------------
@@ -47,6 +45,9 @@ class MorphicAdminListRenderer
         if (null !== $config['allowedSort']) {
             $util->setAllowedSorts($config['allowedSort']);
         }
+        if (array_key_exists('realColumnMap', $config)) {
+            $util->setRealColumnMap($config['realColumnMap']);
+        }
 
 
         $info = $util->execute($params);
@@ -54,17 +55,23 @@ class MorphicAdminListRenderer
 
         $rows = $info['rows'];
         $renderer = Theme::getWidgetRenderer($this->widgetRendererIdentifier);
+
         $renderer->setModel([
             'title' => $config['title'],
             'rows' => $rows,
+            'viewId' => $config['viewId'],
+            'table' => $config['table'],
+            'headers' => $config['headers'],
             'page' => $info['page'],
             'nbPages' => $info['nbPages'],
             'nipp' => $info['nipp'],
             'nbItems' => $info['nbItems'],
             'nippChoices' => $config['nippChoices'],
             //
-            'sort' => $info['sort'],
-            'filters' => $info['filters'],
+            'sort' => $info['symbolicSorts'],
+//            'realSort' => $info['sort'],
+
+            'filters' => $info['symbolicFilters'],
             'listActions' => $config['listActions'],
             'rowActions' => (array_key_exists("rowActions", $config)) ? $config['rowActions'] : [],
         ]);
