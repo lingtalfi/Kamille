@@ -81,11 +81,8 @@ if (null !== $ric && null !== $formRoute) {
             "icon" => "fa fa-pencil",
             "link" => function (array $row) use ($formRoute, $ric, $defaultFormLinkPrefix) {
                 $s = $defaultFormLinkPrefix;
-                $c = 0;
                 foreach ($ric as $col) {
-                    if (0 !== $c++) {
-                        $s .= "&";
-                    }
+                    $s .= "&";
                     $s .= $col . "=" . $row[$col]; // escape?
                 }
                 return $s;

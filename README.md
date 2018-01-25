@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.107.1 -- 2018-01-25
+
+    - fix _default.list.conf.php typo 
+    
 - 1.107.0 -- 2018-01-25
 
     - add morphic:defaultFormLinkPrefix to _default.list.conf.php 
