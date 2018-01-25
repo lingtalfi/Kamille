@@ -62,6 +62,7 @@ class MorphicAdminListRenderer
             'viewId' => $config['viewId'],
             'table' => $config['table'],
             'headers' => $config['headers'],
+            'headersVisibility' => $config['headersVisibility'],
             'page' => $info['page'],
             'nbPages' => $info['nbPages'],
             'nipp' => $info['nipp'],

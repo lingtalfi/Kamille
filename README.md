@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.106.1 -- 2018-01-25
+
+    - fix MorphicAdminListRenderer, now handles headersVisibility 
+    
 - 1.106.0 -- 2018-01-23
 
     - enhance MorphicAdminListRenderer, now makes distinction between symbolic and real column names
