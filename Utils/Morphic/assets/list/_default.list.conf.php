@@ -63,39 +63,42 @@ $defaultConf = [
 ];
 
 
-if (null !== $ric && null !== $formRoute) {
+if (null !== $ric) {
 
-
+    $defaultFormLinkPrefix = null;
     if (array_key_exists("defaultFormLinkPrefix", $conf)) {
         $defaultFormLinkPrefix = $conf['defaultFormLinkPrefix'];
-    } else {
+    } elseif (null !== $formRoute) {
         $defaultFormLinkPrefix = N::link($formRoute) . "?";
     }
 
 
-    $defaultConf['rowActions'] = [
-        // same as listActions,
-        [
-            "name" => "update",
-            "label" => "Modifier",
-            "icon" => "fa fa-pencil",
-            "link" => function (array $row) use ($formRoute, $ric, $defaultFormLinkPrefix) {
-                $s = $defaultFormLinkPrefix;
-                foreach ($ric as $col) {
-                    $s .= "&";
-                    $s .= $col . "=" . $row[$col]; // escape?
-                }
-                return $s;
-            },
-        ],
-        [
-            'name' => 'delete',
-            'label' => 'Supprimer',
-            'icon' => 'fa fa-close',
-            'confirm' => "Êtes-vous sûr(e) de vouloir supprimer cette ligne ?",
-            'confirmTitle' => "Attention",
-            'confirmOkBtn' => "Ok",
-            'confirmCancelBtn' => "Annuler",
-        ],
-    ];
+    if ($defaultFormLinkPrefix) {
+
+        $defaultConf['rowActions'] = [
+            // same as listActions,
+            [
+                "name" => "update",
+                "label" => "Modifier",
+                "icon" => "fa fa-pencil",
+                "link" => function (array $row) use ($ric, $defaultFormLinkPrefix) {
+                    $s = $defaultFormLinkPrefix;
+                    foreach ($ric as $col) {
+                        $s .= "&";
+                        $s .= $col . "=" . $row[$col]; // escape?
+                    }
+                    return $s;
+                },
+            ],
+            [
+                'name' => 'delete',
+                'label' => 'Supprimer',
+                'icon' => 'fa fa-close',
+                'confirm' => "Êtes-vous sûr(e) de vouloir supprimer cette ligne ?",
+                'confirmTitle' => "Attention",
+                'confirmOkBtn' => "Ok",
+                'confirmCancelBtn' => "Annuler",
+            ],
+        ];
+    }
 }

@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.107.2 -- 2018-01-25
+
+    - reorganize _default.list.conf.php code 
+    
 - 1.107.1 -- 2018-01-25
 
     - fix _default.list.conf.php typo 

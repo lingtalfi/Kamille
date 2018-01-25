@@ -30,7 +30,7 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
              * or the default conf provided by this planet.
              */
             $ric = $conf['ric'];
-            $formRoute = $conf['formRoute'];
+            $formRoute = (array_key_exists("formRoute", $conf)) ? $conf['formRoute'] : "";
             if (false === file_exists($defaultFile)) {
                 $defaultFile = __DIR__ . "/../assets/list/_default.list.conf.php";
             }
