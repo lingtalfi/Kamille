@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.106.2 -- 2018-01-25
+
+    - fix MorphicAdminListRenderer headersVisibility index not exist 
+    
 - 1.106.1 -- 2018-01-25
 
     - fix MorphicAdminListRenderer, now handles headersVisibility 
