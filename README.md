@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.107.0 -- 2018-01-25
+
+    - add morphic:defaultFormLinkPrefix to _default.list.conf.php 
+    
 - 1.106.2 -- 2018-01-25
 
     - fix MorphicAdminListRenderer headersVisibility index not exist 

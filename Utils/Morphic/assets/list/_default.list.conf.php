@@ -64,14 +64,23 @@ $defaultConf = [
 
 
 if (null !== $ric && null !== $formRoute) {
+
+
+    if (array_key_exists("defaultFormLinkPrefix", $conf)) {
+        $defaultFormLinkPrefix = $conf['defaultFormLinkPrefix'];
+    } else {
+        $defaultFormLinkPrefix = N::link($formRoute) . "?";
+    }
+
+
     $defaultConf['rowActions'] = [
         // same as listActions,
         [
             "name" => "update",
             "label" => "Modifier",
             "icon" => "fa fa-pencil",
-            "link" => function (array $row) use ($formRoute, $ric) {
-                $s = N::link($formRoute) . "?";
+            "link" => function (array $row) use ($formRoute, $ric, $defaultFormLinkPrefix) {
+                $s = $defaultFormLinkPrefix;
                 $c = 0;
                 foreach ($ric as $col) {
                     if (0 !== $c++) {
