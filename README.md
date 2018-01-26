@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.109.0 -- 2018-01-26
+
+    - add FormConfigurationProviderInterface.getConfig context argument 
+    
 - 1.108.0 -- 2018-01-26
 
     - add ListConfigurationProviderInterface.getConfig context argument 

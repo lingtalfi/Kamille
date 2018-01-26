@@ -14,6 +14,6 @@ interface FormConfigurationProviderInterface
      * @return array, the configuration array corresponding to the given identifier
      * @throws MorphicException
      */
-    public function getConfig($module, $identifier);
+    public function getConfig($module, $identifier, array $context = []);
 
 }

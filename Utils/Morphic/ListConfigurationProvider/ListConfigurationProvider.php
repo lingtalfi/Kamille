@@ -41,6 +41,7 @@ class ListConfigurationProvider implements ListConfigurationProviderInterface
         $file = $this->confDir . "/$module/$identifier.list.conf.php";
         $conf = [];
         if (file_exists($file)) {
+            extract($context);
             include $file;
         } else {
             throw new MorphicException("File not found: $file");

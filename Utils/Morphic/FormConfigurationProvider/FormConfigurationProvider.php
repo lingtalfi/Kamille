@@ -36,11 +36,12 @@ class FormConfigurationProvider implements FormConfigurationProviderInterface
     //--------------------------------------------
     //
     //--------------------------------------------
-    public function getConfig($module, $identifier)
+    public function getConfig($module, $identifier, array $context = [])
     {
         $file = $this->confDir . "/$module/$identifier.form.conf.php";
         $conf = [];
         if (file_exists($file)) {
+            extract($context);
             include $file;
         } else {
             throw new MorphicException("File not found: $file");
