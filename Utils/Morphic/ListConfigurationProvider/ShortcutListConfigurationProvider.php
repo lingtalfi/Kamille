@@ -16,12 +16,16 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
     //--------------------------------------------
     //
     //--------------------------------------------
-    public function getConfig($module, $identifier)
+    public function getConfig($module, $identifier, array $context = [])
     {
         $file = $this->confDir . "/$module/$identifier.list.conf.php";
         $defaultFile = $this->confDir . "/$module/_default.list.conf.php";
         $conf = [];
         if (file_exists($file)) {
+
+            // make all variables in the context available to the config file
+            extract($context);
+
             include $file;
 
 

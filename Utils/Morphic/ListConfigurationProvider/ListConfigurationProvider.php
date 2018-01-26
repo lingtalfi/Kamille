@@ -36,7 +36,7 @@ class ListConfigurationProvider implements ListConfigurationProviderInterface
     //--------------------------------------------
     //
     //--------------------------------------------
-    public function getConfig($module, $identifier)
+    public function getConfig($module, $identifier, array $context=[])
     {
         $file = $this->confDir . "/$module/$identifier.list.conf.php";
         $conf = [];

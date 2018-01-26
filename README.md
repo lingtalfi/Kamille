@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.108.0 -- 2018-01-26
+
+    - add ListConfigurationProviderInterface.getConfig context argument 
+    
 - 1.107.2 -- 2018-01-25
 
     - reorganize _default.list.conf.php code 
