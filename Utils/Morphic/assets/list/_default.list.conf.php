@@ -75,15 +75,17 @@ if (null !== $ric) {
 
     if ($defaultFormLinkPrefix) {
 
+        $adaptor = (array_key_exists("rowActionUpdateRicAdaptor", $conf)) ? $conf['rowActionUpdateRicAdaptor'] : [];
         $defaultConf['rowActions'] = [
             // same as listActions,
             [
                 "name" => "update",
                 "label" => "Modifier",
                 "icon" => "fa fa-pencil",
-                "link" => function (array $row) use ($ric, $defaultFormLinkPrefix) {
+                "link" => function (array $row) use ($ric, $defaultFormLinkPrefix, $adaptor) {
                     $s = $defaultFormLinkPrefix;
                     foreach ($ric as $col) {
+                        $col = (array_key_exists($col, $adaptor)) ? $adaptor[$col] : $col;
                         $s .= "&";
                         $s .= $col . "=" . $row[$col]; // escape?
                     }

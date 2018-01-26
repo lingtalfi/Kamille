@@ -24,8 +24,6 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
         if (file_exists($file)) {
 
             // make all variables in the context available to the config file
-            extract($context);
-
             include $file;
 
 

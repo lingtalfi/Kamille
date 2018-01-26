@@ -75,6 +75,7 @@ class MorphicAdminListRenderer
             'filters' => $info['symbolicFilters'],
             'listActions' => $config['listActions'],
             'rowActions' => (array_key_exists("rowActions", $config)) ? $config['rowActions'] : [],
+            'context' => (array_key_exists("context", $config)) ? $config['context'] : [],
         ]);
         return $renderer->render();
     }
