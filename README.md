@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.110.0 -- 2018-01-30
+
+    - add KamilleClawsController ClawsHttpResponseException shortcut/interception mechanism 
+    
 - 1.109.0 -- 2018-01-26
 
     - add FormConfigurationProviderInterface.getConfig context argument 

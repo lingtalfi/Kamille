@@ -4,13 +4,13 @@
 namespace Kamille\Architecture\Controller\Web;
 
 
+use Kamille\Architecture\Controller\Exception\ClawsHttpResponseException;
 use Kamille\Architecture\Response\Web\HttpResponse;
 use Kamille\Utils\Claws\Claws;
 use Kamille\Utils\Claws\Renderer\ClawsRenderer;
 
 class KamilleClawsController extends KamilleController
 {
-
 
 
     protected $claws;
@@ -20,8 +20,14 @@ class KamilleClawsController extends KamilleController
 
     public function renderClaws()
     {
-        $this->prepareClaws();
-        return $this->doRenderClaws();
+        try {
+
+            $this->prepareClaws();
+            $ret = $this->doRenderClaws();
+        } catch (ClawsHttpResponseException $e) {
+            return $e->getHttpResponse();
+        }
+        return $ret;
     }
 
 
@@ -35,7 +41,6 @@ class KamilleClawsController extends KamilleController
         }
         return $this->claws;
     }
-
 
 
     protected function prepareClaws() // override me
@@ -64,7 +69,6 @@ class KamilleClawsController extends KamilleController
         }
         return $this->clawsRenderer;
     }
-
 
 
 }
