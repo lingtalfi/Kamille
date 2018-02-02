@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.111.0 -- 2018-02-01
+
+    - add KamilleClawsController protected handleClawsException method 
+    
 - 1.110.0 -- 2018-01-30
 
     - add KamilleClawsController ClawsHttpResponseException shortcut/interception mechanism 

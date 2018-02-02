@@ -21,11 +21,10 @@ class KamilleClawsController extends KamilleController
     public function renderClaws()
     {
         try {
-
             $this->prepareClaws();
             $ret = $this->doRenderClaws();
-        } catch (ClawsHttpResponseException $e) {
-            return $e->getHttpResponse();
+        } catch (\Exception $e) {
+            $ret = $this->handleClawsException($e);
         }
         return $ret;
     }
@@ -40,6 +39,15 @@ class KamilleClawsController extends KamilleController
             $this->claws = new Claws();
         }
         return $this->claws;
+    }
+
+
+    protected function handleClawsException(\Exception $e)
+    {
+        if ($e instanceof ClawsHttpResponseException) {
+            return $e->getHttpResponse();
+        }
+        return false;
     }
 
 

@@ -253,3 +253,11 @@ Here is an example of how it could look like:
 //                ->removeIdentifier("hooks")
                 ->setPath($f));
 ```
+
+
+
+How to quickly return an HttpResponse from a controller?
+-----------------------------------------
+
+If you use the claws system: 
+    Throw a ClawsHttpResponseException exception from anywhere in your controller that extends KamilleClawsController.

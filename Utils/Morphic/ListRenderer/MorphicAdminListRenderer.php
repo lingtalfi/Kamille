@@ -48,9 +48,9 @@ class MorphicAdminListRenderer
         if (array_key_exists('realColumnMap', $config)) {
             $util->setRealColumnMap($config['realColumnMap']);
         }
-
-
         $info = $util->execute($params);
+
+
 
 
         $rows = $info['rows'];
