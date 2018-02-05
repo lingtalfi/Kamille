@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.111.1 -- 2018-02-05
+
+    - fix rowActionUpdateRicAdaptor in __default.list.conf.php  
+    
 - 1.111.0 -- 2018-02-01
 
     - add KamilleClawsController protected handleClawsException method 

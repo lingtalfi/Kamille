@@ -85,9 +85,9 @@ if (null !== $ric) {
                 "link" => function (array $row) use ($ric, $defaultFormLinkPrefix, $adaptor) {
                     $s = $defaultFormLinkPrefix;
                     foreach ($ric as $col) {
-                        $col = (array_key_exists($col, $adaptor)) ? $adaptor[$col] : $col;
+                        $keyCol = (array_key_exists($col, $adaptor)) ? $adaptor[$col] : $col;
                         $s .= "&";
-                        $s .= $col . "=" . $row[$col]; // escape?
+                        $s .= $keyCol . "=" . $row[$col]; // escape?
                     }
                     return $s;
                 },
