@@ -18,10 +18,13 @@ class KamilleClawsController extends KamilleController
     protected $clawsReturn;
 
 
-    public function renderClaws()
+    public function renderClaws($prepareMethod = null)
     {
         try {
-            $this->prepareClaws();
+            if (null === $prepareMethod) {
+                $prepareMethod = 'prepareClaws';
+            }
+            $this->$prepareMethod();
             $ret = $this->doRenderClaws();
         } catch (\Exception $e) {
             $ret = $this->handleClawsException($e);

@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.112.0 -- 2018-02-07
+
+    - add KamilleClawsController.renderClaws's $prepareMethod argument  
+    
 - 1.111.1 -- 2018-02-05
 
     - fix rowActionUpdateRicAdaptor in __default.list.conf.php  
