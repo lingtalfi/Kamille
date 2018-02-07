@@ -66,11 +66,14 @@ $defaultConf = [
 if (null !== $ric) {
 
     $defaultFormLinkPrefix = null;
+    $hasQuestionMark = false;
     if (array_key_exists("defaultFormLinkPrefix", $conf)) {
         $defaultFormLinkPrefix = $conf['defaultFormLinkPrefix'];
+        $hasQuestionMark = (false !== strpos($defaultFormLinkPrefix, "?"));
     } elseif (null !== $formRoute) {
-        $defaultFormLinkPrefix = N::link($formRoute) . "?";
+        $defaultFormLinkPrefix = N::link($formRoute);
     }
+    $extraVars = (array_key_exists("formRouteExtraVars", $conf)) ? $conf['formRouteExtraVars'] : [];
 
 
     if ($defaultFormLinkPrefix) {
@@ -82,12 +85,19 @@ if (null !== $ric) {
                 "name" => "update",
                 "label" => "Modifier",
                 "icon" => "fa fa-pencil",
-                "link" => function (array $row) use ($ric, $defaultFormLinkPrefix, $adaptor) {
+                "link" => function (array $row) use ($ric, $defaultFormLinkPrefix, $adaptor, $hasQuestionMark, $extraVars) {
                     $s = $defaultFormLinkPrefix;
+                    if (false === $hasQuestionMark) {
+                        $s .= '?d';
+                    }
                     foreach ($ric as $col) {
                         $keyCol = (array_key_exists($col, $adaptor)) ? $adaptor[$col] : $col;
                         $s .= "&";
                         $s .= $keyCol . "=" . $row[$col]; // escape?
+                    }
+                    foreach ($extraVars as $k => $v) {
+                        $s .= "&";
+                        $s .= $k . "=" . $v;
                     }
                     return $s;
                 },

@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.113.0 -- 2018-02-07
+
+    - add formRouteExtraVars in __default.list.conf.php
+      
 - 1.112.0 -- 2018-02-07
 
     - add KamilleClawsController.renderClaws's $prepareMethod argument  
