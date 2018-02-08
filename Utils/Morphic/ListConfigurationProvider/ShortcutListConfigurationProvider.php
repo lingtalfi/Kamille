@@ -4,6 +4,7 @@
 namespace Kamille\Utils\Morphic\ListConfigurationProvider;
 
 use Kamille\Utils\Morphic\Exception\MorphicException;
+use Kamille\Utils\Morphic\Helper\MorphicHelper;
 
 
 /**
@@ -43,6 +44,7 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
                     $conf[$k] = $v;
                 }
             }
+
         } else {
             throw new MorphicException("File not found: $file");
         }

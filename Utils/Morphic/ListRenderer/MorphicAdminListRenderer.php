@@ -5,6 +5,7 @@ namespace Kamille\Utils\Morphic\ListRenderer;
 
 
 use Kamille\Mvc\Theme\Theme;
+use Kamille\Utils\Morphic\Helper\MorphicHelper;
 use QuickPdo\Util\QuickPdoListInfoUtil;
 
 class MorphicAdminListRenderer
@@ -31,8 +32,21 @@ class MorphicAdminListRenderer
     }
 
 
-    public function renderByConfig(array $config, array $params)
+    public function renderByConfig(array $config, array $params = null)
     {
+
+
+        //--------------------------------------------
+        // PERSISTENCE LAYER
+        //--------------------------------------------
+        if (null === $params) {
+            if (array_key_exists("viewId", $config)) {
+                $params = MorphicHelper::getListParameters($config['viewId']);
+            } else {
+                $params = [];
+            }
+        }
+
         //--------------------------------------------
         //
         //--------------------------------------------
@@ -49,8 +63,6 @@ class MorphicAdminListRenderer
             $util->setRealColumnMap($config['realColumnMap']);
         }
         $info = $util->execute($params);
-
-
 
 
         $rows = $info['rows'];

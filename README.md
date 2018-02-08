@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.114.0 -- 2018-02-08
+
+    - add MorphicAdminListRenderer.renderByConfig persistence layer
+    
 - 1.113.0 -- 2018-02-07
 
     - add formRouteExtraVars in __default.list.conf.php
