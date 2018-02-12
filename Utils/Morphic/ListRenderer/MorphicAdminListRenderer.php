@@ -39,7 +39,7 @@ class MorphicAdminListRenderer
         //--------------------------------------------
         // PERSISTENCE LAYER
         //--------------------------------------------
-        if (null === $params) {
+        if (null === $params || empty($params)) {
             if (array_key_exists("viewId", $config)) {
                 $params = MorphicHelper::getListParameters($config['viewId']);
             } else {

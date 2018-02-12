@@ -5,6 +5,9 @@ namespace Kamille\Utils\Morphic\Helper;
 
 
 use Bat\SessionTool;
+use QuickPdo\QuickPdo;
+use QuickPdo\QuickPdoStmtTool;
+use SokoForm\Form\SokoFormInterface;
 
 class MorphicHelper
 {
@@ -48,6 +51,32 @@ class MorphicHelper
             return $_SESSION["morphic-persistence"][$viewId];
         }
         return $ret;
+    }
+
+
+    public static function getFeedFunction($table)
+    {
+        return self::getFeedFunctionByQuery("select * from $table");
+    }
+
+    public static function getFeedFunctionByQuery($query)
+    {
+        return function (SokoFormInterface $form, array $ric) use ($query) {
+            $markers = [];
+            $values = array_intersect_key($_GET, array_flip($ric));
+            $q = $query;
+            QuickPdoStmtTool::addWhereEqualsSubStmt($values, $q, $markers);
+            $row = QuickPdo::fetch("$q", $markers);
+            if ($row) {
+                $form->inject($row);
+            }
+        };
+    }
+
+
+    public static function price($number)
+    {
+        return str_replace(',', '.', $number);
     }
 
 }
