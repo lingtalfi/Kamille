@@ -4,6 +4,11 @@
 namespace Kamille\Utils\Morphic\Generator\GeneratorHelper;
 
 
+use ArrayToString\ArrayToStringTool;
+use Bat\StringTool;
+use PhpFile\PhpFile;
+use QuickPdo\QuickPdoInfoTool;
+
 class MorphicGeneratorHelper
 {
 
@@ -28,5 +33,65 @@ class MorphicGeneratorHelper
          */
         $label = str_replace("_", " ", $columnName);
         return ucfirst($label);
+    }
+
+
+    public static function getEnglishDictionaryCode(array $prefixes = [], $skipIfNoPrefixMatch = true)
+    {
+
+
+        //--------------------------------------------
+        // COLLECT OBJECT TABLES
+        // CREATE THE DICTIONARY ENTRIES
+        //--------------------------------------------
+        $dic = [];
+        $objectTables = [];
+        $db = QuickPdoInfoTool::getDatabase();
+        $tables = QuickPdoInfoTool::getTables($db);
+        sort($tables);
+
+
+        $prefix2Lengths = [];
+        foreach ($prefixes as $prefix) {
+            $prefix2Lengths[$prefix] = strlen($prefix);
+        }
+
+        foreach ($tables as $table) {
+            if (false === strpos($table, '_has_')) {
+                $objectTables[] = $table;
+                $label = $table;
+
+                $match = false;
+                foreach ($prefix2Lengths as $prefix => $length) {
+                    if (0 === strpos($table, $prefix)) {
+                        $label = substr($label, $length);
+                        $match = true;
+                        break;
+                    }
+                }
+
+                if (false === $match && true === $skipIfNoPrefixMatch) {
+                    continue;
+                }
+
+                $label = str_replace('_', ' ', $label);
+
+                $labelPlural = StringTool::getPlural($label);
+
+                $dic[$table] = [
+                    0 => $label,
+                    1 => $labelPlural,
+                ];
+
+            }
+        }
+
+
+        //--------------------------------------------
+        // COLLECT THE DICTIONARY ENTRY
+        //--------------------------------------------
+        $s = '$dictionary = ' . ArrayToStringTool::toPhpArray($dic);
+        return $s;
+
     }
 }

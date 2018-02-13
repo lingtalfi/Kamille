@@ -166,6 +166,7 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+    
 - 1.114.0 -- 2018-02-08
 
     - add MorphicAdminListRenderer.renderByConfig persistence layer

@@ -132,8 +132,13 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
             throw new MorphicException("Undefined formConfigFileGen variable");
         }
         $content = $formGen->getConfigFileContent($operation, $this->conf);
+
+        echo '<hr>';
+        az(__FILE__, htmlspecialchars('<?php') . PHP_EOL . substr($content, 5));
+
         $formConfigFileDst = $this->getFormConfigFileDestination($operation, $this->conf);
         FileSystemTool::mkfile($formConfigFileDst, $content);
+
 
         /**
          * @todo-ling:

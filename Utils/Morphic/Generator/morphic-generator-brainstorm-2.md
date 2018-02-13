@@ -11,6 +11,54 @@ Structure & core concepts
 
 
 
+Nomenclature
+---------------
+
+The generator will generate lists and forms from mysql tables, basically.
+For now we are going to generate two types of elements, identified on their (mysql table) relationship:
+
+- simple element,
+        a single table representing an object.
+        For instance, the ek_user table represents the user.
+        
+- context element
+        an object depending from another.
+        Usually, it corresponds to the has table in a has relationship.
+        For instance, the ek_user_has_address defines what addresses an user owns, and how she owns them.
+        So the table structure would look like this:
+        
+            - ek_user                   (simple element)
+            - ek_user_has_address       (context element)
+            - ek_address                (simple element)
+        
+        One thing about context element with this generator technique is that we keep the semantical relationship
+        between tables, and so the synopsis is that we first edit an user, and from the user's edit page
+        we click the "See user Paul's addresses" button, redirecting to the context element page.
+        The context element page is bound to a specific user (in this case Paul): we don't have a context page
+        without a source object called sometimes parent.
+        
+        
+
+This is called the element type.         
+As far as the generator goes, the generator should be able to guess the element type by examining the table structure.
+However, just being precautious here, we will allow the user to infer the element type if she wants to (human are always
+smarter than bots in complex cases), using the elementType key of an operation. 
+
+
+
+### Ric split into parent/children keys
+
+Therefore, with "context elements", the ric array can be split in two parts:
+
+- parent keys, the keys representing the parent/source object (in the example above, this would be an array containing the user_id key)
+- children keys, the other keys; so basically array diff between the ric and the parent keys (in the example above, this would be an array containing the address_id key)
+
+
+
+
+
+
+
 File: the atomic structural unit
 -------------------------------------
 
@@ -46,11 +94,27 @@ The following keys are recognized by the generator:
         it represents the type of operation for the generator to execute.
         As for now, the only possible value is create.
         All other values will be ignored.
+- ?elementType: string
+        the element type amongst:
+        - simple
+        - context
+        - ...maybe more to come
+        If not set, the bot will choose by itself.
+        Note: it will use recognition of the "_has_" keyword (or alike) in the table name, because this word
+        infers the direction that the bot needs.
+        
 - elementTable: string
         the table used for the morphic element 
 - elementName: string 
-        basically, the table name without the prefix, for instance: 
+        The table name without the prefix (if any), for instance: 
         - product_group (an example prefixed table would be ek_product_group)
+        
+        Some modules use the elementName to derive some other variables, like for instance
+        the elementClass (xiao generator) in NullosAdmin module.
+        So, be sure that the elementName is really representing the table.
+        
+        
+        
 - elementLabel: string
         the lower case singular version of the item's label
         Note to myself: this could be some php code as well (a code calling translation), sounds like subclassing...
@@ -116,6 +180,49 @@ The following keys are recognized by the generator:
         - table            
         - field            
 
+- ?formInsertSuccessMsg: 
+    the notification message to display when the form in insert mode was successfully posted
+    If not set, a default message will be compiled.
+    The default message looks like this: "The item $elementLabel has been added".
+
+- ?formUpdateSuccessMsg: 
+    the notification message to display when the form in update mode was successfully posted
+    If not set, a default message will be compiled.
+    The default message looks like this: "The item $elementLabel has been updated".
+
+- ?pivot: array with the following structure:
+    - ?mode: discover|manual, default=same as the default defined at the configuration level
+            
+            Defines how the generator behaves in regard to pivotLinks.
+            In particular, it populates the formAfterElements entry of a form config.
+            
+            If "discover" is set, then the generator tries to find context tables by itself.
+            The discovered tables act as if they were added manually in the "tables" entry.
+            
+            If "manual" is set, then the generator skips the discovering phase.
+            
+    - ?removeTables: array of $table
+            it might be the case that the bot finds some tables that you don't want to use as context tables.
+            In that case, you (the developer) can dismiss the bot's discovered tables by adding them to this array.
+    - ?tables: array of $table => $tableInfo
+            it might be the case that you want to add some context tables that the bot didnt' found.
+            When this is the case, add them in this array.
+            
+            Note: if a table is found both in the tables and removeTables entries, then the removeTables table
+            has precedence. 
+            
+            $tableInfo:
+            - ?route: the route of the pivot link
+            - ?text: the text to display on the pivot link
+            
+            Note that all properties of tableInfo are optional.
+            This means that you can left this array empty, and the bot will guess the properties for you.
+
+
+
+
+
+
 ### Configuration        
         
 We can also configure the generator using the configuration array ($configuration), which contains the following entries:        
@@ -126,12 +233,15 @@ We can also configure the generator using the configuration array ($configuratio
         The default conversion routine will convert "product_group" into "product group".        
 
   
-- ?autoCompletes: array o
+- ?autoCompletes: array
         map to override default guessing of the generator.
         The default array is empty.
         The default conversion routine will convert "product_group" into "product group".        
 
-
+- ?pivotMode: discover|manual, default=discover
+        Defines how the generator behaves in regard to pivotLinks.
+        See pivot.defaultMode (at the operation level) for more details.
+         
 
 
 The conservative policy: Generator never overrides an existing file
@@ -161,6 +271,22 @@ Using this technique, we prevent some dramatic mistakes to occur.
 
 
 
+Dictionary
+==============
+2018-02-13
+
+
+The dictionary holds the label in singular form (key=0) and plural form (key=1)
+for the tables that represent an object (not the has tables, which bind
+objects together but aren't object themselves).
+
+The dictionary is used by the generator, for instance when creating 
+pivot links.
+
+To help with creating a dictionary from scratch, we can use the  
+
+MorphicGeneratorHelper::displayEnglishDictionaryCode method, or we could 
+create the array manually. 
 
 
 
