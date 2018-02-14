@@ -94,4 +94,42 @@ class MorphicGeneratorHelper
         return $s;
 
     }
+
+
+    /**
+     * @param $hasTable
+     * @return array|false
+     */
+    public static function getContextFieldsByHasTable($hasTable, $prefixes = null)
+    {
+        $ret = [];
+        $originalTable = $hasTable;
+        if (null !== $prefixes) {
+            if (!is_array($prefixes)) {
+                $prefixes = [$prefixes];
+            }
+            foreach ($prefixes as $prefix) {
+                if (0 === strpos($hasTable, $prefix)) {
+                    $hasTable = substr($hasTable, strlen($prefix));
+                    break;
+                }
+            }
+        }
+
+        $p = explode('_has_', $hasTable);
+        if (count($p) > 1) {
+            $fkeys = QuickPdoInfoTool::getForeignKeysInfo($originalTable);
+            array_pop($p); // drop the right part
+            foreach ($p as $cue) {
+                $col = $cue . "_id";
+                if (array_key_exists($col, $fkeys)) {
+                    $ret[] = $col;
+                }
+            }
+            return $ret;
+        }
+        return false;
+    }
+
+
 }

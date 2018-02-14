@@ -8,9 +8,23 @@ use Bat\CaseTool;
 use Bat\FileSystemTool;
 use Kamille\Utils\Morphic\Exception\MorphicException;
 use Kamille\Utils\Morphic\Generator\ConfigFileGenerator\ConfigFileGeneratorInterface;
+use Kamille\Utils\Morphic\Generator\Dictionary\DictionaryInterface;
 use QuickPdo\QuickPdo;
 use QuickPdo\QuickPdoInfoTool;
 
+
+/**
+ * Synopsis:
+ *
+ * <?php
+ * // ...
+ * $file = __DIR__ . "/../config/morphic/Ekom/_ekom-morphic-generator.php";
+ * $dicFile = __DIR__ . "/../config/morphic/Ekom/_ekom-morphic-dictionary.php";
+ * $morphic = EkomNullosMorphicGenerator::create();
+ * $morphic->setDictionary(Dictionary::create()->setDictionaryFile($dicFile));
+ * $morphic->generateByFile($file);
+ *
+ */
 abstract class MorphicGenerator implements MorphicGeneratorInterface
 {
 
@@ -18,6 +32,8 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
     private $_file;
     private $conf;
     private $formConfigFileGen;
+    private $listConfigFileGen;
+    private $dictionary;
 
 
     public function __construct()
@@ -29,6 +45,13 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
     {
         return new static();
     }
+
+    public function setDictionary(DictionaryInterface $dictionary)
+    {
+        $this->dictionary = $dictionary;
+        return $this;
+    }
+
 
 
     //--------------------------------------------
@@ -52,6 +75,12 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
     public function setFormConfigFileGen(ConfigFileGeneratorInterface $formConfigFileGen)
     {
         $this->formConfigFileGen = $formConfigFileGen;
+        return $this;
+    }
+
+    public function setListConfigFileGen(ConfigFileGeneratorInterface $listConfigFileGen)
+    {
+        $this->listConfigFileGen = $listConfigFileGen;
         return $this;
     }
 
@@ -99,8 +128,10 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
         }
         $operation['columns'] = QuickPdoInfoTool::getColumnNames($operation['elementTable']);
         $operation['columnTypes'] = QuickPdoInfoTool::getColumnDataTypes($operation['elementTable']);
+        $operation['columnTypesPrecision'] = QuickPdoInfoTool::getColumnDataTypes($operation['elementTable'], true);
         $operation['columnFkeys'] = QuickPdoInfoTool::getForeignKeysInfo($operation['elementTable']);
         $operation['CamelCase'] = CaseTool::snakeToFlexiblePascal($operation['elementName']);
+        $operation['ai'] = QuickPdoInfoTool::getAutoIncrementedField($operation['elementTable']);
         return $operation;
     }
 
@@ -127,23 +158,36 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
     protected function executeCreateOperation(array $operation)
     {
         $this->onCreateOperationBefore($operation);
+        /**
+         * @var $formGen ConfigFileGeneratorInterface
+         */
         $formGen = $this->formConfigFileGen;
+        /**
+         * @var $listGen ConfigFileGeneratorInterface
+         */
+        $listGen = $this->listConfigFileGen;
+
+
         if (null === $formGen) {
             throw new MorphicException("Undefined formConfigFileGen variable");
         }
+        if (null === $formGen->getDictionary() && $this->dictionary) {
+            $formGen->setDictionary($this->dictionary);
+        }
+        if (null === $listGen->getDictionary() && $this->dictionary) {
+            $listGen->setDictionary($this->dictionary);
+        }
+
+
         $content = $formGen->getConfigFileContent($operation, $this->conf);
-
-        echo '<hr>';
-        az(__FILE__, htmlspecialchars('<?php') . PHP_EOL . substr($content, 5));
-
         $formConfigFileDst = $this->getFormConfigFileDestination($operation, $this->conf);
         FileSystemTool::mkfile($formConfigFileDst, $content);
 
 
-        /**
-         * @todo-ling:
-         * main course here...
-         */
+        $content = $listGen->getConfigFileContent($operation, $this->conf);
+        $listConfigFileDst = $this->getListConfigFileDestination($operation, $this->conf);
+        FileSystemTool::mkfile($listConfigFileDst, $content);
+
 
     }
 
@@ -154,6 +198,12 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
 
 
     protected function getFormConfigFileDestination(array $operation, array $config = [])
+    {
+        throw new MorphicException("override me");
+    }
+
+
+    protected function getListConfigFileDestination(array $operation, array $config = [])
     {
         throw new MorphicException("override me");
     }

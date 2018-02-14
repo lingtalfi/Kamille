@@ -149,7 +149,8 @@ The following keys are recognized by the generator:
         
         
         
-- ?columnTypes: array
+- columns: array of columns of the table
+- columnTypes: array
     It's used to find the control type that the generator should generate.
     The possible types that the generator understands are the following:
         - input
@@ -174,11 +175,12 @@ The following keys are recognized by the generator:
     - sqlType=datetime => datetime
     If all fails, default is input
     
-- ?columnFkeys: array (see QuickPdoInfoTool::getForeignKeysInfo for more details)
+- columnFkeys: array (see QuickPdoInfoTool::getForeignKeysInfo for more details)
     - columnName:
         - db            
         - table            
         - field            
+- ai: string|false, auto-incremented field
 
 - ?formInsertSuccessMsg: 
     the notification message to display when the form in insert mode was successfully posted
@@ -242,6 +244,9 @@ We can also configure the generator using the configuration array ($configuratio
         Defines how the generator behaves in regard to pivotLinks.
         See pivot.defaultMode (at the operation level) for more details.
          
+
+- ?dbPrefixes: array of db prefixes
+        The bot can do some extra work if you specify the db prefixes
 
 
 The conservative policy: Generator never overrides an existing file
