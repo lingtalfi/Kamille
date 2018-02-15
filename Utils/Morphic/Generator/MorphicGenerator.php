@@ -29,11 +29,14 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
 {
 
 
+    /**
+     * @var DictionaryInterface
+     */
+    protected $dictionary;
     private $_file;
     private $conf;
     private $formConfigFileGen;
     private $listConfigFileGen;
-    private $dictionary;
 
 
     public function __construct()
@@ -70,7 +73,19 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
             $operation = $this->prepareOperation($operation);
             $this->executeOperation($operation);
         }
+        $this->onGenerateAfter();
     }
+
+    public function generateByOperations(array $operations, array $configuration)
+    {
+        $this->conf = $configuration;
+        foreach ($operations as $operation) {
+            $operation = $this->prepareOperation($operation);
+            $this->executeOperation($operation);
+        }
+        $this->onGenerateAfter();
+    }
+
 
     public function setFormConfigFileGen(ConfigFileGeneratorInterface $formConfigFileGen)
     {
@@ -183,8 +198,8 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
         $formConfigFileDst = $this->getFormConfigFileDestination($operation, $this->conf);
         FileSystemTool::mkfile($formConfigFileDst, $content);
 
-
         $content = $listGen->getConfigFileContent($operation, $this->conf);
+
         $listConfigFileDst = $this->getListConfigFileDestination($operation, $this->conf);
         FileSystemTool::mkfile($listConfigFileDst, $content);
 
@@ -206,5 +221,11 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
     protected function getListConfigFileDestination(array $operation, array $config = [])
     {
         throw new MorphicException("override me");
+    }
+
+
+    protected function onGenerateAfter() // override me
+    {
+
     }
 }

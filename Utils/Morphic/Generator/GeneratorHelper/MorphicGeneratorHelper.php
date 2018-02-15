@@ -5,12 +5,26 @@ namespace Kamille\Utils\Morphic\Generator\GeneratorHelper;
 
 
 use ArrayToString\ArrayToStringTool;
+use Bat\CaseTool;
 use Bat\StringTool;
+use OrmTools\Helper\OrmToolsHelper;
 use PhpFile\PhpFile;
 use QuickPdo\QuickPdoInfoTool;
 
 class MorphicGeneratorHelper
 {
+
+
+    public static function getElementType(array $operation)
+    {
+        $table = $operation['elementTable'];
+        if (array_key_exists("elementType", $operation)) {
+            $elementType = $operation['elementType'];
+        } else {
+            $elementType = (false !== strpos($table, '_has_')) ? 'context' : 'simple';
+        }
+        return $elementType;
+    }
 
     public static function getColumnLabel($columnName, array $operation, array $config)
     {
@@ -96,25 +110,26 @@ class MorphicGeneratorHelper
     }
 
 
+    public static function dropTablePrefix(&$table, &$prefix = null)
+    {
+        $p = explode('_', $table);
+        $prefix = array_shift($p) . '_';
+        $table = implode('_', $p);
+    }
+
     /**
      * @param $hasTable
      * @return array|false
      */
-    public static function getContextFieldsByHasTable($hasTable, $prefixes = null)
+    public static function getContextFieldsByHasTable($hasTable, $useDbPrefixes = true)
     {
         $ret = [];
         $originalTable = $hasTable;
-        if (null !== $prefixes) {
-            if (!is_array($prefixes)) {
-                $prefixes = [$prefixes];
-            }
-            foreach ($prefixes as $prefix) {
-                if (0 === strpos($hasTable, $prefix)) {
-                    $hasTable = substr($hasTable, strlen($prefix));
-                    break;
-                }
-            }
+
+        if (true === $useDbPrefixes) {
+            self::dropTablePrefix($hasTable);
         }
+
 
         $p = explode('_has_', $hasTable);
         if (count($p) > 1) {
@@ -132,4 +147,56 @@ class MorphicGeneratorHelper
     }
 
 
+    public static function getOperationsByTables(array $tables, array $config = [])
+    {
+        $ret = [];
+        foreach ($tables as $table) {
+            $ret[] = self::getOperationByTable($table, $config);
+        }
+        return $ret;
+    }
+
+    public static function getOperationByTable($table, array $config = [])
+    {
+        $simpleElements = (array_key_exists("simpleElements", $config)) ? $config['simpleElements'] : [];
+
+        if (in_array($table, $simpleElements, true)) {
+            $elementType = 'simple';
+        } else {
+            $elementType = (false !== strpos($table, '_has_')) ? 'context' : 'simple';
+        }
+
+
+        $dbPrefixes = (array_key_exists("dbPrefixes", $config)) ? $config['dbPrefixes'] : [];
+
+
+        $icon = "fa fa-bomb";
+        $icon = "";
+        $name = $table;
+        foreach ($dbPrefixes as $prefix) {
+            if (0 === strpos($name, $prefix)) {
+                $name = substr($name, strlen($prefix));
+                break;
+            }
+        }
+
+        $label = ucfirst(str_replace('_', ' ', $name));
+        $labelPlural = StringTool::getPlural($label);
+        $camel = CaseTool::snakeToFlexiblePascal($name);
+        $ric = OrmToolsHelper::getRic($table);
+
+
+        $op = [
+            "operationType" => "create",
+            "elementType" => $elementType,
+            "icon" => $icon,
+            "elementTable" => $table,
+            "elementName" => $name,
+            "elementLabel" => $label,
+            "elementLabelPlural" => $labelPlural,
+            "elementRoute" => "NullosAdmin_Ekom_Generated_$camel" . "_List",
+            "ric" => $ric,
+        ];
+        return $op;
+    }
 }
