@@ -56,7 +56,7 @@ class MorphicHelper
 
     public static function getFeedFunction($table)
     {
-        return self::getFeedFunctionByQuery("select * from $table");
+        return self::getFeedFunctionByQuery("select * from `$table`");
     }
 
     public static function getFeedFunctionByQuery($query)

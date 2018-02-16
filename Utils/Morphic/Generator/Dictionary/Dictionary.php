@@ -41,7 +41,7 @@ class Dictionary implements DictionaryInterface
             }
             return $entries[1];
         }
-        return false;
+        throw new \Exception("Entry not found in dictionary for table $table");
     }
 
 

@@ -50,7 +50,15 @@ class MorphicGeneratorHelper
     }
 
 
-    public static function getEnglishDictionaryCode(array $prefixes = [], $skipIfNoPrefixMatch = true)
+    /**
+     * @param array|null $prefixes
+     *              if null, will always drop the first component (in a underscore separated string)
+     *
+     * @param bool $skipIfNoPrefixMatch
+     * @return string
+     * @throws \QuickPdo\Exception\QuickPdoException
+     */
+    public static function getEnglishDictionaryCode(array $prefixes = null, $skipIfNoPrefixMatch = true)
     {
 
 
@@ -66,14 +74,24 @@ class MorphicGeneratorHelper
 
 
         $prefix2Lengths = [];
-        foreach ($prefixes as $prefix) {
-            $prefix2Lengths[$prefix] = strlen($prefix);
+        if ($prefixes) {
+            foreach ($prefixes as $prefix) {
+                $prefix2Lengths[$prefix] = strlen($prefix);
+            }
         }
 
         foreach ($tables as $table) {
             if (false === strpos($table, '_has_')) {
                 $objectTables[] = $table;
                 $label = $table;
+                if (null === $prefixes) {
+                    if (false !== strpos($label, '_')) {
+                        $p = explode("_", $label);
+                        array_shift($p);
+                        $label = implode('_', $p);
+                    }
+                }
+
 
                 $match = false;
                 foreach ($prefix2Lengths as $prefix => $length) {
@@ -121,24 +139,19 @@ class MorphicGeneratorHelper
      * @param $hasTable
      * @return array|false
      */
-    public static function getContextFieldsByHasTable($hasTable, $useDbPrefixes = true)
+    public static function getContextFieldsByHasTable($hasTable)
     {
         $ret = [];
-        $originalTable = $hasTable;
-
-        if (true === $useDbPrefixes) {
-            self::dropTablePrefix($hasTable);
-        }
-
-
         $p = explode('_has_', $hasTable);
         if (count($p) > 1) {
-            $fkeys = QuickPdoInfoTool::getForeignKeysInfo($originalTable);
+            $fkeys = QuickPdoInfoTool::getForeignKeysInfo($hasTable);
             array_pop($p); // drop the right part
             foreach ($p as $cue) {
-                $col = $cue . "_id";
-                if (array_key_exists($col, $fkeys)) {
-                    $ret[] = $col;
+                foreach ($fkeys as $col => $info) {
+                    if ($cue === $info[1]) {
+                        $ret[] = $col;
+                        break;
+                    }
                 }
             }
             return $ret;
@@ -183,7 +196,8 @@ class MorphicGeneratorHelper
         $label = ucfirst(str_replace('_', ' ', $name));
         $labelPlural = StringTool::getPlural($label);
         $camel = CaseTool::snakeToFlexiblePascal($name);
-        $ric = OrmToolsHelper::getRic($table);
+        $hasPrimaryKey = false;
+        $ric = OrmToolsHelper::getRic($table, $hasPrimaryKey);
 
 
         $op = [
@@ -196,6 +210,7 @@ class MorphicGeneratorHelper
             "elementLabelPlural" => $labelPlural,
             "elementRoute" => "NullosAdmin_Ekom_Generated_$camel" . "_List",
             "ric" => $ric,
+            "hasPrimaryKey" => $hasPrimaryKey,
         ];
         return $op;
     }

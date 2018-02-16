@@ -19,7 +19,9 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
     //--------------------------------------------
     public function getConfig($module, $identifier, array $context = [])
     {
-        $file = $this->confDir . "/$module/$identifier.list.conf.php";
+
+
+        $file = $this->getFile($module, $identifier, $context);
         $defaultFile = $this->confDir . "/$module/_default.list.conf.php";
         $conf = [];
         if (file_exists($file)) {
@@ -49,5 +51,14 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
             throw new MorphicException("File not found: $file");
         }
         return $conf;
+    }
+
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    protected function getFile($module, $identifier, array $context = [])
+    {
+        return $this->confDir . "/$module/$identifier.list.conf.php";
     }
 }

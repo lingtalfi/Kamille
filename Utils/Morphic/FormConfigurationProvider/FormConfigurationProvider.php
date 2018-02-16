@@ -14,7 +14,7 @@ class FormConfigurationProvider implements FormConfigurationProviderInterface
 {
 
 
-    private $confDir;
+    protected $confDir;
 
 
     public function __construct()
@@ -38,7 +38,7 @@ class FormConfigurationProvider implements FormConfigurationProviderInterface
     //--------------------------------------------
     public function getConfig($module, $identifier, array $context = [])
     {
-        $file = $this->confDir . "/$module/$identifier.form.conf.php";
+        $file = $this->getFile($module, $identifier, $context);
         $conf = [];
         if (file_exists($file)) {
             include $file;
@@ -46,5 +46,14 @@ class FormConfigurationProvider implements FormConfigurationProviderInterface
             throw new MorphicException("File not found: $file");
         }
         return $conf;
+    }
+
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    protected function getFile($module, $identifier, array $context = [])
+    {
+        return $this->confDir . "/$module/$identifier.form.conf.php";
     }
 }

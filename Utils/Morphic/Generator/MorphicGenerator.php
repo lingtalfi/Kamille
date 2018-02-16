@@ -33,8 +33,8 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
      * @var DictionaryInterface
      */
     protected $dictionary;
+    protected $conf;
     private $_file;
-    private $conf;
     private $formConfigFileGen;
     private $listConfigFileGen;
 
@@ -69,6 +69,7 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
         $this->conf = $configuration;
 
 
+        $this->onExecuteOperationsBefore($operations);
         foreach ($operations as $operation) {
             $operation = $this->prepareOperation($operation);
             $this->executeOperation($operation);
@@ -79,6 +80,7 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
     public function generateByOperations(array $operations, array $configuration)
     {
         $this->conf = $configuration;
+        $this->onExecuteOperationsBefore($operations);
         foreach ($operations as $operation) {
             $operation = $this->prepareOperation($operation);
             $this->executeOperation($operation);
@@ -145,7 +147,7 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
         $operation['columnTypes'] = QuickPdoInfoTool::getColumnDataTypes($operation['elementTable']);
         $operation['columnTypesPrecision'] = QuickPdoInfoTool::getColumnDataTypes($operation['elementTable'], true);
         $operation['columnFkeys'] = QuickPdoInfoTool::getForeignKeysInfo($operation['elementTable']);
-        $operation['CamelCase'] = CaseTool::snakeToFlexiblePascal($operation['elementName']);
+        $operation['CamelCase'] = str_replace(' ', '', CaseTool::snakeToFlexiblePascal($operation['elementName']));
         $operation['ai'] = QuickPdoInfoTool::getAutoIncrementedField($operation['elementTable']);
         return $operation;
     }
@@ -225,6 +227,11 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
 
 
     protected function onGenerateAfter() // override me
+    {
+
+    }
+
+    protected function onExecuteOperationsBefore(array $operations)
     {
 
     }
