@@ -88,7 +88,7 @@ if (null !== $ric) {
                 "link" => function (array $row) use ($ric, $defaultFormLinkPrefix, $adaptor, $hasQuestionMark, $extraVars) {
                     $s = $defaultFormLinkPrefix;
                     if (false === $hasQuestionMark) {
-                        $s .= '?d';
+                        $s .= '?form';
                     }
                     foreach ($ric as $col) {
                         $keyCol = (array_key_exists($col, $adaptor)) ? $adaptor[$col] : $col;

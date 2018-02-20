@@ -13,6 +13,18 @@ class MorphicHelper
 {
 
 
+    public static function getIsUpdate(array $ric)
+    {
+        $isUpdate = true;
+        foreach ($ric as $col) {
+            if (false === array_key_exists($col, $_GET)) {
+                $isUpdate = false;
+                break;
+            }
+        }
+        return $isUpdate;
+    }
+
     public static function getFormContextValue($key, array $context)
     {
         if (array_key_exists($key, $context)) {

@@ -139,10 +139,14 @@ class MorphicGeneratorHelper
      * @param $hasTable
      * @return array|false
      */
-    public static function getContextFieldsByHasTable($hasTable)
+    public static function getContextFieldsByHasTable($hasTable, array $leftRightTables = null)
     {
         $ret = [];
-        $p = explode('_has_', $hasTable);
+        if (null !== $leftRightTables) {
+            $p = $leftRightTables;
+        } else {
+            $p = explode('_has_', $hasTable);
+        }
         if (count($p) > 1) {
             $fkeys = QuickPdoInfoTool::getForeignKeysInfo($hasTable);
             array_pop($p); // drop the right part
@@ -195,7 +199,7 @@ class MorphicGeneratorHelper
 
         $label = ucfirst(str_replace('_', ' ', $name));
         $labelPlural = StringTool::getPlural($label);
-        $camel = CaseTool::snakeToFlexiblePascal($name);
+        $camel = CaseTool::snakeToFlexiblePascal($table);
         $hasPrimaryKey = false;
         $ric = OrmToolsHelper::getRic($table, $hasPrimaryKey);
 
@@ -205,7 +209,10 @@ class MorphicGeneratorHelper
             "elementType" => $elementType,
             "icon" => $icon,
             "elementTable" => $table,
-            "elementName" => $name,
+            /**
+             * Element name changed to table to avoid potential conflicts arising with no namespaces (i.e. ek_card, ektra_card,...)
+             */
+            "elementName" => $table,
             "elementLabel" => $label,
             "elementLabelPlural" => $labelPlural,
             "elementRoute" => "NullosAdmin_Ekom_Generated_$camel" . "_List",

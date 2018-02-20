@@ -55,6 +55,73 @@ Therefore, with "context elements", the ric array can be split in two parts:
 
 
 
+### formRouteExtraVars: ric vs context
+
+Be warned, this is as complex as it can get.
+
+When we (morphic) generate list, we use the ric for all row actions.
+So for instance if we are on the user list, the ric being an array containing "id", we basically use this 
+id to generate the delete link and the update link at the end of each item in the list.
+
+That's the default behaviour.
+
+Now as we've seen before, when we have context elements (a has table), the ric element is generally an array 
+composed of two keys, one referencing the left part of the has table (the parent), and the other referencing
+the child element (the right part of the has table).
+
+So for instance imagine the user_has_address table, we generally have an user_id key, and an address_id key
+in that table.
+
+BUT, now the fun part (as far as generating automated list goes): sometimes the "has" table has multiple ric.
+
+For instance, in ekom there is the ek_user_has_product table, and it has the following fields:
+
+- id: pk  
+- user_id: fk  
+- product_id: fk  
+ 
+
+Technically, the only ric is the primary key: id.
+However, the user_id/product_id is also a ric in this case.
+I believe the id field has been added to the table after the fact, for some reasons.
+
+Now which ric should we choose?
+
+Well, as we've just said the list generator needs the true ric: id, which is used to generate the row links.
+However, it turns out the controller is wired in a way that it needs the user_id, which is the context (the parent
+part of this second ric).
+
+That's quite a gymnastic for the brain, I know, but that's just how it is.
+
+So, to help with generating the list, we have this "formRouteExtraVars" property that we can use in 
+the list.conf.php file (ek_user_has_product.list.conf.php).
+What it does is that it helps transmitting the user_id over http.
+
+Here it how it works:
+on the ek_user_has_address list page, by default the controller will detect the parent context (user_id), which was
+passed by the application. That's good.
+However, by default the list's "update links/delete links" are generated using the technical ric (id), and not the user_id.
+So, we need to pass the user_id by hand in order to avoid an application error (if we click this link that is).
+
+That's what we do using the "formRouteExtraVars" property.
+
+  
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
 
 
 
@@ -292,6 +359,88 @@ To help with creating a dictionary from scratch, we can use the
 
 MorphicGeneratorHelper::displayEnglishDictionaryCode method, or we could 
 create the array manually. 
+
+
+
+
+
+
+Foreign list
+====================
+2018-02-20
+
+
+The foreign list is the list we display in forms when a foreign key references a parent table.
+https://dev.mysql.com/doc/refman/5.6/en/create-table-foreign-keys.html
+
+
+For instance, we have the ek_manufacturer child table with the following keys:
+
+
+
+ek_manufacturer
+------------------
+- id
+- shop_id
+- name
+
+
+And the parent table:
+
+ek_shop
+------------------
+- id
+- name
+
+
+ek_manufacturer.shop_id is the foreign key referencing the ek_shop.id column.
+
+
+The generator creates a sql query to generate the list items for humans, somehing like this:
+
+
+```sql
+select id, concat(id, ". ", name ) from ek_shop 
+```
+
+However, we shall be able to hook in and override the generator's defaults easily.
+In order to do so we use the formFkRequest entry in the generator's config.
+
+Use single quotes inside your query (i.e. wrap your query using double quotes), because first of all,
+the generator puts your code as hard php code in the file 
+representing the form config, and it wraps your request with double quotes.
+
+Then, you can also put variables in it, like for instance all the contextual variables available
+to ekom (lang_id, shop_id, currency_id), but you need to escape the dollar symbol with a backslash.
+Example: 
+
+```php
+    'formFkRequest' => [
+        "ek_product_card.id" => "
+select c.id, concat( c.id, '. ', l.label) as label 
+from ek_product_card c 
+inner join ek_product_card_lang l on l.product_card_id=c.id 
+where l.lang_id=\$lang_id
+",
+    ],
+```
+
+Note: for now only context request variables are recognized.
+
+Also, your query must return two columns (the value first, then the label).
+ 
+ 
+
+
+
+
+
+
+
+
+ 
+
+
 
 
 

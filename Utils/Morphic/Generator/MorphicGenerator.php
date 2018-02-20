@@ -37,11 +37,13 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
     private $_file;
     private $formConfigFileGen;
     private $listConfigFileGen;
+    private $filterOperationsTables;
 
 
     public function __construct()
     {
         $this->conf = [];
+        $this->filterOperationsTables = [];
     }
 
     public static function create()
@@ -102,10 +104,6 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
     }
 
 
-
-
-
-
     //--------------------------------------------
     //
     //--------------------------------------------
@@ -147,6 +145,7 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
         $operation['columnTypes'] = QuickPdoInfoTool::getColumnDataTypes($operation['elementTable']);
         $operation['columnTypesPrecision'] = QuickPdoInfoTool::getColumnDataTypes($operation['elementTable'], true);
         $operation['columnFkeys'] = QuickPdoInfoTool::getForeignKeysInfo($operation['elementTable']);
+        $operation['nullableKeys'] = QuickPdoInfoTool::getColumnNullabilities($operation['elementTable']);
         $operation['CamelCase'] = str_replace(' ', '', CaseTool::snakeToFlexiblePascal($operation['elementName']));
         $operation['ai'] = QuickPdoInfoTool::getAutoIncrementedField($operation['elementTable']);
         return $operation;
