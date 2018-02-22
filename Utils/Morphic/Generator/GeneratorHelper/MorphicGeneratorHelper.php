@@ -200,8 +200,6 @@ class MorphicGeneratorHelper
         $label = ucfirst(str_replace('_', ' ', $name));
         $labelPlural = StringTool::getPlural($label);
         $camel = CaseTool::snakeToFlexiblePascal($table);
-        $hasPrimaryKey = false;
-        $ric = OrmToolsHelper::getRic($table, $hasPrimaryKey);
 
 
         $op = [
@@ -216,8 +214,6 @@ class MorphicGeneratorHelper
             "elementLabel" => $label,
             "elementLabelPlural" => $labelPlural,
             "elementRoute" => "NullosAdmin_Ekom_Generated_$camel" . "_List",
-            "ric" => $ric,
-            "hasPrimaryKey" => $hasPrimaryKey,
         ];
         return $op;
     }

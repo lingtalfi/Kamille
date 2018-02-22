@@ -9,6 +9,7 @@ use Bat\FileSystemTool;
 use Kamille\Utils\Morphic\Exception\MorphicException;
 use Kamille\Utils\Morphic\Generator\ConfigFileGenerator\ConfigFileGeneratorInterface;
 use Kamille\Utils\Morphic\Generator\Dictionary\DictionaryInterface;
+use OrmTools\Helper\OrmToolsHelper;
 use QuickPdo\QuickPdo;
 use QuickPdo\QuickPdoInfoTool;
 
@@ -137,10 +138,12 @@ abstract class MorphicGenerator implements MorphicGeneratorInterface
         if (false === array_key_exists("operationType", $operation)) {
             $operation['operationType'] = "create";
         }
+
+
+        $hasPrimaryKey = false;
         $operation['columns'] = QuickPdoInfoTool::getColumnNames($operation['elementTable']);
-        if (!is_array($operation['ric'])) {
-            $operation['ric'] = [$operation['ric']];
-        }
+        $operation['ric'] = OrmToolsHelper::getRic($operation['elementTable'], $hasPrimaryKey);
+        $operation['hasPrimaryKey'] = $hasPrimaryKey;
         $operation['columns'] = QuickPdoInfoTool::getColumnNames($operation['elementTable']);
         $operation['columnTypes'] = QuickPdoInfoTool::getColumnDataTypes($operation['elementTable']);
         $operation['columnTypesPrecision'] = QuickPdoInfoTool::getColumnDataTypes($operation['elementTable'], true);

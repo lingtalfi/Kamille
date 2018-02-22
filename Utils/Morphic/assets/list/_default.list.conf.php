@@ -96,6 +96,9 @@ if (null !== $ric) {
                         $s .= $keyCol . "=" . $row[$col]; // escape?
                     }
                     foreach ($extraVars as $k => $v) {
+                        if (in_array($k, $ric , true)) {
+                            continue;
+                        }
                         $s .= "&";
                         $s .= $k . "=" . $v;
                     }

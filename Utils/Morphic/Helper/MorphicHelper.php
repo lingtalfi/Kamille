@@ -13,6 +13,59 @@ class MorphicHelper
 {
 
 
+    /**
+     * child pattern, used in list configs
+     */
+    public static function getListParentValues(&$q, array $context, array $inferred = [])
+    {
+
+        /**
+         * parentKeys:
+         * if not null, means there is a parent driving...
+         */
+        $parentKeys = (array_key_exists('_parentKeys', $context)) ? $context['_parentKeys'] : null;
+        $parentValues = [];
+        $queryInferred = $inferred;
+        $hasWhere = false;
+
+
+        if ($parentKeys) {
+            $avatar = MorphicHelper::getFormContextValue("avatar", $context);
+
+            $q .= " where ";
+            $hasWhere = true;
+            $c = 0;
+            foreach ($parentKeys as $key) {
+                if (0 !== $c++) {
+                    $q .= " and ";
+                }
+                $value = MorphicHelper::getFormContextValue($key, $context);
+                $q .= "h.$key=$value";
+                $parentValues[$key] = $value;
+
+                if (array_key_exists($key, $queryInferred)) {
+                    unset($queryInferred[$key]);
+                }
+            }
+        }
+        if ($queryInferred) {
+            if (false === $hasWhere) {
+                $q .= ' where ';
+            } else {
+                $q .= ' and ';
+            }
+            $c = 0;
+            foreach ($queryInferred as $k => $v) {
+                if (0 !== $c++) {
+                    $q .= ' and ';
+                }
+                $q .= "h.$k=$v";
+            }
+        }
+        return $parentValues;
+    }
+
+
     public static function getIsUpdate(array $ric)
     {
         $isUpdate = true;
