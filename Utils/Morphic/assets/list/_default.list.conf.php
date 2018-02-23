@@ -75,8 +75,8 @@ if (null !== $ric) {
     }
     $extraVars = (array_key_exists("formRouteExtraVars", $conf)) ? $conf['formRouteExtraVars'] : [];
 
-
     if ($defaultFormLinkPrefix) {
+
 
         $adaptor = (array_key_exists("rowActionUpdateRicAdaptor", $conf)) ? $conf['rowActionUpdateRicAdaptor'] : [];
         $defaultConf['rowActions'] = [
