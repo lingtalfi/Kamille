@@ -10,6 +10,7 @@ use Bat\CaseTool;
 use Bat\FileSystemTool;
 use Bat\StringTool;
 use DebugLogger\DebugLogger;
+use Kamille\Utils\Morphic\Exception\MorphicException;
 use OrmTools\Helper\OrmToolsHelper;
 use QuickPdo\QuickPdoInfoTool;
 
@@ -336,7 +337,7 @@ EEE;
 
                 $sItems .= '
                 [
-                    "link" => E::link("' . $route . '") . "?' . $args . '",
+                    "link" => E::link("' . $route . '") . "?s&' . $args . '",
                     "text" => "Voir les ' . str_replace('"', '\"', $labelPlural) . '",
                     "disabled" => !$isUpdate,
                 ],
@@ -497,10 +498,12 @@ EEE;
 
                     $sExtra = "";
 
+
+
                     if ($ai === $col) {
                         $class = 'SokoInputControl';
                         $readOnly = 'true';
-                    } elseif (in_array($col, $autocompletes, true)) {
+                    } elseif (true === $this->isAutocompleteControl($col, $autocompletes, $tableInfo)) {
                         $class = "SokoAutocompleteInputControl";
                         $sExtra = $this->getAutocompleteControlContent($col);
                         $readOnly = '(null !== $' . $col . ')';
@@ -640,6 +643,27 @@ EEE;
     }
 
 
+    protected function isAutocompleteControl($col, array $autocompletes, array $tableInfo)
+    {
+        $table = $tableInfo['table'];
+        foreach ($autocompletes as $prefix => $items) {
+            if (0 === strpos($table, $prefix)) {
+                if (array_key_exists($col, $items)) {
+                    $thing = $items[$col];
+                    if (true === $thing) {
+                        return true;
+                    }
+                    if (is_callable($thing)) {
+                        return call_user_func($thing, $col, $tableInfo);
+                    }
+                    throw new MorphicException("Don't know how to handle this thing");
+                }
+            }
+        }
+        return false;
+    }
+
+
     protected function _getFormConfigFileHeader(array $tableInfo, array $inferred)
     {
 
@@ -663,7 +687,6 @@ EEE;
             } else {
                 $sInit .= '$' . $col . ' = (array_key_exists("' . $col . '", $_GET)) ? $_GET[\'' . $col . '\'] : null;' . PHP_EOL;
             }
-
 
 
             if (in_array($col, $autocompletes, true)) {
@@ -742,11 +765,11 @@ EEE;
 
             $onClause = [];
             foreach ($colsInfo as $info) {
-                $onClause[] = "$prefix." . $info[3] . "=h." . $info[0];
+                $onClause[] = "`$prefix`." . $info[3] . "=h." . $info[0];
             }
 
 //            $joins[] = "inner join $ftable $prefix on " . implode(' and ', $onClause);
-            $joins[] = "inner join $table $prefix on " . implode(' and ', $onClause);
+            $joins[] = "inner join $table `$prefix` on " . implode(' and ', $onClause);
         }
 
 
@@ -788,18 +811,23 @@ EEE;
     protected function _getListConfigFileConfArray(array $tableInfo, array $table2Aliases)
     {
 
+
         $viewId = $tableInfo["table"];
         $cols = $tableInfo["columns"];
+        $columnTypes = $tableInfo["columnTypes"];
         $fks = $tableInfo["fks"];
-        $ric = $tableInfo["ric"];
+        $originalRic = $tableInfo["ric"];
         $rcMap = [];
         $headers = [];
         $qCols = [];
 
         foreach ($cols as $col) {
-            $label = $this->identifierToLabel($col);
-            $headers[$col] = $label;
-            $qCols[] = 'h.' . $col;
+
+            if (false === strpos($columnTypes[$col], 'blob')) {
+                $label = $this->identifierToLabel($col);
+                $headers[$col] = $label;
+                $qCols[] = 'h.' . $col;
+            }
         }
 
 
@@ -829,7 +857,7 @@ EEE;
                 $sRic .= $prefix . "." . $col;
             }
             $rcMap[$name][] = $prefix . "." . $repr;
-            $qCols[] = 'concat( ' . $sRic . ', ". ", ' . $prefix . "." . $repr . ' ) as ' . $name;
+            $qCols[] = 'concat( ' . $sRic . ', ". ", ' . $prefix . "." . $repr . ' ) as `' . $name . '`';
 
 
         }
@@ -847,7 +875,7 @@ EEE;
         $sRcMap = ArrayToStringTool::toPhpArray($rcMap, null, 4);
 
 
-        $sRic = ArrayToStringTool::toPhpArray($ric, null, 4);
+        $sRic = ArrayToStringTool::toPhpArray($originalRic, null, 4);
         $sQCols = ArrayToStringTool::toPhpArray($qCols, null, 4);
 
         $s = <<<EEE
@@ -1086,39 +1114,42 @@ EEE;
         //--------------------------------------------
         $c = 0;
 
-        foreach ($reversedFks as $fkFullTable => $colsInfo) {
-            $conds = [];
-            $s .= PHP_EOL . "\t\t";
+        if ($reversedFks) {
 
-            if (0 === $c++) {
-                $s .= 'if ( ';
-            } else {
-                $s .= '} elseif ( ';
-            }
-
-            foreach ($colsInfo as $info) {
-                $conds[] = 'array_key_exists ( "' . $info[0] . '", $_GET)';
-            }
-
-            if (count($conds) > 1) {
-                $s .= $mul;
-            }
-
-            $s .= implode(' &&' . $mul, $conds);
-
-            if (count($conds) > 1) {
+            foreach ($reversedFks as $fkFullTable => $colsInfo) {
+                $conds = [];
                 $s .= PHP_EOL . "\t\t";
-            }
-            $s .= ') {';
 
-            $cols = [];
-            foreach ($colsInfo as $info) {
-                $cols[$info[0]] = $info[3];
+                if (0 === $c++) {
+                    $s .= 'if ( ';
+                } else {
+                    $s .= '} elseif ( ';
+                }
+
+                foreach ($colsInfo as $info) {
+                    $conds[] = 'array_key_exists ( "' . $info[0] . '", $_GET)';
+                }
+
+                if (count($conds) > 1) {
+                    $s .= $mul;
+                }
+
+                $s .= implode(' &&' . $mul, $conds);
+
+                if (count($conds) > 1) {
+                    $s .= PHP_EOL . "\t\t";
+                }
+                $s .= ') {';
+
+                $cols = [];
+                foreach ($colsInfo as $info) {
+                    $cols[$info[0]] = $info[3];
+                }
+                $s .= $this->getRenderWithParentCodeBlock($fkFullTable, $cols);
             }
-            $s .= $this->getRenderWithParentCodeBlock($fkFullTable, $cols);
+
+            $s .= PHP_EOL . "\t\t" . '}';
         }
-
-        $s .= PHP_EOL . "\t\t" . '}';
 
         $s .= PHP_EOL . "\t\t";
         $s .= 'return $this->renderWithNoParent();';
@@ -1189,6 +1220,7 @@ EEE;
 
                 "newItemBtnText" => "Add a new $tableInfo[label]",
                 "newItemBtnLink" => E::link("$tableInfo[route]") . "?form",
+                "route" => "$tableInfo[route]",
                 $sExtra
                 "context" => [],
             ]);
