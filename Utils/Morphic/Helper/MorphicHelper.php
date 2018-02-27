@@ -5,6 +5,9 @@ namespace Kamille\Utils\Morphic\Helper;
 
 
 use Bat\SessionTool;
+use Bat\UriTool;
+use Kamille\Architecture\Controller\Exception\ClawsHttpResponseException;
+use Kamille\Architecture\Response\Web\RedirectResponse;
 use QuickPdo\QuickPdo;
 use QuickPdo\QuickPdoStmtTool;
 use SokoForm\Form\SokoFormInterface;
@@ -144,4 +147,14 @@ class MorphicHelper
         return str_replace(',', '.', $number);
     }
 
+
+    public static function redirectToUpdateFormIfNecessary(array $ric)
+    {
+
+        if (array_key_exists("submit-and-update", $_POST)) {
+            $response = RedirectResponse::create(UriTool::uri(null, $ric, false, true));
+            $e = ClawsHttpResponseException::create()->setHttpResponse($response);
+            throw $e;
+        }
+    }
 }
