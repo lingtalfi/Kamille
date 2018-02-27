@@ -421,13 +421,16 @@ EEE;
 
         $s = <<<EEE
     'feed' => MorphicHelper::getFeedFunction("$table"),
-    'process' => function (\$fData, SokoFormInterface \$form) use (\$isUpdate, $commaRics) {
+    'process' => function (\$fData, SokoFormInterface \$form) use (\$isUpdate, \$ric, $commaRics) {
             
         if (false === \$isUpdate) {
-            QuickPdo::insert("$table", [
+            \$ric = QuickPdo::insert("$table", [
 $insertCols
-            ]);
+            ], '', \$ric);
             \$form->addNotification("$formInsertSuccessMsg", "success");
+            
+            MorphicHelper::redirectToUpdateFormIfNecessary(\$ric);
+            
         } else {
             QuickPdo::update("$table", [
 $updateCols
