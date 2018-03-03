@@ -167,6 +167,10 @@ History Log
 ===============
     
     
+- 1.115.0 -- 2018-03-03
+
+    - add ClawsInterface.setLayout method
+    
 - 1.114.0 -- 2018-02-08
 
     - add MorphicAdminListRenderer.renderByConfig persistence layer
