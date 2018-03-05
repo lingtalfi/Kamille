@@ -8,15 +8,17 @@ use ApplicationItemManager\ApplicationItemManagerInterface;
 use ArrayToString\ArrayToStringTool;
 use Authenticate\Util\ProfileMergeTool;
 use Bat\FileSystemTool;
+use Bat\LocalHostTool;
 use ClassCooker\ClassCooker;
 use CopyDir\SimpleCopyDirUtil;
 use DirScanner\DirScanner;
-use DirScanner\YorgDirScannerTool;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Module\ModuleInterface;
 use Kamille\Utils\ModuleInstallationRegister\ModuleInstallationRegister;
 use Kamille\Utils\Routsy\RoutsyUtil;
 use Kamille\Utils\Routsy\Util\ConfigGenerator\ConfigGenerator;
+use Output\ProgramOutputInterface;
+use Output\WebProgramOutput;
 
 class ModuleInstallTool
 {
@@ -34,6 +36,57 @@ class ModuleInstallTool
     {
         foreach ($widgets as $widget) {
             $manager->install($widget);
+        }
+    }
+
+    public static function installPlanets(array $planets, ModuleInterface $module, ProgramOutputInterface $output)
+    {
+        /**
+         * For now, our heuristics is based on the presence of the uni tool on the client machine:
+         *
+         * - check if the uni tool is installed
+         *      - if so, we will use it to import the planets
+         *      - if not, we will message the user to say WE CAN'T DO IT FOR NOW unless she installs uni tool
+         *
+         *
+         *
+         */
+
+        $isWeb = ('cli' !== php_sapi_name());
+        $program = "/usr/local/bin/uni";
+        $escapedProgram = str_replace('"', '\"', $program);
+        if (true === LocalHostTool::hasProgram($program)) {
+            $output->info("(following is the output of uni tool:)");
+            foreach ($planets as $planet) {
+
+                $appDir = ApplicationParameters::get('app_dir');
+                $cmd = 'cd "' . str_replace('"', '\"', $appDir) . '"; ' . $escapedProgram;
+                if ($isWeb) {
+                    $cmd .= ' --output-type-web';
+                }
+                $cmd .= ' import ' . $planet;
+                $cmd .= '; ' . $escapedProgram . ' clean'; // make sure we don't have embedded .git files (which can mess up with the user organization)
+
+                /**
+                 * Then here a question arise: do we use uni tolink command ?
+                 * (I mean if the user already uses the tolink system, she might want to
+                 * import the dependency planets as symlinks as well).
+                 *
+                 * We can just detect for the aimp.txt file and will assume that if it's present, the user
+                 * uses the tolink system.
+                 */
+                $toLinkFile = $appDir . '/planets/aimp.txt';
+                if (file_exists($toLinkFile)) {
+                    $cmd .= '; ' . $escapedProgram . ' tolink';
+                }
+
+
+                passthru($cmd);
+            }
+        } else {
+            $planetsString = implode(", ", $planets);
+            $output->error("Sorry, you need to have the uni tool installer to resolve planet dependencies. 
+            The following planets cannot be installed: $planetsString. To install uni tool: https://github.com/lingtalfi/universe-naive-importer");
         }
     }
 
@@ -224,6 +277,58 @@ class ModuleInstallTool
                     }
                 });
             }
+        }
+
+    }
+
+
+    public static function addInModuleTxt(ModuleInterface $module)
+    {
+        $moduleName = self::getModuleName($module);
+        $appDir = ApplicationParameters::get('app_dir');
+
+        $moduleTxtFile = $appDir . "/modules.txt";
+        if (file_exists($moduleTxtFile)) {
+            $recreated = []; // we always ensure that the format is exactly how we want it: without ending spaces after module names...
+            $lines = file($moduleTxtFile, \FILE_IGNORE_NEW_LINES);
+            $found = false;
+            foreach ($lines as $l) {
+                $curModuleName = trim($l);
+                if ($moduleName === $curModuleName) {
+                    $found = true;
+                }
+                $recreated[] = $curModuleName;
+            }
+            if (false === $found) {
+                $recreated[] = $moduleName;
+            }
+            $content = implode(PHP_EOL, $recreated);
+
+        } else {
+            $content = $moduleName . PHP_EOL;
+        }
+        FileSystemTool::mkfile($moduleTxtFile, $content);
+
+    }
+
+
+    public static function removeFromModuleTxt(ModuleInterface $module)
+    {
+        $moduleName = self::getModuleName($module);
+        $appDir = ApplicationParameters::get('app_dir');
+
+        $moduleTxtFile = $appDir . "/modules.txt";
+        if (file_exists($moduleTxtFile)) {
+            $recreated = []; // we always ensure that the format is exactly how we want it: without ending spaces after module names...
+            $lines = file($moduleTxtFile, \FILE_IGNORE_NEW_LINES);
+            foreach ($lines as $l) {
+                $curModuleName = trim($l);
+                if ($moduleName !== $curModuleName) {
+                    $recreated[] = $curModuleName;
+                }
+            }
+            $content = implode(PHP_EOL, $recreated);
+            FileSystemTool::mkfile($moduleTxtFile, $content);
         }
 
     }
@@ -494,29 +599,30 @@ class ModuleInstallTool
         }
     }
 
-    public static function installControllers($moduleName)
-    {
-        $appDir = ApplicationParameters::get("app_dir");
-        $controllersDir = $appDir . "/class-modules/$moduleName/Controller";
-        if (is_dir($controllersDir)) {
-            $files = YorgDirScannerTool::getFilesWithExtension($controllersDir, "php", false, true, true);
-            foreach ($files as $f) {
-                $file = $controllersDir . "/$f";
-                if ('Controller.php' === substr($file, -14)) {
-                    $c = file_get_contents($file);
-
-                    /**
-                     * non safe namespace replacing technique, but should work 98% of the time,
-                     * good for now...
-                     */
-                    $newNamespace = "namespace Controller\\$moduleName;";
-                    $c = preg_replace('!namespace .*;!', $newNamespace, $c, 1);
-                    $targetFile = $appDir . "/class-controllers/$moduleName/$f";
-                    FileSystemTool::mkfile($targetFile, $c);
-                }
-            }
-        }
-    }
+    // deprecated: use autoFiles system instead...
+//    public static function installControllers($moduleName)
+//    {
+//        $appDir = ApplicationParameters::get("app_dir");
+//        $controllersDir = $appDir . "/class-modules/$moduleName/Controller";
+//        if (is_dir($controllersDir)) {
+//            $files = YorgDirScannerTool::getFilesWithExtension($controllersDir, "php", false, true, true);
+//            foreach ($files as $f) {
+//                $file = $controllersDir . "/$f";
+//                if ('Controller.php' === substr($file, -14)) {
+//                    $c = file_get_contents($file);
+//
+//                    /**
+//                     * non safe namespace replacing technique, but should work 98% of the time,
+//                     * good for now...
+//                     */
+//                    $newNamespace = "namespace Controller\\$moduleName;";
+//                    $c = preg_replace('!namespace .*;!', $newNamespace, $c, 1);
+//                    $targetFile = $appDir . "/class-controllers/$moduleName/$f";
+//                    FileSystemTool::mkfile($targetFile, $c);
+//                }
+//            }
+//        }
+//    }
 
 
     /**

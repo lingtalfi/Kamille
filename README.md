@@ -167,6 +167,17 @@ History Log
 ===============
     
     
+- 1.117.0 -- 2018-03-05
+    - enhance KamilleModule, now setting an appropriate default ProgramOutput  
+    
+- 1.116.0 -- 2018-03-05
+
+    - add KamilleModule::create method
+    - add DirScanner dependency in package-info.yml
+    - update Routsy ConfigGenerator now removes unnecessary vertical spaces between routes
+    - install routine now add module name in modules.txt
+    - add ModuleInstallTool::installPlanets method: now KamilleModule can resolve planets dependencies
+    
 - 1.115.0 -- 2018-03-03
 
     - add ClawsInterface.setLayout method

@@ -7,12 +7,12 @@ namespace Kamille\Module;
 use ApplicationItemManager\ApplicationItemManagerInterface;
 use ApplicationItemManager\Aware\ApplicationItemManagerAwareInterface;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
-
 use Kamille\Module\Exception\KamilleModuleException;
-use Kamille\Services\XConfig;
 use Kamille\Utils\ModuleUtils\ModuleInstallTool;
+use Output\ProgramOutput;
 use Output\ProgramOutputAwareInterface;
 use Output\ProgramOutputInterface;
+use Output\WebProgramOutput;
 
 
 /**
@@ -41,7 +41,7 @@ use Output\ProgramOutputInterface;
  *
  *
  */
-abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInterface, ApplicationItemManagerAwareInterface
+abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInterface, ApplicationItemManagerAwareInterface, DependencyAwareModuleInterface
 {
 
     /**
@@ -63,16 +63,41 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     {
         $this->steps = [];
         $this->hooksActive = true;
+        if ("cli" === php_sapi_name()) { // auto-detecting default output type
+            $this->output = ProgramOutput::create();
+        } else {
+            $this->output = WebProgramOutput::create();
+        }
+
+
+    }
+
+    public static function create()
+    {
+        return new static();
+    }
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    public function getDependencies()
+    {
+        /**
+         * Override this if your module uses widgets
+         */
+        return [];
     }
 
 
+    //--------------------------------------------
+    //
+    //--------------------------------------------
     public function install()
     {
         $steps = [];
         $this->collectAutoSteps($steps, 'install');
         $this->registerSteps($steps, 'install');
         $this->steps = $steps;
-
 
         $this->installAuto();
         $this->installModule();
@@ -167,6 +192,15 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 
     protected function collectAutoSteps(array &$steps, $type)
     {
+        if (true === $this->usePlanets()) {
+            if ('install' === $type) {
+                $steps['planets'] = "Installing planets dependencies (universe framework)";
+            } else {
+                // note: this won't actually be executed: we don't REMOVE planets installed in the app
+                // because we don't know if they are/aren't used by the app
+                $steps['planets'] = "Remove planets dependencies (universe framework)";
+            }
+        }
         if (true === $this->useConfig()) {
             if ('install' === $type) {
                 $steps['config'] = "Copying module config file";
@@ -240,10 +274,30 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
                 $steps['database'] = "Uninstalling database";
             }
         }
+
+
+        if (true === $this->useModuleTxt()) {
+            if ('install' === $type) {
+                $steps['modules_txt'] = "Writing module name in modules.txt";
+            } else {
+                $steps['modules_txt'] = "Removing module name from modules.txt";
+            }
+        }
     }
 
     protected function installAuto()
     {
+
+        if (true === $this->usePlanets()) {
+            $this->startStep('planets');
+            $planets = $this->getPlanets();
+            if ($planets) {
+                ModuleInstallTool::installPlanets($planets, $this, $this->output);
+            }
+            $this->stopStep('planets', "done");
+        }
+
+
         if (true === $this->useConfig()) {
             $this->startStep('config');
             ModuleInstallTool::installConfig($this);
@@ -279,12 +333,12 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         }
 
 
-        if (true === $this->useControllers()) {
-            $this->startStep('controllers');
-            $moduleName = $this->getModuleName();
-            ModuleInstallTool::installControllers($moduleName);
-            $this->stopStep('controllers', "done");
-        }
+//        if (true === $this->useControllers()) {
+//            $this->startStep('controllers');
+//            $moduleName = $this->getModuleName();
+//            ModuleInstallTool::installControllers($moduleName);
+//            $this->stopStep('controllers', "done");
+//        }
 
         if (true === $this->useWidgets()) {
             $this->startStep('widgets');
@@ -305,6 +359,12 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             $this->output->notice(""); // just br
             $this->installDatabase();
             $this->stopStep('database', "done");
+        }
+
+        if (true === $this->useModuleTxt()) {
+            $this->startStep('modules_txt');
+            ModuleInstallTool::addInModuleTxt($this);
+            $this->stopStep('modules_txt', "done");
         }
     }
 
@@ -357,15 +417,15 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         }
 
 
-        if (true === $this->useControllers()) {
-            $this->startStep('controllers');
-            /**
-             * you don't want to remove userland code, do you?
-             */
-//            $moduleName = $this->getModuleName();
-//            ModuleInstallTool::uninstallControllers($moduleName);
-            $this->stopStep('controllers', "skipped, don't want to remove userland code");
-        }
+//        if (true === $this->useControllers()) {
+//            $this->startStep('controllers');
+//            /**
+//             * you don't want to remove userland code, do you?
+//             */
+////            $moduleName = $this->getModuleName();
+////            ModuleInstallTool::uninstallControllers($moduleName);
+//            $this->stopStep('controllers', "skipped, don't want to remove userland code");
+//        }
 
         if (true === $this->useProfiles()) {
             $this->startStep('profiles');
@@ -381,6 +441,12 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             $this->stopStep('database', "done");
         }
 
+        if (true === $this->useModuleTxt()) {
+            $this->startStep('modules_txt');
+            ModuleInstallTool::removeFromModuleTxt($this);
+            $this->stopStep('modules_txt', "done");
+        }
+
     }
 
 
@@ -392,7 +458,17 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     {
         /**
          * Override this if your module uses planets.
-         * Not implemented yet.
+         * The syntax of a planet is the one defined by the uni tool
+         * https://github.com/lingtalfi/universe-naive-importer
+         *
+         * For instance to import Bat planet, the syntax is:
+         *
+         * - ling.Bat
+         *
+         * Which in abstract is:
+         *
+         * - <universeIdentifier>  "."  <planetName>
+         *
          */
         return [];
     }
@@ -447,6 +523,12 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
         return (file_exists($f));
     }
 
+    private function usePlanets()
+    {
+        $pl = $this->getPlanets();
+        return (count($pl) > 0);
+    }
+
     private function useConfig()
     {
         $d = $this->getModuleDir();
@@ -468,6 +550,11 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
 
     private function useControllers()
     {
+        return false;
+
+        /**
+         * deprecated in favor of autofile system, much simpler
+         */
         $d = $this->getModuleDir();
         $f = $d . "/Controller";
         return (file_exists($f));
@@ -506,6 +593,11 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             method_exists($this, "installDatabase") &&
             method_exists($this, "uninstallDatabase")
         );
+    }
+
+    private function useModuleTxt()
+    {
+        return true;
     }
 
     private function getModuleName()

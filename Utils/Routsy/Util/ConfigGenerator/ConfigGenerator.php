@@ -94,6 +94,7 @@ class ConfigGenerator
         }
         $_routes = $routes;
 
+
         $newRoutesDynamic = [];
         $newRoutesStatic = [];
 
@@ -116,7 +117,7 @@ class ConfigGenerator
                      * @var LineSetInterface $lineSet
                      */
                     $lineSet = $lineSets[$id];
-                    $routeContent = $lineSet->toString();
+                    $routeContent = trim($lineSet->toString());
                     if (true === $this->isDynamic($route[0])) {
                         $newRoutesDynamic[$id] = $routeContent;
                     } else {
@@ -132,7 +133,7 @@ class ConfigGenerator
         if (count($newRoutesStatic) > 0) {
             foreach ($newRoutesStatic as $id => $routeContent) {
                 $dynamicSectionLineNumber = $this->getSectionLineNumber("dynamic", $appFile);
-                FileTool::insert($dynamicSectionLineNumber, PHP_EOL . $routeContent . PHP_EOL, $appFile);
+                FileTool::insert($dynamicSectionLineNumber, $routeContent . PHP_EOL, $appFile);
             }
         }
 

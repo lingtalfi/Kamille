@@ -3,6 +3,7 @@
 - [class-controllers](#class-controllers)
 - [class-core](#class-core)
 - [class-modules](#class-modules)
+- [class-themes](#class-themes)
 - [config](#config)
 - [functions](#functions)
 - [logs](#logs)
@@ -32,6 +33,10 @@ et que vous pouvez modifier à votre gré.
 ### class-modules
 
 Ce dossier contient les modules de votre application.
+
+### class-themes
+
+Ce dossier contient les classes utilitaires en rapport avec le thème.
 
 ### config
 
