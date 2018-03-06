@@ -283,6 +283,12 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
                 $steps['modules_txt'] = "Removing module name from modules.txt";
             }
         }
+
+        if ('install' === $type && true === $this->hasInstallAfterNote()) {
+            $steps['_install_after_note'] = "Reading install after note";
+        } elseif ('install' !== $type && true === $this->hasUnInstallAfterNote()) {
+            $steps['_uninstall_after_note'] = "Reading uninstall after note";
+        }
     }
 
     protected function installAuto()
@@ -366,6 +372,16 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             ModuleInstallTool::addInModuleTxt($this);
             $this->stopStep('modules_txt', "done");
         }
+
+
+
+        if (true === $this->hasInstallAfterNote()) {
+            $this->startStep('_install_after_note');
+            $f = $this->getModuleDir() . "/_install_after_note.txt";
+            $content = file_get_contents($f);
+            $this->output->notice(PHP_EOL . $content);
+            $this->stopStep('_install_after_note', "done");
+        }
     }
 
 
@@ -447,6 +463,13 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
             $this->stopStep('modules_txt', "done");
         }
 
+        if (true === $this->hasUninstallAfterNote()) {
+            $this->startStep('_uninstall_after_note');
+            $f = $this->getModuleDir() . "/_uninstall_after_note.txt";
+            $content = file_get_contents($f);
+            $this->output->notice(PHP_EOL . $content);
+            $this->stopStep('_uninstall_after_note', "done");
+        }
     }
 
 
@@ -598,6 +621,20 @@ abstract class KamilleModule implements ProgramOutputAwareInterface, ModuleInter
     private function useModuleTxt()
     {
         return true;
+    }
+
+    private function hasInstallAfterNote()
+    {
+        $d = $this->getModuleDir();
+        $f = $d . "/_install_after_note.txt";
+        return (file_exists($f));
+    }
+
+    private function hasUninstallAfterNote()
+    {
+        $d = $this->getModuleDir();
+        $f = $d . "/_uninstall_after_note.txt";
+        return (file_exists($f));
     }
 
     private function getModuleName()

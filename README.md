@@ -167,6 +167,9 @@ History Log
 ===============
     
     
+- 1.118.0 -- 2018-03-05
+    - add KamilleModule _install_after_note.txt recognition mechanism 
+    
 - 1.117.0 -- 2018-03-05
     - enhance KamilleModule, now setting an appropriate default ProgramOutput  
     
