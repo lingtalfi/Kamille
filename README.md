@@ -167,6 +167,10 @@ History Log
 ===============
     
     
+- 1.119.1 -- 2018-03-07
+
+    - fix KamilleModulePacker wrong Hooks regex
+    
 - 1.119.0 -- 2018-03-07
 
     - add KamilleModulePacker

@@ -66,11 +66,11 @@ Exemple de fichier _pack.txt
 Exemple (`class-modules/Test/_pack.txt`):
 
 ```txt
-[app]/class-controllers/Test
-[app]/class-themes/Test
-[app]/class-themes/TestTheme.php
-[app]/theme/Test
-[app]/www/theme/Test
+[app]/class-controllers/{ModuleName}
+[app]/class-themes/{ModuleName}
+[app]/class-themes/{ModuleName}Theme.php
+[app]/theme/{ModuleName}
+[app]/www/theme/{ModuleName}
 ```
 
 
