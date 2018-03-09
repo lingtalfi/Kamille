@@ -88,6 +88,7 @@ class MorphicAdminListRenderer
             'listActions' => $config['listActions'],
             'rowActions' => (array_key_exists("rowActions", $config)) ? $config['rowActions'] : [],
             'context' => (array_key_exists("context", $config)) ? $config['context'] : [],
+            'colTransformers' => (array_key_exists("colTransformers", $config)) ? $config['colTransformers'] : [],
         ]);
         return $renderer->render();
     }

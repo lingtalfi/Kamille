@@ -167,6 +167,10 @@ History Log
 ===============
     
     
+- 1.120.1 -- 2018-03-09
+
+    - fix MorphicAdminListRenderer now transmits colTransformers
+    
 - 1.120.0 -- 2018-03-09
 
     - add KamilleModulePackerHelper tool
