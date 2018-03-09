@@ -19,5 +19,8 @@
   * [Modules](modules.md)
   * [Le module ThisApp](this-app-module.md)
   
+* Développeur
+  * [Mémo développeur](developer/developer-memo.md)
+  
 * FAQ
   * [Les questions les plus fréquentes](faq.md)
