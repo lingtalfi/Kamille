@@ -76,14 +76,30 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
     {
         if ($this->db2Tables) {
             $tablesBasicInfo = $this->getTablesBasicInfo($this->db2Tables);
-            foreach ($tablesBasicInfo as $table => $tableInfo) {
-                $this->generateByTableInfo($tableInfo);
+            foreach ($tablesBasicInfo as $fullTable => $tableInfo) {
+                $tableAdvancedInfo = $this->getAdvancedInfo($tableInfo);
+                $table2Aliases = $this->_getTable2Aliases($tableInfo);
+                $tableAdvancedInfo['table2Aliases'] = $table2Aliases;
+                $this->registerTableInfo($tableAdvancedInfo); // from now on, $this->db2TableInfo contains all info ($this->db2TableInfo[$db][$table] = $tableInfo;)
+
+            }
+
+
+            foreach ($this->db2Tables as $db => $tables) {
+                foreach ($tables as $table) {
+                    $info = $this->db2TableInfo[$db][$table];
+                    $this->generateByTableInfo($info);
+                }
             }
         } else {
             // don't know this generation technique yet
         }
     }
 
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
     public function setConfiguration(array $configuration)
     {
         $this->configuration = $configuration;
@@ -117,16 +133,10 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
     //--------------------------------------------
     protected function generateByTableInfo(array $tableInfo)
     {
-        $tableAdvancedInfo = $this->getAdvancedInfo($tableInfo);
-        $table2Aliases = $this->_getTable2Aliases($tableInfo);
-        $tableAdvancedInfo['table2Aliases'] = $table2Aliases;
-
-        $this->registerTableInfo($tableAdvancedInfo);
-
-
-        $this->generateController($tableAdvancedInfo);
-        $this->generateListConfigFile($tableAdvancedInfo, $table2Aliases);
-        $this->generateFormConfigFile($tableAdvancedInfo, $table2Aliases);
+        $table2Aliases = $tableInfo['table2Aliases'];
+        $this->generateController($tableInfo);
+        $this->generateListConfigFile($tableInfo, $table2Aliases);
+        $this->generateFormConfigFile($tableInfo, $table2Aliases);
     }
 
 
@@ -136,7 +146,7 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
         foreach ($db2Tables as $db => $tables) {
             $db2Tables = $this->getAllDbBasicInfo($db);
             foreach ($tables as $table) {
-                $tablesBasicInfo[$table] = $db2Tables[$table];
+                $tablesBasicInfo[$db . "." . $table] = $db2Tables[$table];
             }
         }
         return $tablesBasicInfo;
@@ -469,6 +479,7 @@ EEE;
 
     }
 
+
     protected function _getFormConfigConfControls(array $tableInfo, array $inferred)
     {
         $s = '';
@@ -478,7 +489,6 @@ EEE;
         $columnTypes = $tableInfo["columnTypes"];
         $nullableKeys = $tableInfo['columnNullables'];
         $columnTypesPrecision = $tableInfo['columnTypesPrecision'];
-
 
         $autocompletes = $this->getConfiguration("formControlTypes.autocomplete", []);
 
@@ -502,21 +512,28 @@ EEE;
                     $sExtra = "";
 
 
-
                     if ($ai === $col) {
                         $class = 'SokoInputControl';
                         $readOnly = 'true';
-                    } elseif (true === $this->isAutocompleteControl($col, $autocompletes, $tableInfo)) {
-                        $class = "SokoAutocompleteInputControl";
-                        $sExtra = $this->getAutocompleteControlContent($col);
-                        $readOnly = '(null !== $' . $col . ')';
+                        $sExtraLink = "";
                     } else {
-                        $class = "SokoChoiceControl";
-                        $sExtra = <<<EEE
+                        $fkTableInfo = $this->db2TableInfo[$fks[$col][0]][$fks[$col][1]];
+                        $fkRoute = $fkTableInfo['route'];
+
+                        if (true === $this->isAutocompleteControl($col, $autocompletes, $tableInfo)) {
+                            $class = "SokoAutocompleteInputControl";
+                            $sExtra = $this->getAutocompleteControlContent($col);
+                            $readOnly = '(null !== $' . $col . ')';
+                            $sExtraLink = $this->getForeignKeyExtraLink('autocomplete', $col, $label, $fkRoute);
+                        } else {
+                            $class = "SokoChoiceControl";
+                            $sExtra = <<<EEE
             ->setChoices(\$choice_$col)
 EEE;
-                        $readOnly = '(null !== $' . $col . ')';
+                            $readOnly = '(null !== $' . $col . ')';
+                            $sExtraLink = $this->getForeignKeyExtraLink('fk', $col, $label, $fkRoute);
 
+                        }
                     }
 
 
@@ -525,7 +542,7 @@ $class::create()
             ->setName("$col")
             ->setLabel("$label")
             ->setProperties([
-                'readonly' => $readOnly,
+                'readonly' => $readOnly,$sExtraLink
             ])
             ->setValue(\$$col)
 EEE;
@@ -1239,6 +1256,20 @@ EEE;
     protected function _getControllerRenderWithNoParentMethodExtraVar(array $tableInfo)
     {
         return '';
+    }
+
+    /**
+     * @param $fkType : one of
+     *      - ai
+     *      - autocomplete
+     *      - fk
+     * @param $col
+     * @param $label
+     * @return string
+     */
+    protected function getForeignKeyExtraLink($fkType, $col, $label, $route)
+    {
+        return "";
     }
 
 

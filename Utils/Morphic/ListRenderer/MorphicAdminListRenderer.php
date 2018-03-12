@@ -62,6 +62,9 @@ class MorphicAdminListRenderer
         if (array_key_exists('realColumnMap', $config)) {
             $util->setRealColumnMap($config['realColumnMap']);
         }
+        if (array_key_exists('having', $config)) {
+            $util->setHaving($config['having']);
+        }
         $info = $util->execute($params);
 
 
@@ -88,7 +91,9 @@ class MorphicAdminListRenderer
             'listActions' => $config['listActions'],
             'rowActions' => (array_key_exists("rowActions", $config)) ? $config['rowActions'] : [],
             'context' => (array_key_exists("context", $config)) ? $config['context'] : [],
+            'deadCols' => (array_key_exists("deadCols", $config)) ? $config['deadCols'] : [],
             'colTransformers' => (array_key_exists("colTransformers", $config)) ? $config['colTransformers'] : [],
+            'colSizes' => (array_key_exists("colSizes", $config)) ? $config['colSizes'] : [],
         ]);
         return $renderer->render();
     }

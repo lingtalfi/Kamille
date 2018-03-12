@@ -157,4 +157,13 @@ class MorphicHelper
             throw $e;
         }
     }
+
+    public static function redirect(array $params = [])
+    {
+        $response = RedirectResponse::create(UriTool::uri(null, $params, false, true));
+        $e = ClawsHttpResponseException::create()->setHttpResponse($response);
+        throw $e;
+    }
+
+
 }
