@@ -70,10 +70,10 @@ class MorphicAdminListRenderer
 
         $rows = $info['rows'];
         $renderer = Theme::getWidgetRenderer($this->widgetRendererIdentifier);
-
         $renderer->setModel([
             'title' => $config['title'],
             'rows' => $rows,
+            'module' => $config['module'],
             'viewId' => $config['viewId'],
             'table' => $config['table'],
             'headers' => $config['headers'],
