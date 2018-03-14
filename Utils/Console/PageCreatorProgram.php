@@ -68,6 +68,7 @@ class PageCreatorProgram
         if (null === $controllerModelDir) {
             $controllerModelDir = __DIR__ . '/assets';
         }
+        $controllerModelDir = str_replace('[app]', $appDir, $controllerModelDir);
 
         $controllerPath = "\Controller\\$module";
 
