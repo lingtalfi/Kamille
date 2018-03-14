@@ -393,6 +393,7 @@ EEE;
         $label = $tableInfo['label'];
         $cols = $tableInfo['columns'];
         $hasPrimaryKey = $tableInfo['hasPrimaryKey'];
+        $nullables = $tableInfo['columnNullables'];
         $ai = $tableInfo['ai'];
 
 
@@ -410,17 +411,26 @@ EEE;
         foreach ($cols as $col) {
 
             $thisAi = ($ai === $col) ? $ai : false;
+            $isNullable = (array_key_exists($col, $nullables) && true === $nullables[$col]);
 
 
             if (false === $thisAi) {
-                $insertCols .= $indent . '"' . $col . '" => $fData["' . $col . '"],' . PHP_EOL;
+                if (false === $isNullable) {
+                    $insertCols .= $indent . '"' . $col . '" => $fData["' . $col . '"],' . PHP_EOL;
+                } else {
+                    $insertCols .= $indent . '"' . $col . '" => ($fData["' . $col . '"]) ? $fData["' . $col . '"] : null,' . PHP_EOL;
+                }
             }
 
 
             $inRic = (true === in_array($col, $ric, true));
 
             if (false === $inRic || false === $hasPrimaryKey) {
-                $updateCols .= $indent . '"' . $col . '" => $fData["' . $col . '"],' . PHP_EOL;
+                if (false === $isNullable) {
+                    $updateCols .= $indent . '"' . $col . '" => $fData["' . $col . '"],' . PHP_EOL;
+                } else {
+                    $updateCols .= $indent . '"' . $col . '" => ($fData["' . $col . '"]) ? $fData["' . $col . '"] : null,' . PHP_EOL;
+                }
             }
 
             if (true === $inRic) {
@@ -428,9 +438,14 @@ EEE;
             }
         }
 
+        $sessionFlagName = "form-generated-$table";
 
         $s = <<<EEE
-    'feed' => MorphicHelper::getFeedFunction("$table"),
+    'feed' => MorphicHelper::getFeedFunction("$table", function (SokoFormInterface \$form) {
+        if (SessionTool::pickupFlag("$sessionFlagName")) {
+            \$form->addNotification("$formInsertSuccessMsg", "success");
+        }
+    }),
     'process' => function (\$fData, SokoFormInterface \$form) use (\$isUpdate, \$ric, $commaRics) {
             
         if (false === \$isUpdate) {
@@ -439,7 +454,10 @@ $insertCols
             ], '', \$ric);
             \$form->addNotification("$formInsertSuccessMsg", "success");
             
-            MorphicHelper::redirectToUpdateFormIfNecessary(\$ric);
+            if (array_key_exists("submit-and-update", \$_POST)) {
+                SessionTool::setFlag("$sessionFlagName");
+                MorphicHelper::redirect(\$ric);
+            }
             
         } else {
             QuickPdo::update("$table", [
@@ -751,6 +769,7 @@ EEE;
     protected function _getFormConfigFileTop(array $tableInfo, array $inferred)
     {
         return <<<EEE
+use Bat\SessionTool;        
 use QuickPdo\QuickPdo;
 use Kamille\Utils\Morphic\Helper\MorphicHelper;
 use SokoForm\Form\SokoFormInterface;
@@ -776,6 +795,7 @@ EEE;
     {
         // find db prefixes (to find aliases)
         $reversedKeys = $tableInfo['reversedFks'];
+        $nullables = $tableInfo['columnNullables'];
 
         $joins = [];
         foreach ($reversedKeys as $ftable => $colsInfo) {
@@ -784,12 +804,26 @@ EEE;
             $prefix = $table2Aliases[$table];
 
             $onClause = [];
+            $hasNullable = false;
             foreach ($colsInfo as $info) {
-                $onClause[] = "`$prefix`." . $info[3] . "=h." . $info[0];
+
+                $col = $info[0];
+                if (array_key_exists($col, $nullables) && true === $nullables[$col]) {
+                    $hasNullable = true;
+                }
+
+
+                $onClause[] = "`$prefix`." . $info[3] . "=h." . $col;
             }
 
 //            $joins[] = "inner join $ftable $prefix on " . implode(' and ', $onClause);
-            $joins[] = "inner join $table `$prefix` on " . implode(' and ', $onClause);
+
+
+            $joinType = "inner";
+            if ($hasNullable) {
+                $joinType = "left";
+            }
+            $joins[] = "$joinType join $table `$prefix` on " . implode(' and ', $onClause);
         }
 
 
