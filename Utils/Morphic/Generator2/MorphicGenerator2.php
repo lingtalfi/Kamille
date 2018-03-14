@@ -507,7 +507,6 @@ EEE;
         $columnTypes = $tableInfo["columnTypes"];
         $nullableKeys = $tableInfo['columnNullables'];
         $columnTypesPrecision = $tableInfo['columnTypesPrecision'];
-
         $autocompletes = $this->getConfiguration("formControlTypes.autocomplete", []);
 
 
@@ -542,14 +541,14 @@ EEE;
                             $class = "SokoAutocompleteInputControl";
                             $sExtra = $this->getAutocompleteControlContent($col);
                             $readOnly = '(null !== $' . $col . ')';
-                            $sExtraLink = $this->getForeignKeyExtraLink('autocomplete', $col, $label, $fkRoute);
+                            $sExtraLink = $this->getForeignKeyExtraLink('autocomplete', $col, $label, $fkRoute, $tableInfo, $fkTableInfo);
                         } else {
                             $class = "SokoChoiceControl";
                             $sExtra = <<<EEE
             ->setChoices(\$choice_$col)
 EEE;
                             $readOnly = '(null !== $' . $col . ')';
-                            $sExtraLink = $this->getForeignKeyExtraLink('fk', $col, $label, $fkRoute);
+                            $sExtraLink = $this->getForeignKeyExtraLink('fk', $col, $label, $fkRoute, $tableInfo, $fkTableInfo);
 
                         }
                     }
@@ -1301,7 +1300,7 @@ EEE;
      * @param $label
      * @return string
      */
-    protected function getForeignKeyExtraLink($fkType, $col, $label, $route)
+    protected function getForeignKeyExtraLink($fkType, $col, $label, $route, array $tableInfo, array $fkTableInfo)
     {
         return "";
     }
