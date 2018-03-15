@@ -139,18 +139,26 @@ Voici les propriétés disponibles pour le fichier de configuration des listes m
         callback ( columnValue, array row )
 
 - `formRoute`: la route du lien vers le formulaire correspondant. Ce mécanisme est utilisé dans la rowAction "update" par défaut 
-- `formRouteExtraVars`: des paramètres supplémentaires à ajouter au lien généré avec la propriété `formRoute` 
+- `formRouteUseRic`: bool=true, doit-on utiliser les valeurs ric dans la génération de la rowAction "update" par défaut
+- `formRouteExtraVars`: des paramètres supplémentaires (clé => valeur) à ajouter au lien généré avec la propriété `formRoute`.
+On peut utiliser les valeurs de row en préfixant la valeur par le symbole $. Exemple: test => $product_id est transformé en test => $row[product_id] 
 - `rowActionUpdateRicAdaptor`: un adaptateur (map) permettant de modifier les colonnes définies dans ric en d'autres champs pour ce qui concerne la génération du lien pour la rowAction "update" par défaut 
+- `formRouteExtraActions`: un tableau d'actions supplémentaires à ajouter aux rowActions par défaut (même stucture que `rowActions`)   
 - `rowActions`: laisser vide pour utiliser les actions par défaut. Un tableau d'action.
     - `name`: le nom symbolique de l'action (ex: update)             
     - `label`: le label (exemple: Modifier)             
     - `icon`: ex fa fa-pencil             
     - `link`: le lien             
+    - `?ecp`: pour appeler un service ecp en background, à utiliser **à la place** de link. La chaîne ecp correspond à l'argument target dont la syntaxe est la suivante: &lt;moduleName> &lt;:> &lt;serviceIdentifier>.
+    Il est possible de passer des arguments avec la propriété `args`.            
+    - `?ecpAfter`: fonctionne seulement si la propriété `ecp` est positionnée. L'action javascript à appeler après que la requête ecp se soit exécutée avec succès. Les valeurs possibles sont:
+        - `reload`: recharge la page               
+    - `?args`: un tableau (clé => valeur) d'arguments disponible lorsque la propriété `ecp` est positionnée.
+    Si la valeur est préfixée par le symbole $ et qu'elle correspond à une clé de ric, alors la valeur de ric correspondante sera envoyée  
     - `?confirm`: le texte de confirmation si c'est une action qui nécessite une confirmation             
     - `?confirmTitle`: le titre du dialogue de confirmation             
     - `?confirmOkBtn`: le texte de bouton validant la demande de confirmation             
     - `?confirmCancelBtn`: le texte de bouton annulant la demande de confirmation
-    
     
 La vue
 -----------------------

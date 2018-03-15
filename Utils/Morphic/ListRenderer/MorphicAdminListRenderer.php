@@ -94,6 +94,7 @@ class MorphicAdminListRenderer
             'deadCols' => (array_key_exists("deadCols", $config)) ? $config['deadCols'] : [],
             'colTransformers' => (array_key_exists("colTransformers", $config)) ? $config['colTransformers'] : [],
             'colSizes' => (array_key_exists("colSizes", $config)) ? $config['colSizes'] : [],
+            'ric' => (array_key_exists("ric", $config)) ? $config['ric'] : [],
         ]);
         return $renderer->render();
     }
