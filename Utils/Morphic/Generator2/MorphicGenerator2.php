@@ -956,9 +956,6 @@ EEE;
     "queryCols" => $sQCols,
     "ric" => $sRic,
     "formRouteExtraVars" => \$parentValues,
-    /**
-     * formRoute is just a helper, it will be used to generate the rowActions key.
-     */
     'formRoute' => "$tableInfo[route]",    
     'context' => \$context,
 ];
