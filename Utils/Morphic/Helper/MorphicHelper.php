@@ -141,6 +141,7 @@ class MorphicHelper
                 }
             }
 
+
             $markers = [];
             $values = array_intersect_key($_GET, array_flip($ric));
             $q = $query;
