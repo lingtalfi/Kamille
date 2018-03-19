@@ -65,6 +65,9 @@ class MorphicAdminListRenderer
         if (array_key_exists('having', $config)) {
             $util->setHaving($config['having']);
         }
+        if (array_key_exists('operators', $config)) {
+            $util->setOperators($config['operators']);
+        }
         $info = $util->execute($params);
 
 
