@@ -95,7 +95,11 @@ A::chronosPoint("page.perf");
 
 
 
+Comment savoir si un module est installé?
+------------------------------
 
-
-
-
+```php
+if (ModuleInstallationRegister::isInstalled("PeiPei")) {
+    // le module PeiPei est installé   
+}
+```

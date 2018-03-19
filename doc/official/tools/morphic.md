@@ -92,6 +92,56 @@ Le modèle en question: `class-controllers/Ekom/Back/Pattern/EkomBackSimpleFormL
 
 
 
+#### Configuration d'un contrôleur
+
+
+Certains contrôleurs, par le biais de l'héritage de classes, peuvent mettre à disposition des méthodes
+de configuration pratiques pour le développeur.
+
+
+Voici un exemple de contrôleur fourni par le module [ekom](https://github.com/KamilleModules/Ekom) (module de e-commerce pour kamille)
+qui étend un contrôleur généré par l'outil morphic, et surcharge certaines valeurs de configuration.
+
+```php
+<?php
+
+namespace Controller\Ekom\Back\Catalog;
+
+
+use Controller\Ekom\Back\Generated\EkProductHasTag\EkProductHasTagListController;
+
+class ProductHasTagListController extends EkProductHasTagListController
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->addConfigValues([
+            'route' => "Ekom_Back_Catalog_ProductHasTag_List",
+            'form' => "back/catalog/product_has_tag",
+            'list' => "back/catalog/product_has_tag",
+            /**
+             * This defines the selected menu item (left menu of nullos)
+             * when you render a formList using the "withParent" method WITHOUT
+             * specifying the ric in the uri
+             */
+            'parent2Route' => [
+                'ek_product' => 'Ekom_Back_Generated_EkProduct_List',
+                'ek_tag' => 'Ekom_Back_Catalog_Tag_List',
+            ],
+            /**
+             * This defines the selected menu item (left menu of nullos)
+             * when you render a formList using the "withNoParent" method WITH
+             * specifying the ric in the uri
+             */
+            "menuCurrentRoute" => "Ekom_Back_Catalog_Tag_List",
+        ]);
+    }
+}
+
+```
+
+
+
 
 
 
@@ -124,8 +174,11 @@ Voici les propriétés disponibles pour le fichier de configuration des listes m
 
 
 - `title`: le titre de la liste
-- `table`: une référence de la table. Est utilisée par l'ajax service back.morphic (`service/Ekom/ecp/api.php`)  
-- `viewId`: l'identifiant de la liste (par exemple: back/catalog/product)  
+- `table`: une référence de la table. Est utilisée par l'ajax service back.morphic (`service/NullosAdmin/ecp/api.php`)  
+- `object`: une référence vers un objet [xiao](https://github.com/lingtalfi/XiaoApi) qui vous permet de gérer des hooks supplémentaires. Est utilisée par l'ajax service back.morphic (`service/NullosAdmin/ecp/api.php`)
+Si vous définissez `object`, alors object sera utilisé à la place de table.  
+- `viewId`: optionnel, l'identifiant de la liste (par exemple: back/catalog/product). Il est transmis via ajax par la couche morphic.js de manière à synchroniser la liste
+générée par ajax et celle générée statiquement. Il est conseillé de ne pas renseigner cette valeur, et de laisser le système utiliser sa valeur par défaut.  
 - `headers`: les champs à afficher. Tableau de `column` => label. La dernière colonne spéciale est: `_action => ''` si vous utilisez les actions.   
 - `headersVisibility`: les colonnes à masquer. `column` => bool  
 - `realColumnMap`: permet de rectifier les fonctions de tri/recherche. Tableau de `column` => `queryRealCol`, queryRealCol étant le nom tel qu'utilisé dans la requête sql (exemple: pcl.product_card_id)  
