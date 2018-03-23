@@ -116,7 +116,7 @@ class ProductHasTagListController extends EkProductHasTagListController
     {
         parent::__construct();
         $this->addConfigValues([
-            'route' => "Ekom_Back_Catalog_ProductHasTag_List",
+            'route' => "Ekom_Catalog_ProductHasTag_List",
             'form' => "back/catalog/product_has_tag",
             'list' => "back/catalog/product_has_tag",
             /**
@@ -125,15 +125,15 @@ class ProductHasTagListController extends EkProductHasTagListController
              * specifying the ric in the uri
              */
             'parent2Route' => [
-                'ek_product' => 'Ekom_Back_Generated_EkProduct_List',
-                'ek_tag' => 'Ekom_Back_Catalog_Tag_List',
+                'ek_product' => 'Ekom_Generated_EkProduct_List',
+                'ek_tag' => 'Ekom_Catalog_Tag_List',
             ],
             /**
              * This defines the selected menu item (left menu of nullos)
              * when you render a formList using the "withNoParent" method WITH
              * specifying the ric in the uri
              */
-            "menuCurrentRoute" => "Ekom_Back_Catalog_Tag_List",
+            "menuCurrentRoute" => "Ekom_Catalog_Tag_List",
         ]);
     }
 }
