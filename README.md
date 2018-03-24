@@ -167,6 +167,10 @@ History Log
 ===============
     
     
+- 1.126.0 -- 2018-03-24
+
+    - enhance NewModuleProgram, now creates a default ThemeHelper
+    
 - 1.125.0 -- 2018-03-24
 
     - add KamilleModuleThemeHelper class
