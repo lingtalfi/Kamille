@@ -167,6 +167,10 @@ History Log
 ===============
     
     
+- 1.125.0 -- 2018-03-24
+
+    - add KamilleModuleThemeHelper class
+    
 - 1.124.0 -- 2018-03-24
 
     - ClawsRenderer now fallbacks to the _default_ theme if no layout and/or widget was found with a claws identifier
