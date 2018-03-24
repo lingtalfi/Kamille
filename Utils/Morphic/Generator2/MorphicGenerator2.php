@@ -85,12 +85,14 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
             }
 
 
+            // now generating the subset that we want
             foreach ($this->db2Tables as $db => $tables) {
                 foreach ($tables as $table) {
                     $info = $this->db2TableInfo[$db][$table];
                     $this->generateByTableInfo($info);
                 }
             }
+
         } else {
             // don't know this generation technique yet
         }
@@ -131,6 +133,11 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
     //--------------------------------------------
     //
     //--------------------------------------------
+    protected function doGenerate()
+    {
+
+    }
+
     protected function generateByTableInfo(array $tableInfo)
     {
         $table2Aliases = $tableInfo['table2Aliases'];
@@ -144,9 +151,13 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
     {
         $tablesBasicInfo = [];
         foreach ($db2Tables as $db => $tables) {
-            $db2Tables = $this->getAllDbBasicInfo($db);
-            foreach ($tables as $table) {
-                $tablesBasicInfo[$db . "." . $table] = $db2Tables[$table];
+            /**
+             * Actually, since tables sometimes reference other tables from other modules),
+             * we generate information for all tables in the database no matter what.
+             */
+            $allTables = $this->getAllTablesBasicInfo($db);
+            foreach ($allTables as $tableInfo) {
+                $tablesBasicInfo[$db . "." . $tableInfo['table']] = $tableInfo;
             }
         }
         return $tablesBasicInfo;
@@ -654,7 +665,7 @@ EEE;
             ])
                         ';
                                 $s .= PHP_EOL . <<<EEE
-        ->addControl(EkomSokoDateControl::create()
+        ->addControl(SokoDateControl::create()
             ->setName("$col")
             ->setLabel("$label")
             $sProps
@@ -672,7 +683,7 @@ EEE;
             ])
                         ';
                                 $s .= PHP_EOL . <<<EEE
-        ->addControl(EkomSokoDateControl::create()
+        ->addControl(SokoDateControl::create()
             ->useDatetime()
             ->setName("$col")
             ->setLabel("$label")
@@ -716,6 +727,25 @@ EEE;
 
     protected function doPrepareColumnControl(&$s, array $params, array $tableInfo)
     {
+        $type = $params['type'];
+        $col = $params['column'];
+        $label = $params['label'];
+
+
+        switch ($type) {
+            case "date":
+
+
+                $s .= PHP_EOL . <<<EEE
+        ->addControl(SokoDateControl::create()
+            ->setName("$col")
+            ->setLabel('$label')
+        )
+EEE;
+                return true;
+                break;
+        }
+
         return false;
     }
 
@@ -816,6 +846,7 @@ use SokoForm\Form\SokoForm;
 use SokoForm\Control\SokoAutocompleteInputControl;
 use SokoForm\Control\SokoInputControl;
 use SokoForm\Control\SokoChoiceControl;
+use SokoForm\Control\SokoDateControl;
 use SokoForm\Control\SokoBooleanChoiceControl;
 EEE;
 
@@ -1091,7 +1122,7 @@ EEE;
     }
 
 
-    private function getAllDbBasicInfo($db)
+    private function getAllTablesBasicInfo($db)
     {
 
         $f = $this->getCacheFile($db);
@@ -1182,6 +1213,7 @@ EEE;
 namespace Controller\Morphic\Generated\\$tableInfo[camel];
 use Controller\Morphic\Pattern\MorphicListController;
 use Kamille\Utils\Morphic\Exception\MorphicException;
+use Core\Services\A;
 
 
 class $tableInfo[camel]ListController extends MorphicListController
@@ -1190,6 +1222,11 @@ EEE;
 
         return $s;
 
+    }
+
+    protected function getControllerConstructorExtraStatements()
+    {
+        return '';
     }
 
     protected function _getControllerTopMethods(array $tableInfo)
@@ -1208,6 +1245,7 @@ EEE;
             }
         }
         $sParent2Route = ArrayToStringTool::toPhpArray($parent2Route, null, 12);
+        $constructorExtraStatements = $this->getControllerConstructorExtraStatements();
 
         $s = <<<EEE
         
@@ -1220,8 +1258,9 @@ EEE;
             'route' => "$originalTableInfo[route]",
             'form' => "$originalTableInfo[table]",
             'list' => "$originalTableInfo[table]",
-            'parent2Route' => $sParent2Route,            
+            'parent2Route' => $sParent2Route,
         ];
+        $constructorExtraStatements                        
     }
 
     protected function addConfigValues(array \$configValues)
@@ -1393,7 +1432,7 @@ EEE;
                 ],
 
                 "newItemBtnText" => "$newItemBtnText",
-                "newItemBtnLink" => E::link(\$this->configValues['route']) . "?form&s",
+                "newItemBtnLink" => A::link(\$this->configValues['route']) . "?form&s",
                 "route" => \$this->configValues['route'],
                 $sExtra
                 "menuCurrentRoute" => \$menuCurrentRoute,
@@ -1467,12 +1506,48 @@ EEE;
      * @param $label
      * @return string
      */
+
     protected function getForeignKeyExtraLink($fkType, $col, $label, $route, array $tableInfo, array $fkTableInfo)
     {
+        if ('ai' !== $fkType) {
+
+            $rks = $tableInfo['rks'];
+
+
+            $reversedFields = [];
+            foreach ($rks as $info) {
+                if ($info[1] === $fkTableInfo['table']) {
+                    $reversedFields = $info[2];
+                    break;
+                }
+            }
+
+
+            $linkArgs = '';
+            if ($reversedFields) {
+                foreach ($reversedFields as $k => $v) {
+                    $linkArgs .= "&$v=' . \$$k . '";
+                }
+            }
+
+            $text = $this->getForeignKeyExtraLinkText($label, $tableInfo, $fkTableInfo);
+
+            return "
+                'extraLink' => [
+                    'text' => '$text',
+                    'icon' => 'fa fa-plus',
+                    'link' => A::link('$route') . '?form$linkArgs',
+                ],";
+        }
         return "";
     }
 
 
+    protected function getForeignKeyExtraLinkText($label, array $tableInfo, array $fkTableInfo)
+    {
+        return "Create a new element \"$label\"";
+//        return "Créer un nouvel élément \"$label\"";
+    }
     //--------------------------------------------
     //
     //--------------------------------------------
