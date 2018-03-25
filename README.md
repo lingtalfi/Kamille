@@ -167,6 +167,10 @@ History Log
 ===============
     
     
+- 1.127.0 -- 2018-03-25
+
+    - add KamilleEcpServiceUtil class
+    
 - 1.126.0 -- 2018-03-24
 
     - enhance NewModuleProgram, now creates a default ThemeHelper
