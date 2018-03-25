@@ -10,6 +10,7 @@ use Authenticate\Util\ProfileMergeTool;
 use Bat\FileSystemTool;
 use Bat\LocalHostTool;
 use ClassCooker\ClassCooker;
+use ClassCooker\Helper\ClassCookerHelper;
 use CopyDir\SimpleCopyDirUtil;
 use DirScanner\DirScanner;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
@@ -458,6 +459,7 @@ class ModuleInstallTool
         //--------------------------------------------
         // FIRST, CREATE THE PROVIDERS AND BIND OTHER MODULES TO IT
         //--------------------------------------------
+
         foreach ($providerMethods as $method) {
 
 
@@ -505,7 +507,11 @@ class ModuleInstallTool
                 }
                 $newInnerContent .= implode(PHP_EOL, $innerContents);
                 $methodContent = "\t" . $signature . PHP_EOL . "\t{" . PHP_EOL . $newInnerContent . "\t}" . PHP_EOL;
+
+
+
                 $hookCooker->addMethod($method, $methodContent);
+
 
 
             } else {
