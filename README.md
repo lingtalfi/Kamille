@@ -166,7 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
-    
+- 1.128.0 -- 2018-03-25
+
+    - enhance NewModuleProgram, now handles the --with-ecp feature
+        
 - 1.127.0 -- 2018-03-25
 
     - add KamilleEcpServiceUtil class
