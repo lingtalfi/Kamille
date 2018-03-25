@@ -8,6 +8,7 @@ use ApplicationItemManager\ApplicationItemManagerInterface;
 use ArrayToString\ArrayToStringTool;
 use Authenticate\Util\ProfileMergeTool;
 use Bat\FileSystemTool;
+use Bat\FileTool;
 use Bat\LocalHostTool;
 use ClassCooker\ClassCooker;
 use ClassCooker\Helper\ClassCookerHelper;
@@ -509,8 +510,39 @@ class ModuleInstallTool
                 $methodContent = "\t" . $signature . PHP_EOL . "\t{" . PHP_EOL . $newInnerContent . "\t}" . PHP_EOL;
 
 
+                $sectionLineNumber = ClassCookerHelper::getSectionLineNumber("Module $module", $xHooksFile);
+                if (false === $sectionLineNumber) {
+                    // section line number not found? find one
+                    // we find the range in which we can potentially insert our new section
+                    $rangeStart = null;
+                    $rangeEnd = null;
+                    $methodBoundaries = ClassCookerHelper::getMethodsBoundaries($xHooksFile);
+                    foreach ($methodBoundaries as $method => $methodRange) {
+                        $res = strcasecmp($method, $module);
+                        if ($res < 0) {
+                            $rangeStart = $methodRange[1] + 1;
+                        } elseif ($res > 0) {
+                            $rangeEnd = $methodRange[0] - 1;
+                            break;
+                        }
+                    }
+                    if (null === $rangeStart) {
+                        $rangeStart = 1;
+                    }
+                    if (null === $rangeEnd) {
+                        $rangeEnd = FileTool::getNbLines($xHooksFile);
+                    }
 
-                $hookCooker->addMethod($method, $methodContent);
+                    // assuming section have at least one blank line above them,
+                    // it means that we can take the previous method's end line +1 as our insert point
+                    $section = ClassCookerHelper::createSectionComment("Module $module");
+                    FileTool::insert($rangeStart, PHP_EOL . $section . PHP_EOL, $xHooksFile);
+                }
+
+                // now section line number should exist
+                $sectionLineNumber = ClassCookerHelper::getSectionLineNumber("Module $module", $xHooksFile);
+                $lineInsertNumber = $sectionLineNumber + 3;
+                FileTool::insert($lineInsertNumber, $methodContent. PHP_EOL, $xHooksFile);
 
 
 

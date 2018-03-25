@@ -98,7 +98,6 @@ EEE;
                 }
 
                 $lineNumber += 3; // sections are comments on 3 lines...
-
                 FileTool::insert($lineNumber, $routeContent . PHP_EOL, $routsyFile);
             } else {
                 throw new \Exception("route already exists with id $routeId");
