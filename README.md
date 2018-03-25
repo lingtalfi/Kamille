@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.128.1 -- 2018-03-25
+
+    - ModuleInstallTool now doesn't uni clean anymore (because it messes with my workflow)
+    
 - 1.128.0 -- 2018-03-25
 
     - enhance NewModuleProgram, now handles the --with-ecp feature

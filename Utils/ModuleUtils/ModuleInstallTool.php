@@ -65,7 +65,7 @@ class ModuleInstallTool
                     $cmd .= ' --output-type-web';
                 }
                 $cmd .= ' import ' . $planet;
-                $cmd .= '; ' . $escapedProgram . ' clean'; // make sure we don't have embedded .git files (which can mess up with the user organization)
+//                $cmd .= '; ' . $escapedProgram . ' clean'; // make sure we don't have embedded .git files (which can mess up with the user organization)
 
                 /**
                  * Then here a question arise: do we use uni tolink command ?
