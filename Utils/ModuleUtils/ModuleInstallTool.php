@@ -310,8 +310,8 @@ class ModuleInstallTool
 
         $moduleTxtFile = $appDir . "/modules.txt";
         if (file_exists($moduleTxtFile)) {
-            $recreated = []; // we always ensure that the format is exactly how we want it: without ending spaces after module names...
             $lines = file($moduleTxtFile, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES);
+            $lines[] = $moduleName;
             sort($lines);
             $content = implode(PHP_EOL, $lines);
 

@@ -166,9 +166,9 @@ echo HtmlLayout::create()
 History Log
 ===============
     
-- 1.128.1 -- 2018-03-25
+- 1.129.0 -- 2018-03-25
 
-    - ModuleInstallTool now doesn't uni clean anymore (because it messes with my workflow)
+    - ModuleInstallTool::addInModuleTxt now creates an alphabetically ordered modules.txt file
     
 - 1.128.0 -- 2018-03-25
 
