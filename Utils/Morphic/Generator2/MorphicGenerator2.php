@@ -1280,6 +1280,8 @@ EEE;
         }
         $sParent2Route = ArrayToStringTool::toPhpArray($parent2Route, null, 12);
         $constructorExtraStatements = $this->getControllerConstructorExtraStatements();
+        $title = str_replace('"', '\"', ucfirst($tableInfo["labelPlural"]));
+
 
         $s = <<<EEE
         
@@ -1289,6 +1291,7 @@ EEE;
     {
         parent::__construct();
         \$this->configValues = [
+            'title' => "$title",
             'route' => "$originalTableInfo[route]",
             'form' => "$originalTableInfo[table]",
             'list' => "$originalTableInfo[table]",
@@ -1441,8 +1444,6 @@ EEE;
         $newItemBtnText = $this->getControllerNewItemBtnText($tableInfo);
 
 
-        $title = ucfirst($tableInfo["labelPlural"]);
-
         $s = <<<EEE
         
     protected function renderWithNoParent()
@@ -1457,7 +1458,7 @@ EEE;
             }
 
             return \$this->doRenderFormList([
-                'title' => "$title",
+                'title' => \$this->configValues['title'],
                 'breadcrumb' => "$tableInfo[table]",
                 'form' => \$this->configValues['form'],
                 'list' => \$this->configValues['list'],
@@ -1565,6 +1566,7 @@ EEE;
             }
 
             $text = $this->getForeignKeyExtraLinkText($label, $tableInfo, $fkTableInfo);
+            $text = str_replace("'", "\'", $text);
 
             return "
                 'extraLink' => [
