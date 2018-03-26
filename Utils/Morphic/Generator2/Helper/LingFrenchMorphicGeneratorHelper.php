@@ -55,6 +55,7 @@ EEE;
         if (null === $db) {
             $db = QuickPdoInfoTool::getDatabase();
         }
+
         $tables = QuickPdoInfoTool::getTables($db, $prefix);
 
         $s = <<<EEE
