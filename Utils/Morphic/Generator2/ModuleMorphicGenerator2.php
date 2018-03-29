@@ -189,7 +189,7 @@ EEE;
                 * she can just press arrow down/up and be suggested the whole list...
                 */                
                 'minLength' => 0,
-            ]))                      
+            ])                      
 EEE;
     }
 

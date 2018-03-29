@@ -343,7 +343,7 @@ EEE;
                 'action' => "auto.$column",
                 'source' => "/your/service?action=",
                 'minLength' => 0,
-            ]))                        
+            ])                    
 EEE;
     }
 
