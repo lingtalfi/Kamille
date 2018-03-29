@@ -878,6 +878,7 @@ EEE;
     {
         $s = '<?php ' . PHP_EOL . PHP_EOL;
         $s .= <<<EEE
+use Core\Services\A;        
 use Kamille\Utils\Morphic\Helper\MorphicHelper;
 use Module\NullosAdmin\Morphic\Helper\NullosMorphicHelper;
 EEE;
@@ -967,12 +968,15 @@ EEE;
 
         $viewId = $tableInfo["table"];
         $table = $tableInfo["table"];
+        $route = $tableInfo["route"];
         $originalTable = $table;
         $cols = $tableInfo["columns"];
         $columnTypes = $tableInfo["columnTypes"];
         $columnTypesPrecision = $tableInfo["columnTypesPrecision"];
         $fks = $tableInfo["fks"];
         $originalRic = $tableInfo["ric"];
+        $reversedKeys = $tableInfo['reversedFks'];
+        $resolvedFks = $tableInfo['resolvedFks'];
         $rcMap = [];
         $headers = [];
         $qCols = [];
@@ -980,6 +984,7 @@ EEE;
         $searchColumnLists = [];
         $searchColumnDates = [];
         $operators = [];
+        $formRouteExtraActions = [];
 
 
         foreach ($cols as $col) {
@@ -1024,7 +1029,6 @@ EEE;
             }
         }
 
-        $reversedKeys = $tableInfo['reversedFks'];
 
         foreach ($reversedKeys as $fullTable => $v) {
             $p = explode(".", $fullTable);
@@ -1061,7 +1065,28 @@ EEE;
             }
             $rcMap[$name][] = $prefix . "." . $repr;
             $qCols[] = 'concat( ' . $sRic . ', ". ", ' . $prefix . "." . $repr . ' ) as `' . $name . '`';
+
+
         }
+
+
+        $formRouteExtraActionsStatements = [];
+        foreach ($resolvedFks as $col => $info) {
+
+
+            // formRouteExtraActions
+            $foreignTableInfo = $this->db2TableInfo[$info[0]][$info[1]];
+            $foreignRoute = $foreignTableInfo['route'];
+
+            $var = 'update_' . $info[1] . '_link_fmt';
+            $formRouteExtraActions[] = [
+                "foreignTableLinkName" => $var,
+                "updateForeignRecordLabel" => $this->getRowActionUpdateForeignRecord($foreignTableInfo),
+                "foreignKey" => $col,
+            ];
+            $formRouteExtraActionsStatements[] = '$' . $var . ' = A::link("' . $foreignRoute . '") . "?form&' . $info[2] . '=%s";';
+        }
+        $sFormRouteLinks = implode(PHP_EOL, $formRouteExtraActionsStatements);
 
 
         foreach ($searchColumnDates as $colDate) {
@@ -1071,7 +1096,6 @@ EEE;
 
 
         $headers['_action'] = '';
-
 
         $headersVis = [];
         foreach ($fks as $col => $info) {
@@ -1093,7 +1117,7 @@ EEE;
 
 \$parentValues = MorphicHelper::getListParentValues(\$q, \$context);
 
-
+$sFormRouteLinks
 
 \$conf = [
     //--------------------------------------------
@@ -1166,6 +1190,46 @@ EEE;
 
         }
 
+        //--------------------------------------------
+        // FORM ROUTE EXTRA ACTIONS
+        //--------------------------------------------
+        if ($formRouteExtraActions) {
+            $s .= PHP_EOL;
+            $s .= <<<EEE
+    'formRouteExtraActions' => [
+EEE;
+
+            foreach ($formRouteExtraActions as $extraAction) {
+
+                $foreignTableLinkName = $extraAction['foreignTableLinkName'];
+                $updateForeignRecordLabel = str_replace('"', '\"', $extraAction['updateForeignRecordLabel']);
+                $foreignKey = $extraAction['foreignKey']; // assuming only one foreign key is always enough
+//                $foreignKeys = $extraAction['foreignKeys'];
+//                $foreignKeys = array_map(function ($v) {
+//                    return '\$row["' . $v . '"]';
+//                }, $foreignKeys);
+//                $sForeignKeys = implode(', ', $foreignKeys);
+
+
+                $s .= PHP_EOL;
+                $s .= <<<EEE
+        [
+            "name" => "update_ek_product",
+            "label" => "$updateForeignRecordLabel",
+            "icon" => "fa fa-pencil",
+            "link" => function (array \$row) use (\$$foreignTableLinkName) {
+                return sprintf(\$$foreignTableLinkName, \$row["$foreignKey"]);
+            },
+        ],
+EEE;
+
+            }
+            $s .= PHP_EOL;
+            $s .= <<<EEE
+    ],
+EEE;
+        }
+
 
         //--------------------------------------------
         // END OF $CONF
@@ -1179,6 +1243,11 @@ EEE;
         return $s;
     }
 
+
+    protected function getRowActionUpdateForeignRecord(array $tableInfo)
+    {
+        return "Update " . $tableInfo['label'];
+    }
 
     private function renderConfigListProperty($propertyName, array $arrOfLines)
     {
@@ -1404,7 +1473,7 @@ EEE;
         }
         $sParent2Route = ArrayToStringTool::toPhpArray($parent2Route, null, 12);
         $constructorExtraStatements = $this->getControllerConstructorExtraStatements();
-        $title = str_replace('"', '\"', ucfirst($tableInfo["labelPlural"]));
+        $title = str_replace('"', '\"', ucfirst($originalTableInfo["labelPlural"]));
 
 
         $s = <<<EEE
@@ -1708,6 +1777,7 @@ EEE;
         return "Create a new element \"$label\"";
 //        return "Créer un nouvel élément \"$label\"";
     }
+
     //--------------------------------------------
     //
     //--------------------------------------------

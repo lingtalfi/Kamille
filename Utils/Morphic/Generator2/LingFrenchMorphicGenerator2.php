@@ -97,6 +97,12 @@ class LingFrenchMorphicGenerator2 extends ModuleMorphicGenerator2
         return "Ajouter $sGenre $label";
     }
 
+    protected function getRowActionUpdateForeignRecord(array $tableInfo)
+    {
+        return "Modifier " . $this->getLeMachin($tableInfo);
+    }
+
+
     protected function getColumnLabelFromName($colName, $table, array $tableInfo)
     {
 
@@ -260,5 +266,17 @@ EEE;
         }
 
         return false;
+    }
+
+
+    private function getLeMachin(array $tableInfo)
+    {
+        $article = $tableInfo['article'];
+        $label = $tableInfo['label'];
+
+        if ('le' === $article || 'la' === $article) {
+            return $article . " " . $label;
+        }
+        return $article . $label;
     }
 }
