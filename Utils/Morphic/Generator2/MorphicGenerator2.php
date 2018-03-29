@@ -29,6 +29,7 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
     private $controllerBaseDir;
     private $listConfigFileBaseDir;
     private $formConfigFileBaseDir;
+    private $_relatedTables;
 
 
     public function __construct()
@@ -41,6 +42,9 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
         $this->controllerBaseDir = "/tmp/Morphic2/generated/controller";
         $this->listConfigFileBaseDir = "/tmp/Morphic2/generated/list";
         $this->formConfigFileBaseDir = "/tmp/Morphic2/generated/form";
+
+        //
+        $this->_relatedTables = []; // private cache
     }
 
     public static function create()
@@ -1330,8 +1334,23 @@ EEE;
         $a['camel'] = $this->getCamelByTable($tableBasicInfo['table']);
         $a['route'] = $this->getTableRouteByTable($a['table']);
         $a["prefix"] = $this->_getTablePrefix($a["table"]);
+        $a["relatedTables"] = $this->_getRelatedTables($a["prefix"], $a['db']);
+
         $this->decorateTableInfo($a);
         return $a;
+    }
+
+
+    private function _getRelatedTables($prefix, $db)
+    {
+
+        $key = $db . "-" . $prefix;
+        if (array_key_exists($key, $this->_relatedTables)) {
+            return $this->_relatedTables[$key];
+        }
+        $relatedTables = QuickPdoInfoTool::getTables($db, $prefix);
+        $this->_relatedTables[$key] = $relatedTables;
+        return $relatedTables;
     }
 
     private function getContentFromCache($db)
@@ -1460,6 +1479,7 @@ EEE;
     {
 
         $originalTableInfo = $tableInfo;
+        $db = $tableInfo['db'];
         $parent2Route = [];
         $reversedFks = $tableInfo['reversedFks'];
         if ($reversedFks) {
@@ -1476,6 +1496,38 @@ EEE;
         $title = str_replace('"', '\"', ucfirst($originalTableInfo["labelPlural"]));
 
 
+        // related tables?
+        $relatedTables = $tableInfo['relatedTables'];
+        if ($relatedTables) {
+
+            $relatedTablesLabel = str_replace('"', '\"', $this->getRelatedTablesLabel());
+            $sItems = '';
+            foreach ($relatedTables as $table) {
+                $tableLabel = ucfirst($this->db2TableInfo[$db][$table]['label']);
+                $tableRoute = $this->db2TableInfo[$db][$table]['route'];
+                $sItems .= PHP_EOL;
+                $sItems .= <<<EEE
+                [
+                    'label' => '$tableLabel ($table)',
+                    'link' => A::link("$tableRoute"),
+                ],
+EEE;
+
+            }
+
+            $sRelated = PHP_EOL;
+            $sRelated .= <<<EEE
+        \$this->setParam("buttonsList", [
+            'label' => "$relatedTablesLabel",
+            'items' => [
+$sItems
+            ],
+        ]);
+EEE;
+
+        }
+
+
         $s = <<<EEE
         
     protected \$configValues;
@@ -1490,6 +1542,7 @@ EEE;
             'list' => "$originalTableInfo[table]",
             'parent2Route' => $sParent2Route,
         ];
+        $sRelated        
         $constructorExtraStatements                        
     }
 
@@ -1776,6 +1829,11 @@ EEE;
     {
         return "Create a new element \"$label\"";
 //        return "Créer un nouvel élément \"$label\"";
+    }
+
+    protected function getRelatedTablesLabel()
+    {
+        return ucfirst("Related tables");
     }
 
     //--------------------------------------------

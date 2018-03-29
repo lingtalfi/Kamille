@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.134.0 -- 2018-03-29
+
+    - enhance MorphicGenerator2, now also generate relatedTables dropdown (quick nav access)
+    
 - 1.133.0 -- 2018-03-29
 
     - enhance MorphicGenerator2, now also generate row actions links for foreign keys in the list

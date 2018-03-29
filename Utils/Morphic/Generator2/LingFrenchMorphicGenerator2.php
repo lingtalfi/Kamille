@@ -44,6 +44,11 @@ class LingFrenchMorphicGenerator2 extends ModuleMorphicGenerator2
         return $this;
     }
 
+    protected function getRelatedTablesLabel()
+    {
+        return "Tables liées";
+    }
+
 
     protected function decorateTableInfo(array &$tableInfo)
     {
