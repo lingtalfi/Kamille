@@ -34,8 +34,6 @@ class MorphicHelper
 
 
         if ($parentKeys) {
-            $avatar = MorphicHelper::getFormContextValue("avatar", $context);
-
             if (false === QuickPdoStmtTool::hasWhere($q)) {
                 $q .= " where ";
             }
@@ -50,7 +48,7 @@ class MorphicHelper
                     $q .= " and ";
                 }
                 $value = MorphicHelper::getFormContextValue($key, $context);
-                $q .= "h.$key=$value";
+                $q .= "h.$key='$value'";
                 $parentValues[$key] = $value;
 
                 if (array_key_exists($key, $queryInferred)) {
@@ -69,7 +67,7 @@ class MorphicHelper
                 if (0 !== $c++) {
                     $q .= ' and ';
                 }
-                $q .= "h.$k=$v";
+                $q .= "h.$k='$v'";
             }
         }
         return $parentValues;
