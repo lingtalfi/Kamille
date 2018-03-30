@@ -164,6 +164,8 @@ namespace Controller\\$this->moduleName\Back\Generated\\$tableInfo[camel];
 use $this->baseControllerNamespace;
 use Kamille\Utils\Morphic\Exception\MorphicException;
 use Core\Services\A;
+use Bat\UriTool;
+use Models\DropDown\SimpleDropDownModel;
 
 class $tableInfo[camel]ListController extends $className
 {

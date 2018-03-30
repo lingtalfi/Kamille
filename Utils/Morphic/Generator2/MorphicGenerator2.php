@@ -989,6 +989,7 @@ EEE;
         $searchColumnDates = [];
         $operators = [];
         $formRouteExtraActions = [];
+        $col2DateType = [];
 
 
         foreach ($cols as $col) {
@@ -1016,6 +1017,8 @@ EEE;
                 $searchColumnDates[] = $col;
                 $operators[$col . "_low"] = '>=';
                 $operators[$col . "_high"] = '<=';
+
+                $col2DateType[$col] = $colType;
             }
         }
 
@@ -1167,11 +1170,17 @@ RRR;
             foreach ($searchColumnDates as $col) {
                 $col_low = $col . "_low";
                 $col_high = $col . "_high";
+
+                $dateType = $col2DateType[$col];
+                $bool = ("date" === $dateType) ? 'false' : 'true';
+
+
                 $s .= PHP_EOL;
                 $s .= <<<EEE
         "$col" => [
             '$col_low',
             '$col_high',
+            $bool, // $dateType
         ],
 EEE;
             }
@@ -1460,6 +1469,8 @@ namespace Controller\Morphic\Generated\\$tableInfo[camel];
 use Controller\Morphic\Pattern\MorphicListController;
 use Kamille\Utils\Morphic\Exception\MorphicException;
 use Core\Services\A;
+use Bat\UriTool;
+use Models\DropDown\SimpleDropDownModel;
 
 
 class $tableInfo[camel]ListController extends MorphicListController
@@ -1479,6 +1490,7 @@ EEE;
     {
 
         $originalTableInfo = $tableInfo;
+        $originalTable = $originalTableInfo['table'];
         $db = $tableInfo['db'];
         $parent2Route = [];
         $reversedFks = $tableInfo['reversedFks'];
@@ -1517,12 +1529,12 @@ EEE;
 
             $sRelated = PHP_EOL;
             $sRelated .= <<<EEE
-        \$this->setParam("buttonsList", [
-            'label' => "$relatedTablesLabel",
-            'items' => [
+        \$pageTop->rightBar()->addDropDown(SimpleDropDownModel::create()
+            ->setLabel("$relatedTablesLabel")
+            ->setItems([
 $sItems
-            ],
-        ]);
+            ])->getArray()
+        );
 EEE;
 
         }
@@ -1536,12 +1548,17 @@ EEE;
     {
         parent::__construct();
         \$this->configValues = [
-            'title' => "$title",
             'route' => "$originalTableInfo[route]",
-            'form' => "$originalTableInfo[table]",
-            'list' => "$originalTableInfo[table]",
+            'form' => "$originalTable",
+            'list' => "$originalTable",
+            'showNewItemBtn' => true,            
             'parent2Route' => $sParent2Route,
         ];
+        
+        \$pageTop = \$this->pageTop();
+        \$pageTop->setTitle("$title");    
+        \$pageTop->breadcrumbs()->addLink("$originalTable", UriTool::uri(null, [], false));
+        
         $sRelated        
         $constructorExtraStatements                        
     }
@@ -1687,7 +1704,7 @@ EEE;
         $sRic = implode(PHP_EOL . "\t\t\t\t\t", $ricCols);
 
         $sExtra = $this->_getControllerRenderWithNoParentMethodExtraVar($tableInfo);
-        $newItemBtnText = $this->getControllerNewItemBtnText($tableInfo);
+        $newItemBtnText = str_replace('"', '\"', $this->getControllerNewItemBtnText($tableInfo));
 
 
         $s = <<<EEE
@@ -1703,17 +1720,21 @@ EEE;
                 \$menuCurrentRoute = \$this->configValues['route'];
             }
 
+
+            if (false === array_key_exists("form", \$_GET) && true === \$this->configValues['showNewItemBtn']) {
+                \$this->pageTop()->rightBar()
+                    ->prependButton("$newItemBtnText",
+                        A::link(\$this->configValues['route']) . "?form&s",
+                        "fa fa-plus-circle"
+                    );      
+            }                      
+
             return \$this->doRenderFormList([
-                'title' => \$this->configValues['title'],
-                'breadcrumb' => "$tableInfo[table]",
                 'form' => \$this->configValues['form'],
                 'list' => \$this->configValues['list'],
                 'ric' => [
                     $sRic
                 ],
-
-                "newItemBtnText" => "$newItemBtnText",
-                "newItemBtnLink" => A::link(\$this->configValues['route']) . "?form&s",
                 "route" => \$this->configValues['route'],
                 $sExtra
                 "menuCurrentRoute" => \$menuCurrentRoute,
