@@ -1503,12 +1503,12 @@ EEE;
             $relatedTablesLabel = str_replace('"', '\"', $this->getRelatedTablesLabel());
             $sItems = '';
             foreach ($relatedTables as $table) {
-                $tableLabel = ucfirst($this->db2TableInfo[$db][$table]['label']);
+                $tableLabel = str_replace('"', '\"', ucfirst($this->db2TableInfo[$db][$table]['label']));
                 $tableRoute = $this->db2TableInfo[$db][$table]['route'];
                 $sItems .= PHP_EOL;
                 $sItems .= <<<EEE
                 [
-                    'label' => '$tableLabel ($table)',
+                    'label' => "$tableLabel ($table)",
                     'link' => A::link("$tableRoute"),
                 ],
 EEE;
