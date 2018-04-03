@@ -1509,7 +1509,7 @@ EEE;
 
 
         // related tables?
-        $relatedTables = $tableInfo['relatedTables'];
+        $relatedTables = $originalTableInfo['relatedTables'];
         if ($relatedTables) {
 
             $relatedTablesLabel = str_replace('"', '\"', $this->getRelatedTablesLabel());
