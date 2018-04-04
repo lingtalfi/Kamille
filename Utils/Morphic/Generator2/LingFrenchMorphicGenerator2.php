@@ -257,6 +257,13 @@ EEE;
         return $s;
     }
 
+
+    protected function getChoiceListFirstValueLabel()
+    {
+        return "Aucune valeur";
+    }
+
+
     //--------------------------------------------
     //
     //--------------------------------------------

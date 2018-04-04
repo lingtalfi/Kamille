@@ -156,6 +156,7 @@ class MorphicHelper
             $markers = [];
             $values = array_intersect_key($_GET, array_flip($ric));
             $q = $query;
+
             QuickPdoStmtTool::addWhereEqualsSubStmt($values, $q, $markers);
             $row = QuickPdo::fetch("$q", $markers);
             if ($row) {

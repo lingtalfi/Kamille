@@ -602,6 +602,7 @@ EEE;
 
 
                     $sExtra = "";
+                    $sPre = "";
 
 
                     if ($ai === $col) {
@@ -625,7 +626,17 @@ EEE;
                             $readOnly = '(null !== $' . $col . ')';
                             $sExtraLink = $this->getForeignKeyExtraLink('fk', $col, $label, $fkRoute, $tableInfo, $fkTableInfo);
 
+                            if ($isNullable) {
+                                $sPre .= PHP_EOL;
+                                $firstValueLabel = str_replace('"', '\"', $this->getChoiceListFirstValueLabel());
+                                $sPre .= <<<EEE
+                'nullableFirstItem' => "$firstValueLabel",
+EEE;
+
+                            }
+
                         }
+
                     }
 
 
@@ -633,7 +644,7 @@ EEE;
 $class::create()
             ->setName("$col")
             ->setLabel("$label")
-            ->setProperties([
+            ->setProperties([$sPre
                 'readonly' => $readOnly,$sExtraLink
             ])
             ->setValue(\$$col)
@@ -1479,6 +1490,12 @@ EEE;
 
         return $s;
 
+    }
+
+
+    protected function getChoiceListFirstValueLabel()
+    {
+        return "No value";
     }
 
     protected function getControllerConstructorExtraStatements()
