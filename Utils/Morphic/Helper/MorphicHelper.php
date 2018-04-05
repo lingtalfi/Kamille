@@ -5,6 +5,7 @@ namespace Kamille\Utils\Morphic\Helper;
 
 
 use Bat\SessionTool;
+use Bat\StringTool;
 use Bat\UriTool;
 use Kamille\Architecture\Controller\Exception\ClawsHttpResponseException;
 use Kamille\Architecture\Response\Web\RedirectResponse;
@@ -36,8 +37,7 @@ class MorphicHelper
         if ($parentKeys) {
             if (false === QuickPdoStmtTool::hasWhere($q)) {
                 $q .= " where ";
-            }
-            else{
+            } else {
                 $q .= " and ";
             }
 
@@ -127,7 +127,7 @@ class MorphicHelper
     }
 
 
-    public static function getFeedFunction($table, callable $onFeedAfter = null, array $ricMap = [])
+    public static function getFeedFunction($table, callable $onFeedAfter = null, array $ricMap = [], array $options = [])
     {
         $p = explode('.', $table, 2);
         if (2 === count($p)) {
@@ -135,12 +135,12 @@ class MorphicHelper
         } else {
             $table = "`$table`";
         }
-        return self::getFeedFunctionByQuery("select * from $table", $onFeedAfter, $ricMap);
+        return self::getFeedFunctionByQuery("select * from $table", $onFeedAfter, $ricMap, $options);
     }
 
-    public static function getFeedFunctionByQuery($query, callable $onFeedAfter = null, array $ricMap = [])
+    public static function getFeedFunctionByQuery($query, callable $onFeedAfter = null, array $ricMap = [], array $options = [])
     {
-        return function (SokoFormInterface $form, array $ric) use ($query, $onFeedAfter, $ricMap) {
+        return function (SokoFormInterface $form, array $ric) use ($query, $onFeedAfter, $ricMap, $options) {
             if ($ricMap) {
                 $oldRic = $ric;
                 $ric = [];
@@ -160,6 +160,15 @@ class MorphicHelper
             QuickPdoStmtTool::addWhereEqualsSubStmt($values, $q, $markers);
             $row = QuickPdo::fetch("$q", $markers);
             if ($row) {
+
+                $filters = $options['filters'] ?? [];
+                if (array_key_exists("unserializeArray", $filters)) {
+                    foreach ($filters['unserializeArray'] as $col) {
+                        if (array_key_exists($col, $row) && null !== $row[$col]) {
+                            $row[$col] = StringTool::unserializeAsArray($row[$col]);
+                        }
+                    }
+                }
                 $form->inject($row);
             }
 
@@ -167,6 +176,17 @@ class MorphicHelper
                 $onFeedAfter($form);
             }
         };
+    }
+
+    public static function applyPostFilters(array &$data, array $filters = [])
+    {
+        if (array_key_exists('serializeIfArray', $filters)) {
+            foreach ($filters['serializeIfArray'] as $col) {
+                if (array_key_exists($col, $data) && is_array($data[$col])) {
+                    $data[$col] = serialize($data[$col]);
+                }
+            }
+        }
     }
 
 
