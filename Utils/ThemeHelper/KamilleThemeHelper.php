@@ -4,6 +4,7 @@
 namespace Kamille\Utils\ThemeHelper;
 
 
+use Bat\FileSystemTool;
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
 use Kamille\Mvc\HtmlPageHelper\HtmlPageHelper;
 
@@ -32,6 +33,17 @@ class KamilleThemeHelper
     {
         $url = "/theme/" . ApplicationParameters::get("theme") . '/js/' . $fileName;
         HtmlPageHelper::js($url);
+    }
+
+    public static function resource(string $fileName)
+    {
+        $url = "/theme/" . ApplicationParameters::get("theme") . '/' . $fileName;
+        $ext = FileSystemTool::getFileExtension($fileName);
+        if ('js' === $ext) {
+            HtmlPageHelper::js($url);
+        } elseif ('css' === $ext) {
+            HtmlPageHelper::css($url);
+        }
     }
 
     public static function loadJsInitFile(array $model, $lazy = true)
