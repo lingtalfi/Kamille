@@ -88,6 +88,7 @@ if (null !== $ric) {
             [
                 "name" => "update",
                 "label" => "Modifier",
+                "class" => "morphic-default-action",
                 "icon" => "fa fa-pencil",
                 "link" => function (array $row) use ($ric, $defaultFormLinkPrefix, $adaptor, $hasQuestionMark, $extraVars, $useRic) {
                     $s = $defaultFormLinkPrefix;

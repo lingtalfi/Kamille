@@ -156,10 +156,14 @@ Voici les propriétés disponibles pour le fichier de configuration des formulai
 
 - `title`: le titre du formulaire 
 - `description`: une description  
+- `forceFeed`: bool, permet de forcer l'appel à la fonction feed. Cela peut être utile dans les cas où les champs ric
+    ne sont pas passés dans l'url (pour des raisons diverses)  
 - `form`: l'instance SokoFormInterface  
 - `submitBtnLabel`: le label du bouton submit  
-- `feed`: la fonction à appeler pour pré-remplir le form en mode update (voir `Controller\Ekom\Back\EkomBackController::handleMorphicForm` pour plus de détails)  
-- `process`: la fonction à appeler lorsque les valeurs du formulaire sont remplies (voir `Controller\Ekom\Back\EkomBackController::handleMorphicForm` pour plus de détails)  
+- `feed`: la fonction à appeler pour pré-remplir le form en mode update (voir `Controller\NullosAdmin\Back\NullosMorphicController::handleMorphicForm` pour plus de détails).
+        L'appel à cette fonction se fait uniquement si les ric sont trouvées dans le tableau `$_GET`.
+        On peut également forcer l'appel à la fonction feed en utilisant la propriété `forceFeed`.  
+- `process`: la fonction à appeler lorsque les valeurs du formulaire sont remplies (voir `Controller\NullosAdmin\Back\NullosMorphicController::handleMorphicForm` pour plus de détails)  
 - `ric`: les ric pour ce formulaire  
 - `formAfterElements`: tableau pour ajouter des éléments supplémentaires comme les liens-pivots par exemple (voir exemple dans `config/morphic/Ekom/back/utils/cache_manager.form.conf.php`).
 
@@ -183,7 +187,10 @@ générée par ajax et celle générée statiquement. Il est conseillé de ne pa
 - `headersVisibility`: les colonnes à masquer. `column` => bool  
 - `realColumnMap`: permet de rectifier les fonctions de tri/recherche. Tableau de `column` => `queryRealCol`, queryRealCol étant le nom tel qu'utilisé dans la requête sql (exemple: pcl.product_card_id)  
 - `having`: tableau des colonnes qui sont utilisées dans la clause having (plutôt que where). Cela est particulièrement pour le filtrage des données  
-- `querySkeleton`: la structure de la requête, en remplaçant les colonnes par `%s` (exemple: `select %s from my_table`)  
+- `groupBy`: tableau des colonnes (réelles) à utiliser dans la clause `group by`  
+- `querySkeleton`: la structure de la requête, en remplaçant les colonnes par `%s` (exemple: `select %s from my_table`). Vous pouvez inclure la clause where, mais pas les clauses situées après.
+    Pour la clause `group by`, utilisez la propriété groupBy. La clause `order` est gérée automatiquement en corrélation avec la gui.
+          
 - `queryCols`: les `columns` à intégrer dans le querySkeleton; l'ensemble de la syntaxe mysql est possible (as, concat, if, ...)  
 - `context`: un ensemble de variables arbitraires passées par le contrôleur. Notez que le service ajax back.morphic les recevra également.
 - `deadCols`: un tableau de `column` qui n'auront pas de tri ni de filtre (par exemple pour les images) 
@@ -214,6 +221,10 @@ On peut utiliser les valeurs de row en préfixant la valeur par le symbole $. Ex
 - `rowActions`: laisser vide pour utiliser les actions par défaut. Un tableau d'action. Chaque action est un tableau avec la structure suivante:
     - `name`: le nom symbolique de l'action (ex: update)             
     - `label`: le label (exemple: Modifier)             
+    - `class`: string, classe(s) css à ajouter.
+        Parmi les classes les plus importantes, la classe `morphic-default-action` permet de transformer une action en action par défaut.
+        L'action par défaut est utilisée lorsque l'on clique sur une ligne: elle donne l'uri (via la propriété href et/ou data-uri) de la page
+        vers laquelle il faut rediriger.             
     - `icon`: ex fa fa-pencil             
     - `link`: le lien.
         Si le lien est un callback, il recevra les arguments suivants: 
