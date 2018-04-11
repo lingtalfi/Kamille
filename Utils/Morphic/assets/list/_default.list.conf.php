@@ -15,29 +15,35 @@ if (!isset($ric)) {
 /**
  * @todo-ling: do the english version of this
  */
+
+$disableListActions = $conf['disableListActions'] ?? false;
+$listActions = [];
+if (false === $disableListActions) {
+    $listActions[] = [
+
+        'name' => 'delete',
+        'label' => 'Supprimer',
+        'icon' => 'fa fa-close',
+        'confirm' => "Êtes-vous sûr(e) de vouloir supprimer ces lignes ?",
+        'confirmTitle' => "Attention",
+        'confirmOkBtn' => "Ok",
+        'confirmCancelBtn' => "Annuler",
+        /**
+         * disabled: false (default)|true|"selection"
+         *              If false, the button is enabled.
+         *              If true, the button is disabled.
+         *              If selection, the button is disabled by default, and becomes
+         *                      enabled only when the user selects some rows.
+         */
+        'disabled' => "selection",
+    ];
+}
+
 $defaultConf = [
     //--------------------------------------------
     // LIST WIDGET
     //--------------------------------------------
-    'listActions' => [
-        [
-            'name' => 'delete',
-            'label' => 'Supprimer',
-            'icon' => 'fa fa-close',
-            'confirm' => "Êtes-vous sûr(e) de vouloir supprimer ces lignes ?",
-            'confirmTitle' => "Attention",
-            'confirmOkBtn' => "Ok",
-            'confirmCancelBtn' => "Annuler",
-            /**
-             * disabled: false (default)|true|"selection"
-             *              If false, the button is enabled.
-             *              If true, the button is disabled.
-             *              If selection, the button is disabled by default, and becomes
-             *                      enabled only when the user selects some rows.
-             */
-            'disabled' => "selection",
-        ],
-    ],
+    'listActions' => $listActions,
     //--------------------------------------------
     // ADMIN TABLE
     //--------------------------------------------

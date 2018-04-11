@@ -192,10 +192,12 @@ générée par ajax et celle générée statiquement. Il est conseillé de ne pa
     Pour la clause `group by`, utilisez la propriété groupBy. La clause `order` est gérée automatiquement en corrélation avec la gui.
           
 - `queryCols`: les `columns` à intégrer dans le querySkeleton; l'ensemble de la syntaxe mysql est possible (as, concat, if, ...)  
+- `markers`: les marqueurs PDO (QuickPdo) à passer, en cas de besoin
 - `context`: un ensemble de variables arbitraires passées par le contrôleur. Notez que le service ajax back.morphic les recevra également.
 - `deadCols`: un tableau de `column` qui n'auront pas de tri ni de filtre (par exemple pour les images) 
 - `colSizes`: un tableau de `column` => largeur (en pixel) 
-- `colTransformers`: un tableau de `column` => callback permettant de transformer les colonnes. 
+- `disableListActions`: bool=false, si true, alors les actions de liste (qui coiffent la liste) seront supprimées, ainsi que les checkboxes dans la liste.
+- `colTransformers`: un tableau de `column` => callback permettant de transformer les colonnes.
         callback ( columnValue, array row )
 
 - `searchColumnLists`: un tableau de `columnName` => "tableau de clé => valeur". Ces listes permettront de filtrer la colonne désignée.<br>

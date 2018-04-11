@@ -35,7 +35,6 @@ class MorphicAdminListRenderer
     public function renderByConfig(array $config, array $params = null)
     {
 
-
         //--------------------------------------------
         // PERSISTENCE LAYER
         //--------------------------------------------
@@ -62,6 +61,9 @@ class MorphicAdminListRenderer
         if (array_key_exists('realColumnMap', $config)) {
             $util->setRealColumnMap($config['realColumnMap']);
         }
+        if (array_key_exists('markers', $config)) {
+            $util->setMarkers($config['markers']);
+        }
         if (array_key_exists('groupBy', $config) && $config['groupBy']) {
             $util->setGroupBy($config['groupBy']);
         }
@@ -81,7 +83,9 @@ class MorphicAdminListRenderer
             'rows' => $rows,
             'module' => $config['module'],
             'viewId' => $config['viewId'],
-            'table' => $config['table'],
+            'table' => $config['table'] ?? null,
+            'disableListActions' => $config['disableListActions'] ?? null,
+            'numericComparators' => $config['numericComparators'] ?? null,
             'headers' => $config['headers'],
             'headersVisibility' => (array_key_exists("headersVisibility", $config)) ? $config['headersVisibility'] : [],
             'page' => $info['page'],
