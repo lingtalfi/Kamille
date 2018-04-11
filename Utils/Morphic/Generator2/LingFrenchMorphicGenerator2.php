@@ -13,7 +13,6 @@ use QuickPdo\QuickPdoInfoTool;
 
 class LingFrenchMorphicGenerator2 extends ModuleMorphicGenerator2
 {
-    protected $handledPrefixes;
     protected $colTranslationFiles;
     protected $tableTranslationFiles;
 
@@ -21,15 +20,8 @@ class LingFrenchMorphicGenerator2 extends ModuleMorphicGenerator2
     public function __construct()
     {
         parent::__construct();
-        $this->handledPrefixes = [];
         $this->tableTranslationFiles = [];
         $this->colTranslationFiles = [];
-    }
-
-    public function setHandledPrefixes(array $handledPrefixes)
-    {
-        $this->handledPrefixes = $handledPrefixes;
-        return $this;
     }
 
     public function setColTranslationFiles(array $colTranslationFiles)
@@ -49,6 +41,10 @@ class LingFrenchMorphicGenerator2 extends ModuleMorphicGenerator2
         return "Tables liées";
     }
 
+    protected function getControllerBackToListText(array $tableInfo)
+    {
+        return "Retour à la liste des " . $tableInfo['labelPlural'];
+    }
 
     protected function decorateTableInfo(array &$tableInfo)
     {
@@ -165,7 +161,7 @@ class LingFrenchMorphicGenerator2 extends ModuleMorphicGenerator2
 
     protected function getFormInsertStatement(array $tableInfo, $table, $insertCols)
     {
-        $object = $this->getObjectName($table);
+        $object = $this->getXiaoObjectName($table);
         if (false === $object) {
             return parent::getFormInsertStatement($tableInfo, $table, $insertCols);
         }
@@ -178,7 +174,7 @@ EEE;
 
     protected function getFormUpdateStatement(array $tableInfo, $table, $updateCols, $updateWhere, array $updateWhereCols)
     {
-        $object = $this->getObjectName($table);
+        $object = $this->getXiaoObjectName($table);
         if (false === $object) {
             return parent::getFormUpdateStatement($tableInfo, $table, $updateCols, $updateWhere, $updateWhereCols);
         }
@@ -267,9 +263,9 @@ EEE;
     //--------------------------------------------
     //
     //--------------------------------------------
-    private function getObjectName($table)
+    private function getXiaoObjectName($table)
     {
-        foreach ($this->handledPrefixes as $prefix => $module) {
+        foreach ($this->prefix2Module as $prefix => $module) {
             if (0 === strpos($table, $prefix)) {
                 $p = explode('_', $table);
                 array_shift($p); // drop the prefix

@@ -3,6 +3,7 @@
 
 namespace Kamille\Utils\Morphic\ListConfigurationProvider;
 
+use Kamille\Services\XLog;
 use Kamille\Utils\Morphic\Exception\MorphicException;
 use Kamille\Utils\Morphic\Helper\MorphicHelper;
 
@@ -28,6 +29,7 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
 
             // make all variables in the context available to the config file
             include $file;
+            XLog::debug("[Kamille.Morphic.ShortcutListConfigurationProvider] -- using morphic list file with identifier: $identifier");
 
 
             /**

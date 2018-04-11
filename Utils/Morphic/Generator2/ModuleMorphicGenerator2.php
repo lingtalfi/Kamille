@@ -5,6 +5,7 @@ namespace Kamille\Utils\Morphic\Generator2;
 
 
 use Kamille\Architecture\ApplicationParameters\ApplicationParameters;
+use Kamille\Utils\Morphic\Exception\MorphicException;
 use Kamille\Utils\Morphic\Helper\MorphicGeneratorHelper;
 use PhpFile\PhpFile;
 
@@ -12,6 +13,7 @@ class ModuleMorphicGenerator2 extends MorphicGenerator2
 {
 
 
+    protected $prefix2Module;
     protected $moduleName;
     protected $baseControllerNamespace;
     /**
@@ -28,6 +30,13 @@ class ModuleMorphicGenerator2 extends MorphicGenerator2
         $this->moduleName = "ThisApp";
         $this->baseControllerNamespace = "Controller\NullosAdmin\Back\NullosMorphicController";
         $this->menuRouteGenerateAll = false;
+        $this->prefix2Module = [];
+    }
+
+    public function setPrefix2Module(array $prefix2Module)
+    {
+        $this->prefix2Module = $prefix2Module;
+        return $this;
     }
 
     public function setModuleName(string $moduleName)
@@ -177,15 +186,22 @@ EEE;
     }
 
 
-    protected function getAutocompleteControlContent($column)
+    protected function getAutocompleteControlContent($column, $autocompletePrefix, array $tableInfo)
     {
         if ('_id' === substr($column, -3)) {
             $column = substr($column, 0, -3);
         }
+
+        if (array_key_exists($autocompletePrefix, $this->prefix2Module)) {
+            $moduleName = $this->prefix2Module[$autocompletePrefix];
+        } else {
+            throw new MorphicException("Undefined prefix2Module relationship with prefix: $autocompletePrefix");
+        }
+
         return <<<EEE
             ->setAutocompleteOptions([
                 'action' => "auto.$column",
-                'source' => "/service/$this->moduleName/ecp/api?action=auto.$column",
+                'source' => "/service/$moduleName/ecp/api?action=auto.$column",
                 /**
                 * 0 is good because if the user has no idea of what she is looking for,
                 * she can just press arrow down/up and be suggested the whole list...

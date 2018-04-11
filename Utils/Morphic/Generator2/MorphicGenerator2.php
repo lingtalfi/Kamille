@@ -340,7 +340,7 @@ EEE;
     }
 
 
-    protected function getAutocompleteControlContent($column)
+    protected function getAutocompleteControlContent($column, $autocompletePrefix, array $tableInfo)
     {
         return <<<EEE
             ->setAutocompleteOptions([
@@ -613,9 +613,10 @@ EEE;
                         $fkTableInfo = $this->db2TableInfo[$fks[$col][0]][$fks[$col][1]];
                         $fkRoute = $fkTableInfo['route'];
 
-                        if (true === $this->isAutocompleteControl($col, $autocompletes, $tableInfo)) {
+                        $autocompletePrefix = null;
+                        if (true === $this->isAutocompleteControl($col, $autocompletes, $tableInfo, $autocompletePrefix)) {
                             $class = "SokoAutocompleteInputControl";
-                            $sExtra = $this->getAutocompleteControlContent($col);
+                            $sExtra = $this->getAutocompleteControlContent($col, $autocompletePrefix, $tableInfo);
                             $readOnly = '(null !== $' . $col . ')';
                             $sExtraLink = $this->getForeignKeyExtraLink('autocomplete', $col, $label, $fkRoute, $tableInfo, $fkTableInfo);
                         } else {
@@ -783,13 +784,14 @@ EEE;
     }
 
 
-    protected function isAutocompleteControl($col, array $autocompletes, array $tableInfo)
+    protected function isAutocompleteControl($col, array $autocompletes, array $tableInfo, &$autocompletePrefix = null)
     {
         $table = $tableInfo['table'];
         foreach ($autocompletes as $prefix => $items) {
             if (0 === strpos($table, $prefix)) {
                 if (array_key_exists($col, $items)) {
                     $thing = $items[$col];
+                    $autocompletePrefix = $prefix;
                     if (true === $thing) {
                         return true;
                     }
@@ -1128,7 +1130,8 @@ EEE;
         $sRic = ArrayToStringTool::toPhpArray($originalRic, null, 4);
         $sQCols = ArrayToStringTool::toPhpArray($qCols, null, 4);
 
-        $title = ucfirst($tableInfo["labelPlural"]);
+        $title = str_replace('"', '\"', ucfirst($tableInfo["labelPlural"]));
+        $labelSingle = str_replace('"', '\"', $tableInfo["label"]);
         $s = <<<EEE
 
 
@@ -1137,11 +1140,18 @@ EEE;
 
 $sFormRouteLinks
 
+
+\$title = "$title";
+\$avatar = \$context['avatar'] ?? null;
+if (\$avatar) {
+    \$title .= " pour $labelSingle " . \$avatar;
+}
+
 \$conf = [
     //--------------------------------------------
     // LIST WIDGET
     //--------------------------------------------
-    'title' => "$title",
+    'title' => \$title,
     'table' => '$tableInfo[table]',
     /**
      * This is actually the list.conf identifier
@@ -1507,6 +1517,7 @@ EEE;
     {
 
         $originalTableInfo = $tableInfo;
+        $originalTableRoute = $tableInfo['route'];
         $originalTable = $originalTableInfo['table'];
         $db = $tableInfo['db'];
         $parent2Route = [];
@@ -1574,7 +1585,7 @@ EEE;
         
         \$pageTop = \$this->pageTop();
         \$pageTop->setTitle("$title");    
-        \$pageTop->breadcrumbs()->addLink("$originalTable", UriTool::uri(null, [], false));
+        \$pageTop->breadcrumbs()->addLink("$originalTable", UriTool::uri(null, [], false));   
         
         $sRelated        
         $constructorExtraStatements                        
@@ -1593,10 +1604,18 @@ EEE;
     }
 
 
+    protected function getControllerBackToListText(array $tableInfo)
+    {
+        return "Back to the list";
+    }
+
     protected function _getControllerRenderMethod(array $tableInfo)
     {
         $table = $tableInfo['table'];
         $reversedFks = $tableInfo['reversedFks'];
+
+
+        $backToListText = str_replace('"', '\"', $this->getControllerBackToListText($tableInfo));
 
 
         //--------------------------------------------
@@ -1606,6 +1625,10 @@ EEE;
         
     public function render()
     {        
+    
+        if (array_key_exists("form", \$_GET)) {
+            \$this->pageTop()->rightBar()->prependButton("$backToListText", A::link(\$this->configValues['route']), "fa fa-list");
+        }    
     
         \$ric = \$this->getRic();
         if (false === \$this->ricInGet(\$ric, \$_GET)) {
