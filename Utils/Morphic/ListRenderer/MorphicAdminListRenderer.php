@@ -5,6 +5,7 @@ namespace Kamille\Utils\Morphic\ListRenderer;
 
 
 use Kamille\Mvc\Theme\Theme;
+use Kamille\Services\XLog;
 use Kamille\Utils\Morphic\Helper\MorphicHelper;
 use QuickPdo\Util\QuickPdoListInfoUtil;
 
@@ -35,6 +36,14 @@ class MorphicAdminListRenderer
     public function renderByConfig(array $config, array $params = null)
     {
 
+        if (empty($config)) {
+            try {
+                throw new \Exception("empty config");
+            } catch (\Exception $e) {
+                XLog::warn("[Kamille.MorphicAdminListRenderer] -- empty config: $e");
+            }
+            return;
+        }
         //--------------------------------------------
         // PERSISTENCE LAYER
         //--------------------------------------------

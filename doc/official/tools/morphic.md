@@ -220,7 +220,8 @@ générée par ajax et celle générée statiquement. Il est conseillé de ne pa
 On peut utiliser les valeurs de row en préfixant la valeur par le symbole $. Exemple: test => $product_id est transformé en test => $row[product_id] 
 - `rowActionUpdateRicAdaptor`: un adaptateur (map) permettant de modifier les colonnes définies dans ric en d'autres champs pour ce qui concerne la génération du lien pour la rowAction "update" par défaut 
 - `formRouteExtraActions`: un tableau d'actions supplémentaires à ajouter aux rowActions par défaut (même stucture que `rowActions`)   
-- `rowActions`: laisser vide pour utiliser les actions par défaut. Un tableau d'action. Chaque action est un tableau avec la structure suivante:
+- `rowActions`: laisser vide pour utiliser les actions par défaut. Un tableau d'action, ou bien un callback recevant `$row` comme unique paramètre et retournant
+     une action. Chaque action est un tableau avec la structure suivante:
     - `name`: le nom symbolique de l'action (ex: update)             
     - `label`: le label (exemple: Modifier)             
     - `class`: string, classe(s) css à ajouter.
@@ -228,6 +229,8 @@ On peut utiliser les valeurs de row en préfixant la valeur par le symbole $. Ex
         L'action par défaut est utilisée lorsque l'on clique sur une ligne: elle donne l'uri (via la propriété href et/ou data-uri) de la page
         vers laquelle il faut rediriger.             
     - `icon`: ex fa fa-pencil             
+    - `attributes`: un tableau d'attributs (clé => valeur) html à ajouter.
+        Ceci peut être pratique si vous avez besoin d'attributs spéciaux (par exemple si vous voulez déclencher une action morphic).             
     - `link`: le lien.
         Si le lien est un callback, il recevra les arguments suivants: 
         - row (le tableau des valeurs de la ligne)                         

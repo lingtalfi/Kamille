@@ -100,7 +100,7 @@ class LingFrenchMorphicGenerator2 extends ModuleMorphicGenerator2
 
     protected function getRowActionUpdateForeignRecord(array $tableInfo)
     {
-        return "Modifier " . $this->getLeMachin($tableInfo);
+        return "Voir la fiche " . $this->getDuMachin($tableInfo);
     }
 
 
@@ -345,5 +345,17 @@ EEE;
             return $article . " " . $label;
         }
         return $article . $label;
+    }
+
+    private function getDuMachin(array $tableInfo)
+    {
+        $article = $tableInfo['article'];
+        $label = $tableInfo['label'];
+        if ('le' === $article) {
+            return "du " . $label;
+        } elseif ('la' === $article) {
+            return "de la " . $label;
+        }
+        return "de l'" . $label;
     }
 }

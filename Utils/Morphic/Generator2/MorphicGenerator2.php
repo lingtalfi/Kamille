@@ -1256,7 +1256,7 @@ EEE;
                 $s .= PHP_EOL;
                 $s .= <<<EEE
         [
-            "name" => "update_ek_product",
+            "name" => "update_$foreignKey",
             "label" => "$updateForeignRecordLabel",
             "icon" => "fa fa-pencil",
             "link" => function (array \$row) use (\$$foreignTableLinkName) {
@@ -1678,9 +1678,10 @@ EEE;
         \$ric = \$this->getRic();
         
         \$strongSideKey = \$this->configValues['strongSideKey'] ?? null;
-        \$forceParent = (null !== \$strongSideKey && array_key_exists(\$strongSideKey, \$_GET));        
+        \$forceParent = (null !== \$strongSideKey && array_key_exists(\$strongSideKey, \$_GET));
+        \$ricInGet = \$this->ricInGet(\$ric, \$_GET);        
         
-        if (true === \$forceParent || false === \$this->ricInGet(\$ric, \$_GET)) {
+        if (true === \$forceParent || false === \$ricInGet) {
             //--------------------------------------------
             // USING PARENTS
             //--------------------------------------------
@@ -1711,6 +1712,11 @@ EEE;
 //                    $conds[] = 'array_key_exists("' . $info[0] . '", $_GET)';
 //                    $conds[] = '"' . $info[0] . '" === $strongSideKey || (null === $strongSideKey && array_key_exists("' . $info[0] . '", $_GET))';
                     $conds[] = '(true === $forceParent && "' . $info[0] . '" === $strongSideKey) || (null === $strongSideKey && array_key_exists("' . $info[0] . '", $_GET))';
+                    $conds[] = '
+                (true === $forceParent && "' . $info[0] . '" === $strongSideKey) ||
+                (null === $strongSideKey && array_key_exists("' . $info[0] . '", $_GET)) ||
+                (false === $ricInGet && array_key_exists("' . $info[0] . '", $_GET))
+                    ';
                 }
 
                 if (count($conds) > 1) {
