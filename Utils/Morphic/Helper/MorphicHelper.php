@@ -74,6 +74,21 @@ class MorphicHelper
     }
 
 
+    public static function getFormTitle(string $title, bool $isUpdate)
+    {
+        $s = $title;
+        /**
+         * @todo-ling: change french
+         */
+        if ($isUpdate) {
+            $s .= ": modification";
+        } else {
+            $s .= ": ajout";
+        }
+        return $s;
+    }
+
+
     public static function getIsUpdate(array $ric)
     {
         $isUpdate = true;

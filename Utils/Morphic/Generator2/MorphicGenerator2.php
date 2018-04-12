@@ -550,8 +550,6 @@ EEE;
     protected function _getFormConfigConfTop(array $tableInfo, array $inferred)
     {
 
-        $title = ucfirst($tableInfo["label"]);
-
         $s = <<<EEE
 //--------------------------------------------
 // FORM
@@ -560,7 +558,7 @@ EEE;
     //--------------------------------------------
     // FORM WIDGET
     //--------------------------------------------
-    'title' => "$title",
+    'title' => \$title,
     //--------------------------------------------
     // SOKO FORM
     'form' => SokoForm::create()
@@ -846,6 +844,8 @@ EEE;
         }
 
 
+        $title = str_replace('"', '\"', ucfirst($tableInfo["label"]));
+
         $s = <<<EEE
 
 $sChoices
@@ -862,6 +862,8 @@ $sInit
 // UPDATE|INSERT MODE
 //--------------------------------------------
 \$isUpdate = MorphicHelper::getIsUpdate(\$ric);
+\$title = MorphicHelper::getFormTitle("$title", \$isUpdate);
+
 
 EEE;
 
@@ -1055,6 +1057,7 @@ EEE;
             $db = $p[0];
             $table = $p[1];
 
+
             $prefix = $table2Aliases[$table];
 
             $ric = QuickPdoInfoTool::getPrimaryKey($table, $db, true);
@@ -1091,12 +1094,14 @@ EEE;
 
 
         $formRouteExtraActionsStatements = [];
+        $parentsWords = [];
         foreach ($resolvedFks as $col => $info) {
 
 
             // formRouteExtraActions
             $foreignTableInfo = $this->db2TableInfo[$info[0]][$info[1]];
             $foreignRoute = $foreignTableInfo['route'];
+            $parentsWords[$col] = $this->getTheThingFromTableInfo($foreignTableInfo);
 
             $var = 'update_' . $info[1] . '_link_fmt';
             $formRouteExtraActions[] = [
@@ -1131,7 +1136,11 @@ EEE;
         $sQCols = ArrayToStringTool::toPhpArray($qCols, null, 4);
 
         $title = str_replace('"', '\"', ucfirst($tableInfo["labelPlural"]));
-        $labelSingle = str_replace('"', '\"', $tableInfo["label"]);
+
+
+        $sTitleDecoration = $this->getTitleDecorationBlock($parentsWords);
+
+
         $s = <<<EEE
 
 
@@ -1142,10 +1151,9 @@ $sFormRouteLinks
 
 
 \$title = "$title";
-\$avatar = \$context['avatar'] ?? null;
-if (\$avatar) {
-    \$title .= " pour $labelSingle " . \$avatar;
-}
+
+$sTitleDecoration
+
 
 \$conf = [
     //--------------------------------------------
@@ -1277,6 +1285,16 @@ EEE;
         return $s;
     }
 
+
+    protected function getTitleDecorationBlock(array $parentWords)
+    {
+        return "";
+    }
+
+    protected function getTheThingFromTableInfo(array $tableInfo)
+    {
+        return "the " . $tableInfo['label'];
+    }
 
     protected function getRowActionUpdateForeignRecord(array $tableInfo)
     {
@@ -1522,6 +1540,7 @@ EEE;
         $db = $tableInfo['db'];
         $parent2Route = [];
         $reversedFks = $tableInfo['reversedFks'];
+        $resolvedFks = $tableInfo['resolvedFks'];
         if ($reversedFks) {
             foreach ($reversedFks as $fkFullTable => $colsInfo) {
                 $p = explode(".", $fkFullTable);
@@ -1542,12 +1561,18 @@ EEE;
 
             $relatedTablesLabel = str_replace('"', '\"', $this->getRelatedTablesLabel());
             $sItems = '';
+            $sortedRelatedItems = [];
             foreach ($relatedTables as $table) {
                 $tableLabel = str_replace('"', '\"', ucfirst($this->db2TableInfo[$db][$table]['label']));
+                $sortedRelatedItems[$tableLabel] = $table;
+            }
+            ksort($sortedRelatedItems);
+
+            foreach ($sortedRelatedItems as $tableLabel => $table) {
                 $tableRoute = $this->db2TableInfo[$db][$table]['route'];
                 $sItems .= PHP_EOL;
                 $sItems .= <<<EEE
-                [
+                "$table" => [
                     'label' => "$tableLabel ($table)",
                     'link' => A::link("$tableRoute"),
                 ],
@@ -1568,6 +1593,23 @@ EEE;
         }
 
 
+        //--------------------------------------------
+        // FIND STRONG SIDE IF ANY
+        //--------------------------------------------
+        $strongSideKey = "null";
+        if (false !== strpos($originalTable, '_has_')) {
+            $p = explode('_has_', $originalTable, 2);
+            $strongTable = $p[0];
+            foreach ($resolvedFks as $key => $info) {
+                if ($strongTable === $info[1]) {
+                    $strongSideKey = '"' . $key . '"';
+                    break;
+                }
+            }
+
+        }
+
+
         $s = <<<EEE
         
     protected \$configValues;
@@ -1579,6 +1621,7 @@ EEE;
             'route' => "$originalTableInfo[route]",
             'form' => "$originalTable",
             'list' => "$originalTable",
+            'strongSideKey' => $strongSideKey,
             'showNewItemBtn' => true,            
             'parent2Route' => $sParent2Route,
         ];
@@ -1627,11 +1670,17 @@ EEE;
     {        
     
         if (array_key_exists("form", \$_GET)) {
-            \$this->pageTop()->rightBar()->prependButton("$backToListText", A::link(\$this->configValues['route']), "fa fa-list");
+            if (null === \$this->configValues['strongSideKey']) {
+                \$this->pageTop()->rightBar()->prependButton("$backToListText", A::link(\$this->configValues['route']), "fa fa-list");
+            }    
         }    
     
         \$ric = \$this->getRic();
-        if (false === \$this->ricInGet(\$ric, \$_GET)) {
+        
+        \$strongSideKey = \$this->configValues['strongSideKey'] ?? null;
+        \$forceParent = (null !== \$strongSideKey && array_key_exists(\$strongSideKey, \$_GET));        
+        
+        if (true === \$forceParent || false === \$this->ricInGet(\$ric, \$_GET)) {
             //--------------------------------------------
             // USING PARENTS
             //--------------------------------------------
@@ -1659,7 +1708,9 @@ EEE;
                 }
 
                 foreach ($colsInfo as $info) {
-                    $conds[] = 'array_key_exists("' . $info[0] . '", $_GET)';
+//                    $conds[] = 'array_key_exists("' . $info[0] . '", $_GET)';
+//                    $conds[] = '"' . $info[0] . '" === $strongSideKey || (null === $strongSideKey && array_key_exists("' . $info[0] . '", $_GET))';
+                    $conds[] = '(true === $forceParent && "' . $info[0] . '" === $strongSideKey) || (null === $strongSideKey && array_key_exists("' . $info[0] . '", $_GET))';
                 }
 
                 if (count($conds) > 1) {
@@ -1753,14 +1804,6 @@ EEE;
     {
         if ('hasAdminPower') {
 
-            \$menuCurrentRoute = null;
-            if (array_key_exists("menuCurrentRoute", \$this->configValues)) {
-                \$menuCurrentRoute = \$this->configValues['menuCurrentRoute'];
-            } else {
-                \$menuCurrentRoute = \$this->configValues['route'];
-            }
-
-
             if (false === array_key_exists("form", \$_GET) && true === \$this->configValues['showNewItemBtn']) {
                 \$this->pageTop()->rightBar()
                     ->prependButton("$newItemBtnText",
@@ -1777,7 +1820,6 @@ EEE;
                 ],
                 "route" => \$this->configValues['route'],
                 $sExtra
-                "menuCurrentRoute" => \$menuCurrentRoute,
                 "context" => [],
             ]);
         } else {

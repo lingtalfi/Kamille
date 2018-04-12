@@ -259,6 +259,65 @@ EEE;
         return "Aucune valeur";
     }
 
+    protected function getTheThingFromTableInfo(array $tableInfo)
+    {
+        return $this->getLeMachin($tableInfo);
+    }
+
+    protected function getTitleDecorationBlock(array $parentWords)
+    {
+
+        $s = "";
+        if ($parentWords) {
+
+
+            $s = <<<EEE
+\$avatar = \$context['avatar'] ?? null;
+if (\$avatar) {
+EEE;
+
+            $c = 0;
+            foreach ($parentWords as $col => $theThing) {
+                $theThing = str_replace('"', '\"', $theThing);
+
+                if (0 === $c) {
+                    $s .= <<<EEE
+                
+    if (array_key_exists('$col', \$context)) {
+EEE;
+
+                } else {
+                    $s .= <<<EEE
+                
+    } elseif (array_key_exists('$col', \$context)) {
+EEE;
+
+                }
+
+                $s .= <<<EEE
+
+        \$theThing = "$theThing";
+EEE;
+
+
+                $c++;
+            }
+
+            $s .= "
+    }        
+        ";
+
+            $s .= <<<EEE
+        
+    \$title .= " pour \$theThing \"" . \$avatar . '"';
+}
+EEE;
+        }
+        return $s;
+    }
+
+
+
 
     //--------------------------------------------
     //
