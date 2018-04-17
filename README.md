@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.135.0 -- 2018-04-17
+
+    - add ClawsInterface reset method
+
 - 1.134.0 -- 2018-03-29
 
     - enhance MorphicGenerator2, now also generate relatedTables dropdown (quick nav access)

@@ -45,4 +45,6 @@ interface ClawsInterface
 
     public function toArray();
 
+    public function reset();
+
 }

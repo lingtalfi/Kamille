@@ -205,4 +205,13 @@ class Claws implements ClawsInterface
         return $this->orderedIds;
     }
 
+
+    public function reset()
+    {
+        $this->layout = null;
+        $this->widgets = [];
+        $this->widgetId2Pos = [];
+        $this->orderedIds = null;
+        return $this;
+    }
 }
