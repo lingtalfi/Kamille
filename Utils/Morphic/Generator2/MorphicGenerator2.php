@@ -284,6 +284,9 @@ EEE;
 
 
         $table = $tableInfo['table'];
+
+
+
         $f = $this->formConfigFileBaseDir . "/$table.form.conf.php";
         FileSystemTool::mkfile($f, $s);
 
@@ -583,6 +586,9 @@ EEE;
 
 
         if ($cols) {
+
+
+
             foreach ($cols as $col) {
 
 
@@ -597,6 +603,7 @@ EEE;
 
 
                 if (array_key_exists($col, $fks) || $ai === $col) {
+
 
 
                     $sExtra = "";
@@ -665,7 +672,9 @@ EEE;
                         "label" => $label,
                         "type" => $type,
                     ];
-                    if (false === $this->doPrepareColumnControl($file, $params, $tableInfo)) {
+
+
+                    if (false === $this->doPrepareColumnControl($s, $params, $tableInfo)) {
 
 
                         switch ($type) {
@@ -764,19 +773,19 @@ EEE;
         $label = $params['label'];
 
 
-        switch ($type) {
-            case "date":
-
-
-                $s .= PHP_EOL . <<<EEE
-        ->addControl(SokoDateControl::create()
-            ->setName("$col")
-            ->setLabel('$label')
-        )
-EEE;
-                return true;
-                break;
-        }
+//        switch ($type) {
+//            case "date":
+//
+//
+//                $s .= PHP_EOL . <<<EEE
+//        ->addControl(SokoDateControl::create()
+//            ->setName("$col")
+//            ->setLabel('$label')
+//        )
+//EEE;
+//                return true;
+//                break;
+//        }
 
         return false;
     }

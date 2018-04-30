@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.136.1 -- 2018-04-30
+
+    - fix MorphicGenerator2, problem with generating fields of type date
+    
 - 1.136.0 -- 2018-04-30
 
     - AbstractHooks now handles case with four arguments

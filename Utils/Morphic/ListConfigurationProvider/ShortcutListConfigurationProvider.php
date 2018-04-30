@@ -23,6 +23,9 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
 
 
         $file = $this->getFile($module, $identifier, $context);
+
+
+
         $defaultFile = $this->confDir . "/$module/_default.list.conf.php";
         $conf = [];
         if (file_exists($file)) {
