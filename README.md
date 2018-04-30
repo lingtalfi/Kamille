@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.136.0 -- 2018-04-30
+
+    - AbstractHooks now handles case with four arguments
+    
 - 1.135.0 -- 2018-04-17
 
     - add ClawsInterface reset method

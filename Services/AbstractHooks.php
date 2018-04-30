@@ -112,6 +112,9 @@ class AbstractHooks
                             case "3":
                                 return call_user_func_array([static::class, $method], [&$param, $allParams[0], $allParams[1], $allParams[2]]);
                                 break;
+                            case "4":
+                                return call_user_func_array([static::class, $method], [&$param, $allParams[0], $allParams[1], $allParams[2], $allParams[3]]);
+                                break;
                             default:
                                 throw new HooksException("This case with $n arguments is not handled yet");
                                 break;
