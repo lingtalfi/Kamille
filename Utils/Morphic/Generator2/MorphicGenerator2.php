@@ -1661,6 +1661,11 @@ EEE;
         return "Back to the list";
     }
 
+    protected function getControllerNewListItemText(array $tableInfo)
+    {
+        return "Add new item";
+    }
+
     protected function _getControllerRenderMethod(array $tableInfo)
     {
         $table = $tableInfo['table'];
@@ -1668,6 +1673,7 @@ EEE;
 
 
         $backToListText = str_replace('"', '\"', $this->getControllerBackToListText($tableInfo));
+        $newItemText = str_replace('"', '\"', $this->getControllerNewListItemText($tableInfo));
 
 
         //--------------------------------------------
@@ -1681,6 +1687,7 @@ EEE;
         if (array_key_exists("form", \$_GET)) {
             if (null === \$this->configValues['strongSideKey']) {
                 \$this->pageTop()->rightBar()->prependButton("$backToListText", A::link(\$this->configValues['route']), "fa fa-list");
+                \$this->pageTop()->rightBar()->prependButton("$newItemText", A::link(\$this->configValues['route']) . "?form", "fa fa-plus");
             }    
         }    
     

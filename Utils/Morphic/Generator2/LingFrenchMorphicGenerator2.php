@@ -46,6 +46,12 @@ class LingFrenchMorphicGenerator2 extends ModuleMorphicGenerator2
         return "Retour à la liste des " . $tableInfo['labelPlural'];
     }
 
+    protected function getControllerNewListItemText(array $tableInfo)
+    {
+        $sGenre = ($tableInfo['genre'] === 'm') ? 'un nouveau' : 'une nouvelle';
+        return "Ajouter $sGenre " . $tableInfo['label'];
+    }
+
     protected function decorateTableInfo(array &$tableInfo)
     {
         $table = $tableInfo['table'];
