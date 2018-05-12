@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.137.0 -- 2018-05-12
+
+    - add ClawsInterface.setLayoutVariables/getLayoutVariables methods
+
 - 1.136.1 -- 2018-04-30
 
     - fix MorphicGenerator2, problem with generating fields of type date

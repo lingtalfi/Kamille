@@ -12,6 +12,7 @@ class Claws implements ClawsInterface
      * @var ClawsLayout|string, the layout template
      */
     private $layout;
+    private $layoutVariables;
 
     /**
      * @var ClawsWidget[]
@@ -28,6 +29,7 @@ class Claws implements ClawsInterface
 
     public function __construct()
     {
+        $this->layoutVariables = [];
         $this->widgets = [];
         $this->widgetId2Pos = [];
         $this->orderedIds = null;
@@ -55,6 +57,21 @@ class Claws implements ClawsInterface
         $this->layout = $layout;
         return $this;
     }
+
+    /**
+     * @return array
+     */
+    public function getLayoutVariables(): array
+    {
+        return $this->layoutVariables;
+    }
+
+    public function setLayoutVariables(array $layoutVariables)
+    {
+        $this->layoutVariables = $layoutVariables;
+        return $this;
+    }
+
 
     /**
      * @return ClawsWidget[]
@@ -121,6 +138,7 @@ class Claws implements ClawsInterface
         $arr = [
             "layout" => [
                 'tpl' => $layout->getTemplate(),
+                'conf' => $this->layoutVariables,
             ],
             "widgets" => $widgetsConf,
 

@@ -131,7 +131,8 @@ class ClawsRenderer
                 if (null !== $clawsLayout) {
 
                     $layoutTemplate = $clawsLayout->getTemplate();
-                    $layout->setTemplate($layoutTemplate)
+                    $layout
+                        ->setTemplate($layoutTemplate)
                         ->setLoader($layoutLoader)
                         ->setRenderer($commonRenderer);
 

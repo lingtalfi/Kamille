@@ -20,6 +20,9 @@ interface ClawsInterface
      */
     public function getLayout();
 
+    public function setLayoutVariables(array $variables);
+
+    public function getLayoutVariables();
 
     /**
      * @return ClawsWidget[]
