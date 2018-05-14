@@ -53,7 +53,6 @@ class ShortcutListConfigurationProvider extends ListConfigurationProvider
                 }
             }
 
-
             $this->onConfReady($conf, $module, $identifier, $context);
 
 
