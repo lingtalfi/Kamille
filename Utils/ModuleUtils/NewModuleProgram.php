@@ -142,6 +142,17 @@ class NewModuleProgram
             }
 
             //--------------------------------------------
+            // Create BackHooksHelper
+            //--------------------------------------------
+            $dest = $moduleDir . "/Helper/$moduleName" . "BackHooksHelper.php";
+            if (!file_exists($dest)) {
+                $content = $this->getTemplateContent("backhookshelper", [
+                    'moduleName' => $moduleName,
+                ]);
+                FileSystemTool::mkfile($dest, $content);
+            }
+
+            //--------------------------------------------
             // Create ThemeHelper
             //--------------------------------------------
             $dest = $moduleDir . "/Helper/$moduleName" . "ThemeHelper.php";
@@ -273,6 +284,12 @@ EEE;
             case "hookshelper":
                 $moduleName = $params['moduleName'];
                 $tpl = __DIR__ . "/assets/Helper/DefaultHooksHelper.php";
+                $content = file_get_contents($tpl);
+                return str_replace('PeiPei', $moduleName, $content);
+                break;
+            case "backhookshelper":
+                $moduleName = $params['moduleName'];
+                $tpl = __DIR__ . "/assets/Helper/DefaultBackHooksHelper.php";
                 $content = file_get_contents($tpl);
                 return str_replace('PeiPei', $moduleName, $content);
                 break;
