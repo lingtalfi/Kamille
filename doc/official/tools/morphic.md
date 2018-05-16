@@ -220,8 +220,8 @@ générée par ajax et celle générée statiquement. Il est conseillé de ne pa
 On peut utiliser les valeurs de row en préfixant la valeur par le symbole $. Exemple: test => $product_id est transformé en test => $row[product_id] 
 - `rowActionUpdateRicAdaptor`: un adaptateur (map) permettant de modifier les colonnes définies dans ric en d'autres champs pour ce qui concerne la génération du lien pour la rowAction "update" par défaut 
 - `formRouteExtraActions`: un tableau d'actions supplémentaires à ajouter aux rowActions par défaut (même stucture que `rowActions`)   
-- `rowActions`: laisser vide pour utiliser les actions par défaut. Un tableau d'action, ou bien un callback recevant `$row` comme unique paramètre et retournant
-     une action. Chaque action est un tableau avec la structure suivante:
+- `rowActions`: laisser vide pour utiliser les actions par défaut. Un tableau contenant soit des actions soit des callbacks recevant `$row` comme unique paramètre et retournant
+     une action. Si l'action retournée est vide, elle devrait être ignorée par le template. Chaque action est un tableau avec la structure suivante:
     - `name`: le nom symbolique de l'action (ex: update)             
     - `label`: le label (exemple: Modifier)             
     - `class`: string, classe(s) css à ajouter.
