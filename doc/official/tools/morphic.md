@@ -245,6 +245,14 @@ On peut utiliser les valeurs de row en préfixant la valeur par le symbole $. Ex
     - `?confirmOkBtn`: le texte de bouton validant la demande de confirmation             
     - `?confirmCancelBtn`: le texte de bouton annulant la demande de confirmation
     
+- `params`: un tableau de paramètres par défaut à destination de QuickPdoListInfoUtil. 
+    Ce tableau est normalement overridé par l'utilisateur dès qu'il commence à manipuler le widget.
+    Les paramètres disponibles sont ceux utilisés par la méthode execute de l'objet QuickPdoListInfoUtil.
+    - `sort`: tableau de nom symbolique => asc|desc
+    - `filters`: tableau de nom symbolique => valeur
+    - `page`: 1
+    - `nipp`: 20
+    
 La vue
 -----------------------
 
