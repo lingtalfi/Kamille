@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.139.0 -- 2018-05-24
+
+    - enhance CherryDynamicUriMatcher, add dash tags {-my_tag}
+    
 - 1.138.0 -- 2018-05-16
 
     - enhance NewModuleProgram now also creates a default BackHooksHelper class
