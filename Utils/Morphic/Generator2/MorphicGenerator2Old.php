@@ -14,7 +14,7 @@ use Kamille\Utils\Morphic\Exception\MorphicException;
 use OrmTools\Helper\OrmToolsHelper;
 use QuickPdo\QuickPdoInfoTool;
 
-class MorphicGenerator2 implements MorphicGenerator2Interface
+class MorphicGenerator2Old implements MorphicGenerator2Interface
 {
 
 
@@ -221,9 +221,6 @@ class MorphicGenerator2 implements MorphicGenerator2Interface
         $s .= $this->_getControllerRenderWithParentMethod($tableInfo);
         $s .= $this->_getControllerRenderWithNoParentMethod($tableInfo);
         $s .= $this->_getControllerGetRicMethod($tableInfo);
-
-        $s .= $this->_getControllerAfterContent($tableInfo);
-
 //        $s .= $this->_getControllerGetAddBtnTextByAvatarMethod($tableInfo);
 //        $s .= $this->_getControllerGetRenderWithParentTitle($tableInfo);
 
@@ -1549,6 +1546,7 @@ EEE;
         $originalTableInfo = $tableInfo;
         $originalTableRoute = $tableInfo['route'];
         $originalTable = $originalTableInfo['table'];
+        $db = $tableInfo['db'];
         $parent2Route = [];
         $reversedFks = $tableInfo['reversedFks'];
         $resolvedFks = $tableInfo['resolvedFks'];
@@ -1563,9 +1561,45 @@ EEE;
         }
         $sParent2Route = ArrayToStringTool::toPhpArray($parent2Route, null, 12);
         $constructorExtraStatements = $this->getControllerConstructorExtraStatements();
+        $title = str_replace('"', '\"', ucfirst($originalTableInfo["labelPlural"]));
 
 
+        // related tables?
+        $relatedTables = $originalTableInfo['relatedTables'];
+        if ($relatedTables) {
 
+            $relatedTablesLabel = str_replace('"', '\"', $this->getRelatedTablesLabel());
+            $sItems = '';
+            $sortedRelatedItems = [];
+            foreach ($relatedTables as $table) {
+                $tableLabel = str_replace('"', '\"', ucfirst($this->db2TableInfo[$db][$table]['label']));
+                $sortedRelatedItems[$tableLabel] = $table;
+            }
+            ksort($sortedRelatedItems);
+
+            foreach ($sortedRelatedItems as $tableLabel => $table) {
+                $tableRoute = $this->db2TableInfo[$db][$table]['route'];
+                $sItems .= PHP_EOL;
+                $sItems .= <<<EEE
+                "$table" => [
+                    'label' => "$tableLabel ($table)",
+                    'link' => A::link("$tableRoute"),
+                ],
+EEE;
+
+            }
+
+            $sRelated = PHP_EOL;
+            $sRelated .= <<<EEE
+        \$pageTop->rightBar()->addDropDown(SimpleDropDownModel::create()
+            ->setLabel("$relatedTablesLabel")
+            ->setItems([
+$sItems
+            ])->getArray()
+        );
+EEE;
+
+        }
 
 
         //--------------------------------------------
@@ -1601,7 +1635,11 @@ EEE;
             'parent2Route' => $sParent2Route,
         ];
         
-
+        \$pageTop = \$this->pageTop();
+        \$pageTop->setTitle("$title");    
+        \$pageTop->breadcrumbs()->addLink("$originalTable", UriTool::uri(null, [], false));   
+        
+        $sRelated        
         $constructorExtraStatements                        
     }
 
@@ -1628,17 +1666,11 @@ EEE;
         return "Add new item";
     }
 
-    protected function _getControllerRenderMethodHeader(array $tableInfo){
-        return "";
-    }
-
     protected function _getControllerRenderMethod(array $tableInfo)
     {
         $table = $tableInfo['table'];
         $reversedFks = $tableInfo['reversedFks'];
 
-
-        $renderHeader = $this->_getControllerRenderMethodHeader($tableInfo);
 
         $backToListText = str_replace('"', '\"', $this->getControllerBackToListText($tableInfo));
         $newItemText = str_replace('"', '\"', $this->getControllerNewListItemText($tableInfo));
@@ -1652,7 +1684,6 @@ EEE;
     public function render()
     {        
     
-        $renderHeader
         if (array_key_exists("form", \$_GET)) {
             if (null === \$this->configValues['strongSideKey']) {
                 \$this->pageTop()->rightBar()->prependButton("$backToListText", A::link(\$this->configValues['route']), "fa fa-list");
@@ -1843,11 +1874,6 @@ EEE;
     }
 
 
-    protected function _getControllerAfterContent(array $tableInfo){
-        return "";
-    }
-
-
     protected function _getControllerGetAddBtnTextByAvatarMethod(array $tableInfo)
     {
         $s = <<<EEE
@@ -1931,6 +1957,11 @@ EEE;
     {
         return "Create a new element \"$label\"";
 //        return "Créer un nouvel élément \"$label\"";
+    }
+
+    protected function getRelatedTablesLabel()
+    {
+        return ucfirst("Related tables");
     }
 
     //--------------------------------------------

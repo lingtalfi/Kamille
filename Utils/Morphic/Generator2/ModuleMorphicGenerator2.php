@@ -171,6 +171,13 @@ EEE
 namespace Controller\\$this->moduleName\Back\Generated\\$tableInfo[camel];
 
 use $this->baseControllerNamespace;
+EEE;
+        $s .= '
+use Kamille\Services\XConfig;        
+        ';
+
+        $s .= <<<EEE
+
 use Kamille\Utils\Morphic\Exception\MorphicException;
 use Core\Services\A;
 use Bat\UriTool;
@@ -182,6 +189,111 @@ class $tableInfo[camel]ListController extends $className
 EEE;
 
         return $s;
+
+    }
+
+
+    protected function _getControllerAfterContent(array $tableInfo)
+    {
+
+        $title = str_replace('"', '\"', ucfirst($tableInfo["labelPlural"]));
+        $originalTable = $tableInfo['table'];
+        $db = $tableInfo['db'];
+
+        $s = <<<EEE
+        
+    public function preparePageTop()
+    {        
+            
+        \$pageTop = \$this->pageTop();
+        \$pageTop->setTitle("$title");    
+        \$pageTop->breadcrumbs()->addLink("$originalTable", UriTool::uri(null, [], false));   
+              
+EEE;
+
+        // related tables?
+        $relatedTables = $tableInfo['relatedTables'];
+        if ($relatedTables) {
+
+            $sItems = '';
+            $sortedRelatedItems = [];
+            foreach ($relatedTables as $table) {
+                $tableLabel = str_replace('"', '\"', ucfirst($this->db2TableInfo[$db][$table]['label']));
+                $sortedRelatedItems[$tableLabel] = $table;
+            }
+            ksort($sortedRelatedItems);
+
+            foreach ($sortedRelatedItems as $tableLabel => $table) {
+                $tableRoute = $this->db2TableInfo[$db][$table]['route'];
+                $sItems .= PHP_EOL;
+                $sItems .= <<<EEE
+                "$table" => [
+                    'label' => "$tableLabel ($table)",
+                    'route' => "$tableRoute",
+                ],
+EEE;
+
+            }
+
+            $sRelated = PHP_EOL;
+            $sRelated .= <<<EEE
+            
+            
+            
+            
+        \$boundItems = [];
+        \$items = [
+$sItems
+        ];
+
+        \$boundTables = \$this->configValues['boundTables'] ?? [];
+        foreach (\$items as \$tableName => \$info) {
+
+            if (array_key_exists(\$tableName, \$boundTables)) {
+                \$data = \$boundTables[\$tableName];
+                if (is_string(\$data)) {
+                    \$info['route'] = \$data;
+                } else {
+                    \$info = \$data;
+                }
+            }
+
+            \$boundItems[\$tableName] = [
+                "label" => \$info['label'],
+                "link" => A::link(\$info['route']),
+            ];
+        }            
+            
+            
+            
+            
+        \$pageTop->rightBar()->addDropDown(SimpleDropDownModel::create()
+            ->setLabel(XConfig::get("ApplicationMorphicGenerator.boundTablesLabel"))
+            ->setItems(\$boundItems)->getArray()
+        );
+EEE;
+
+
+            $s .= $sRelated;
+        }
+
+
+        $s .= <<<EEE
+        
+    }
+    
+EEE;
+
+
+        return $s;
+    }
+
+
+    protected function _getControllerRenderMethodHeader(array $tableInfo)
+    {
+        return <<<EEE
+\$this->preparePageTop();
+EEE;
 
     }
 
