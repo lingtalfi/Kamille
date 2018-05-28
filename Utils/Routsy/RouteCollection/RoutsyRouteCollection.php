@@ -72,10 +72,10 @@ class RoutsyRouteCollection extends RouteCollection
         return $this;
     }
 
-    public function routeMatched($routeId)
+    public function routeMatched($routeId, array $route)
     {
         if (null !== $this->onRouteMatch) {
-            call_user_func($this->onRouteMatch, $routeId);
+            call_user_func($this->onRouteMatch, $routeId, $route);
         }
     }
 

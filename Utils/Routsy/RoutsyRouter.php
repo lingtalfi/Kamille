@@ -253,7 +253,7 @@ class RoutsyRouter implements WebRouterInterface, RouteCollectionInterface
 
 
                 if ($collection instanceof RoutsyRouteCollection) {
-                    $collection->routeMatched($routeId);
+                    $collection->routeMatched($routeId, $route);
                 }
                 return $controllerMatch;
             }
