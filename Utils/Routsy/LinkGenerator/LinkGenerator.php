@@ -28,7 +28,15 @@ class LinkGenerator implements LinkGeneratorInterface
     {
         if (array_key_exists($routeId, $this->routes)) {
             $route = $this->routes[$routeId];
-            $uri = str_replace(['+}', '{/'], ['}', '{'], $route[0]);
+            $uri = str_replace([
+                '+}',
+                '{/',
+                '{-', // cherry style
+            ], [
+                '}',
+                '{',
+                '{',
+            ], $route[0]);
             return str_replace(array_map(function ($v) {
                 return '{' . $v . '}';
             }, array_keys($params)), array_values($params), $uri);

@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.139.1 -- 2018-05-28
+
+    - fix LinkGenerator not handling CherryDynamicUriMatcher dashTags
+    
 - 1.139.0 -- 2018-05-24
 
     - enhance CherryDynamicUriMatcher, add dash tags {-my_tag}
