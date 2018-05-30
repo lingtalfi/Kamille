@@ -32,8 +32,10 @@ class LinkGenerator implements LinkGeneratorInterface
                 '+}',
                 '{/',
                 '{-', // cherry style
+                '{.', // cherry style
             ], [
                 '}',
+                '{',
                 '{',
                 '{',
             ], $route[0]);
