@@ -6,6 +6,7 @@ namespace Kamille\Utils\Claws\Helper;
 
 use Kamille\Architecture\Controller\Exception\ClawsHttpResponseException;
 use Kamille\Architecture\Response\Web\HttpResponse;
+use Kamille\Services\XLog;
 use Kamille\Utils\Claws\Claws;
 use Kamille\Utils\Claws\Renderer\ClawsRenderer;
 
@@ -21,7 +22,7 @@ class ClawsHelper
     public static function getHttpResponseByClaws(callable $callback, array $options = [])
     {
 
-        $notHandledExceptionText = $options['notHandledExceptionText'] ?? "Unknown error from ClawsHelper";
+        $notHandledExceptionText = $options['notHandledExceptionText'] ?? "Unknown error from ClawsHelper, please watch your logs";
 
         try {
 
@@ -38,6 +39,7 @@ class ClawsHelper
             if ($e instanceof ClawsHttpResponseException) {
                 $ret = $e->getHttpResponse();
             } else {
+                XLog::error("[ClawsHelper] -- exception: $e");
                 $ret = HttpResponse::create($notHandledExceptionText);
             }
         }
