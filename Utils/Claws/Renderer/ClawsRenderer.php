@@ -24,6 +24,10 @@ use Loader\PublicFileLoaderInterface;
 
 class ClawsRenderer
 {
+
+    public static $currentWidgetId = null;
+    public static $currentWidgetTemplate = null;
+
     /**
      * @var Claws
      */
@@ -165,6 +169,10 @@ class ClawsRenderer
                                     $variables["__DIR__"] = dirname($variables["__FILE__"]);
                                 }
                             });
+
+                            self::$currentWidgetId = $id;
+                            self::$currentWidgetTemplate = $templateName;
+
 
                             $widget->setTemplate($templateName)
                                 ->setVariables($conf)
