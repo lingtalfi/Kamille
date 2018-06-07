@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.140.0 -- 2018-06-07
+
+    - update PhpLayoutRenderer, now deletes the temporary files it creates 
+    
 - 1.139.1 -- 2018-05-28
 
     - fix LinkGenerator not handling CherryDynamicUriMatcher dashTags
