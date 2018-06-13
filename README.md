@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.142.0 -- 2018-06-13
+
+    - add MorphicModuleConfigurationTool class  
+    
 - 1.141.0 -- 2018-06-13
 
     - add MorphicModuleConfigurationUtil class  
