@@ -10,7 +10,8 @@ use QuickPdo\QuickPdo;
 class MorphicModuleConfigurationTool
 {
 
-    private static $table = null;
+    protected static $table = null;
+    private static $table2Values = [];
 
 
     public static function get(string $key, $default = null, $throwEx = false, string $table = null)
@@ -21,12 +22,14 @@ class MorphicModuleConfigurationTool
 
         if ($table) {
 
-            $value = QuickPdo::fetch("select the_value from $table where the_key=:thekey", [
-                "thekey" => $key,
-            ], \PDO::FETCH_COLUMN);
-            if (false !== $value) {
-                return $value;
+
+            if (false === array_key_exists($table, self::$table2Values)) {
+                self::$table2Values[$table] = QuickPdo::fetchAll("select the_key, the_value from $table", [], \PDO::FETCH_COLUMN | \PDO::FETCH_UNIQUE);
             }
+            if (array_key_exists($key, self::$table2Values[$table])) {
+                return self::$table2Values[$table][$key];
+            }
+
             if (false === $throwEx) {
                 return $default;
             }

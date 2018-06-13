@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.143.0 -- 2018-06-13
+
+    - enhance MorphicModuleConfigurationTool now fetches all configuration values at once and caches them  
+    
 - 1.142.0 -- 2018-06-13
 
     - add MorphicModuleConfigurationTool class  

@@ -119,10 +119,27 @@ $conf = [
 
 
   
+Then, to access your data, create a class which extends the MorphicModuleConfigurationTool class, like this:
 
+```php
+<?php
+
+
+namespace Module\Srd;
+
+
+use Kamille\Utils\Morphic\Util\ModuleConfiguration\MorphicModuleConfigurationTool;
+
+class SrdConfig extends MorphicModuleConfigurationTool
+{
+
+    protected static $table = "srd_configuration";
+}
+```
  
 
-
+That's it.
+Enjoy!
 
 
 
