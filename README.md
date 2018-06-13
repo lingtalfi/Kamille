@@ -166,6 +166,10 @@ echo HtmlLayout::create()
 History Log
 ===============
     
+- 1.141.0 -- 2018-06-13
+
+    - add MorphicModuleConfigurationUtil class  
+    
 - 1.140.0 -- 2018-06-07
 
     - update PhpLayoutRenderer, now deletes the temporary files it creates 
