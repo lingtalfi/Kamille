@@ -18,12 +18,14 @@ class MorphicModuleConfigurationUtil
 
     protected $configurationTable;
     protected $textSuccessUpdate;
+    protected $controlMap;
 
 
     public function __construct()
     {
         $this->configurationTable = "mymodule_configuration";
         $this->textSuccessUpdate = "Les valeurs de configuration ont bien été mises à jour";
+        $this->controlMap = [];
     }
 
 
@@ -42,6 +44,8 @@ class MorphicModuleConfigurationUtil
     public function decorateSokoFormInstance(SokoFormInterface $form)
     {
         $rows = $this->getConfigurationEntries();
+
+
         foreach ($rows as $row) {
 
 
@@ -55,7 +59,13 @@ class MorphicModuleConfigurationUtil
 
 
             // choose the control
-            $control = SokoInputControl::create();
+            $getControlCallback = $this->controlMap[$type] ?? null;
+            if (null !== $getControlCallback) {
+                $control = call_user_func($getControlCallback, $typeParams);
+            } else {
+                $control = SokoInputControl::create();
+
+            }
 
 
             // common control properties

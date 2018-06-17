@@ -87,10 +87,12 @@ And then, in your morphic form, put this:
 
 
 use Kamille\Utils\Morphic\Util\ModuleConfiguration\MorphicModuleConfigurationUtil;
+use Module\Application\Util\Morphic\ApplicationMorphicModuleConfigurationUtil;
 use SokoForm\Form\SokoForm;
 
 
-$util = MorphicModuleConfigurationUtil::create()->setTableName("myprefix_configuration");
+// $util = MorphicModuleConfigurationUtil::create()->setTableName("myprefix_configuration"); // That's the default
+$util = ApplicationMorphicModuleConfigurationUtil::create()->setTableName("myprefix_configuration"); // Use this class if you have the Application module installed: this will extend your form controls type choice...
 
 
 $form = SokoForm::create();
@@ -143,6 +145,22 @@ Enjoy!
 
 
 
+Module developers
+==========================
+
+If the developer uses the ApplicationMorphicModuleConfigurationUtil class from the Application module,
+then the Application_MorphicModuleConfigurationUtil_getControlMap hook will be called.
+
+This hooks allows you to assign special controls to your form rather than just the boring input.
+For instance, if your module provides a choice control which lists of all the users in your application,
+you can create a callback (via the hook) so that the backend developer just needs to type
+the name of your custom control (the type field of a configuration table) to get the
+list of all users for free.
+
+By convention, your type should start with your module name followed by a colon symbol.
+For instance, the Ekom module could provide such controls:
+
+- Ekom:category_list
 
 
 
