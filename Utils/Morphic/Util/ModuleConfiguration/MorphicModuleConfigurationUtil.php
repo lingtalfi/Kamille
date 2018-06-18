@@ -5,6 +5,7 @@ namespace Kamille\Utils\Morphic\Util\ModuleConfiguration;
 
 
 use Bat\SessionTool;
+use Bat\StringTool;
 use Kamille\Utils\Morphic\Helper\MorphicHelper;
 use QuickPdo\QuickPdo;
 use SokoForm\Control\SokoInputControl;
@@ -19,6 +20,7 @@ class MorphicModuleConfigurationUtil
     protected $configurationTable;
     protected $textSuccessUpdate;
     protected $controlMap;
+    protected $serializedFields;
 
 
     public function __construct()
@@ -26,6 +28,7 @@ class MorphicModuleConfigurationUtil
         $this->configurationTable = "mymodule_configuration";
         $this->textSuccessUpdate = "Les valeurs de configuration ont bien été mises à jour";
         $this->controlMap = [];
+        $this->serializedFields = [];
     }
 
 
@@ -33,6 +36,13 @@ class MorphicModuleConfigurationUtil
     {
         return new static();
     }
+
+    public function setSerializedFields(array $serializedFields)
+    {
+        $this->serializedFields = $serializedFields;
+        return $this;
+    }
+
 
     public function setTableName(string $configurationTable)
     {
@@ -45,7 +55,6 @@ class MorphicModuleConfigurationUtil
     {
         $rows = $this->getConfigurationEntries();
 
-
         foreach ($rows as $row) {
 
 
@@ -56,6 +65,12 @@ class MorphicModuleConfigurationUtil
             $value = $row['the_value'];
             $label = $row['label'];
             $description = $row['description'];
+
+
+
+            if (in_array($key, $this->serializedFields, true)) {
+                $value = StringTool::unserializeAsArray($value);
+            }
 
 
             // choose the control
@@ -89,7 +104,6 @@ class MorphicModuleConfigurationUtil
             if (SessionTool::pickupFlag("form-module_configuration")) {
                 $form->addNotification($this->textSuccessUpdate, "success");
             }
-            // @todo-ling: if required?
         };
     }
 
@@ -108,6 +122,11 @@ class MorphicModuleConfigurationUtil
                 $theKey = $entry['the_key'];
                 if (array_key_exists($theKey, $fData)) {
                     $value = $fData[$theKey];
+
+
+                    if (in_array($theKey, $this->serializedFields, true)) {
+                        $value = serialize($value);
+                    }
 
 
                     if (null !== $onUpdateFieldBefore) {
