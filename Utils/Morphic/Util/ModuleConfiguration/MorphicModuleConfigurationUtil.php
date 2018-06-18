@@ -89,26 +89,39 @@ class MorphicModuleConfigurationUtil
             if (SessionTool::pickupFlag("form-module_configuration")) {
                 $form->addNotification($this->textSuccessUpdate, "success");
             }
-
-
             // @todo-ling: if required?
         };
     }
 
-    public function getProcessFunction()
+
+    public function getProcessFunction(array $options = [])
     {
-        return function ($fData, SokoFormInterface $form) {
+        return function ($fData, SokoFormInterface $form) use ($options) {
+
+            $onUpdateFieldBefore = $options['onUpdateFieldBefore'] ?? null;
+
 
             $entries = $this->getConfigurationEntries();
+
+
             foreach ($entries as $entry) {
                 $theKey = $entry['the_key'];
                 if (array_key_exists($theKey, $fData)) {
                     $value = $fData[$theKey];
+
+
+                    if (null !== $onUpdateFieldBefore) {
+                        call_user_func($onUpdateFieldBefore, $theKey, $value);
+                    }
+
+
                     QuickPdo::update($this->configurationTable, [
                         "the_value" => $value,
                     ], [
                         ["the_key", "=", $theKey],
                     ]);
+
+
                 }
             }
 
